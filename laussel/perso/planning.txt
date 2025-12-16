@@ -1,0 +1,125 @@
+Planning étape par étape – Profil B (HTTP / fichiers / parsing)
+
+    ETAPE 0 : Préparation
+Objectifs :
+    - Relire le sujet et comprendre ce que ton rôle doit gérer.
+    - Installer un petit serveur de test pour simuler les sockets (Python http.server ou NGINX minimal).
+    - Se préparer à utiliser curl ou telnet pour tester les requêtes.
+
+
+
+    ETAPE 1 : Compréhension des requêtes HTTP
+Objectifs :
+    - Lire et comprendre les requêtes HTTP.
+    - Identifier :
+        * La méthode : GET / POST / DELETE
+        * L’URL demandée
+        * Les headers : Content-Length, Host, Content-Type
+
+Actions :
+    - Prendre des exemples simples de requêtes HTTP et les analyser manuellement.
+    - Créer un petit script (C++ ou même Python pour s’exercer) qui lit une requête depuis un fichier et affiche : méthode, URL, headers.
+
+Livrable : petit test console qui “décompose” une requête HTTP.
+
+
+
+    ETAPE 2 : Générer une réponse HTTP minimale
+
+Objectifs :
+    -Créer une fonction qui renvoie une réponse HTTP “Hello World”.
+    -Tester la structure correcte des headers et du body.
+
+Actions :
+    - Générer la réponse minimale :
+HTTP/1.1 200 OK
+Content-Length: 11
+Content-Type: text/plain
+
+Hello World
+
+- Tester avec un client (curl ou telnet) simulant la réception de cette réponse.
+
+Livrable : code qui lit une requête et renvoie “Hello World”.
+
+
+
+    ETAPE 3 : Parser le fichier de configuration
+Objectifs :
+Lire les informations nécessaires pour configurer le serveur.
+Extraire :
+Port(s)
+Racine du site (dossier des fichiers)
+Pages d’erreur par défaut
+Méthodes HTTP autorisées
+Dossier d’upload
+Actions :
+Créer un parser simple qui lit le fichier ligne par ligne.
+Stocker les infos dans des structures C++ (maps, structs…).
+Livrable : un objet ServerConfig que tu pourras utiliser dans ton code.
+
+    ETAPE 4 : Implémenter GET
+Objectifs :
+Renvoyer un fichier statique demandé par le client.
+Gérer les erreurs 404 et 403.
+Actions :
+Extraire l’URL depuis la requête.
+Construire le chemin absolu vers le fichier : racine + URL.
+Vérifier si le fichier existe :
+Oui → lire son contenu → renvoyer avec 200 OK et Content-Type adapté
+Non → renvoyer 404 Not Found
+Tester avec curl :
+curl http://localhost:8080/index.html
+Livrable : GET fonctionnel pour tous les fichiers statiques.
+
+    ETAPE 5 : Implémenter POST / Upload
+Objectifs :
+Permettre au client d’envoyer des données au serveur.
+Stocker les fichiers dans le dossier upload.
+Actions :
+Extraire le body de la requête POST.
+Vérifier que la route accepte POST (via config).
+Écrire le contenu dans un fichier dans le dossier d’upload.
+Renvoyer un statut : 200 ou 201 Created.
+Tester avec curl :
+curl -X POST http://localhost:8080/upload -d "Hello World!"
+Livrable : POST fonctionnel avec stockage des fichiers.
+
+    ETAPE 6 : Implémenter DELETE
+Objectifs :
+Supprimer un fichier existant si la route et la méthode le permettent.
+Actions :
+Extraire l’URL de la requête DELETE.
+Vérifier si la suppression est autorisée.
+Supprimer le fichier sur le serveur.
+Renvoyer 200 OK ou 404 Not Found si fichier inexistant.
+Tester avec curl :
+curl -X DELETE http://localhost:8080/files/oldfile.txt
+Livrable : DELETE fonctionnel.
+
+    ETAPE 7 : Gestion des pages d’erreur
+Objectifs :
+Toujours renvoyer une page d’erreur si fichier manquant ou action interdite.
+Actions :
+Préparer des fichiers par défaut : 404.html, 403.html, 500.html.
+Lorsque le code est différent de 200, renvoyer le fichier correspondant.
+Tester pour GET/POST/DELETE.
+
+    ETAPE 8 : Tests unitaires
+Créer des tests pour chaque méthode HTTP et chaque scénario :
+GET sur un fichier existant
+GET sur un fichier inexistant
+POST et upload
+DELETE
+Tester les headers et le body pour chaque réponse.
+
+    ETAPE 9 : Intégration avec Profil A
+Une fois Profil A (sockets, poll) prêt :
+Remplacer le serveur de test par les vraies sockets.
+Vérifier que ton code B reçoit correctement les données depuis le client et renvoie la réponse via Profil A.
+
+    ETAPE 10 : Optimisation et robustesse
+Vérifier que toutes les requêtes sont traitées correctement même si plusieurs clients arrivent en même temps.
+S’assurer que les fichiers sont lus/écrits de manière sécurisée.
+Vérifier le respect de la configuration : ports, méthodes autorisées, upload, pages d’erreur.
+
