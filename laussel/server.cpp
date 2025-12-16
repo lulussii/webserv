@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 10:05:42 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/16 10:18:10 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/16 12:49:17 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ int server()
     int fdServer;
 
     // step 1 socket :  create a cable
-    if (fdServer = socket(AF_INET, SOCK_STREAM, 0) <= 0)
+    if ((fdServer = socket(AF_INET, SOCK_STREAM, 0)) <= 0)
         return (1);
 
     struct sockaddr_in server_addr;
@@ -131,4 +131,30 @@ int server()
         std::cout << "Error: bind failed\n";
         return (1);
     }
+
+    //step 3 listen : 
+
+    if (listen(fdServer, 2) < 0)
+    {
+        std::cout << "Error: listen failed\n";
+        return (1);
+    }
+
+    //step 4 accept :
+
+    struct sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    
+    int fdClient = accept(fdServer, (struct sockaddr*)&client_addr, &client_len);
+    if (fdClient < 0)
+    {
+        std::cout << "Error: accept failed\n";
+        return (1);
+    }
+
+    close(fdServer);
+    close(fdClient);
+
+    return (0);
+    
 }
