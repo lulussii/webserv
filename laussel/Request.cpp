@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/16 13:58:57 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/16 15:21:22 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,7 +161,7 @@ static void postBody(parsingT &p, request &request)
 int requestMain(request &request, parsingT &p)
 {
 
-    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 27\r\n\r\nusername=bob&password=42";
+    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\nusername=bob&password=42";
 //    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 27\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
 
