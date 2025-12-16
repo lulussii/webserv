@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2025/12/15 14:29:51 by mathildelau      ###   ########.fr       */
+/*   Updated: 2025/12/16 13:04:43 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ public:
     std::string _version;
     std::map<std::string, std::string> headers;
     std::string _body;
+    std::string headersPart;
+    std::string bodyPart;
+    
 };
 
 #endif

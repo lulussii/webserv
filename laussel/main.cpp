@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2025/12/15 15:31:55 by mathildelau      ###   ########.fr       */
+/*   Updated: 2025/12/16 13:08:05 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
-#include "parsing.hpp"
+#include "readRequest.hpp"
 
 void debug1(request &request)
 {
