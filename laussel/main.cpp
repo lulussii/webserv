@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2025/12/16 13:08:05 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/16 13:23:16 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
-#include "readRequest.hpp"
 
 void debug1(request &request)
 {
@@ -31,21 +30,22 @@ void debug1(request &request)
 
 int main(int argc, char **argv)
 {
+    (void) argv; //delete
+
+    
     // step 0 : check number of args
-    if (argc != 2)
+    if (argc != 1)
     {
-        std::cout << "Usage : ./webserv request.txt\n";
+        std::cout << "Usage : ./webserv \n";
         return (1);
     }
-
     request request;
     parsingT p;
 
-    // step 1 : read request file and pars it
-    if (parsingMain(argv, request, p) == 1)
+    
+    // step 1 : request parsing
+    if (requestMain(request, p) == 1)
         return (1);
-
-    // step 2 : minimal HTTP servor 
     
     debug1(request);
 
