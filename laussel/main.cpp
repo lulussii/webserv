@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2025/12/16 13:23:16 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/16 14:15:04 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,11 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
+#include "Response.hpp"
 
 void debug1(request &request)
 {
+    std::cout << "--- REQUEST ---\n";
     std::cout << "Method: " << request._method << "\n";
     std::cout << "URL: " << request._url << "\n";
     std::cout << "Version: " << request._version << "\n";
@@ -26,6 +28,13 @@ void debug1(request &request)
     if (!request._body.empty())
         std::cout << "Body:\n"
                   << request._body << "\n";
+}
+
+
+void debug2(responseT &response)
+{
+    std::cout << "\n--- RESPONSE ---\n";
+    std::cout << response.response << "\n";
 }
 
 int main(int argc, char **argv)
@@ -39,15 +48,19 @@ int main(int argc, char **argv)
         std::cout << "Usage : ./webserv \n";
         return (1);
     }
-    request request;
-    parsingT p;
-
     
     // step 1 : request parsing
+    request request;
+    parsingT p;
     if (requestMain(request, p) == 1)
         return (1);
-    
     debug1(request);
+
+    //step 2 : response
+    responseT response;
+    if (responseMain(request, response) == 1)
+        return (1);
+    debug2(response);
 
     return (0);
 }

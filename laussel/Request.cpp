@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/16 13:24:12 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/16 13:58:57 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ static std::string trim(const std::string &str)
 
     return str.substr(start, end - start);
 }
+
 /**
  * @brief `headers parsing`
  *
@@ -119,6 +120,17 @@ static void headers(parsingT &p, request &request)
         std::string value = trim(headerLine.substr(posDoubleDot + 1));
         request.headers[key] = value;
     }
+
+    // if (p.line.substr(0, 4) == "\r\n\r\n")
+    //     p.line = p.line.substr(4);
+    // else if (p.line.substr(0, 2) == "\r\n")
+    //     p.line = p.line.substr(2);
+    // else if (p.line.substr(0, 2) == "\n\n")
+    //     p.line = p.line.substr(2);
+    // else if (p.line.substr(0, 1) == "\n")
+    //     p.line = p.line.substr(1);
+
+
 }
 
 /**
@@ -150,7 +162,9 @@ int requestMain(request &request, parsingT &p)
 {
 
     p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 27\r\n\r\nusername=bob&password=42";
-    
+//    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 27\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+
+
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
         return (1);
