@@ -1,0 +1,125 @@
+Étape 1 : Théorie et notions importantes
+
+1️⃣ Comprendre le flux HTTP
+Requête → Serveur → Réponse
+
+* Client (navigateur, curl, telnet) envoie une requête HTTP à un serveur via une socket.
+
+* Serveur lit cette requête et doit comprendre :
+    - Méthode : GET / POST / DELETE
+    - URL demandée : /index.html, /upload, etc.
+    - Headers : Content-Length, Host, Content-Type, etc.
+
+* Serveur construit une réponse HTTP :
+Ligne de statut : HTTP/1.1 200 OK ou 404 Not Found
+    - Headers : Content-Length, Content-Type
+    - Corps : le fichier demandé, un message d’erreur, ou “Hello World” pour tester
+    - Conseil : Faire un petit tableau avec les exemples de requêtes et réponses pour bien visualiser.
+
+
+2️⃣ Codes de statut HTTP
+Code	    Signification	            Quand l’utiliser
+200	        OK	Requête                 réussie, fichier trouvé
+404	        Not Found	                Fichier non trouvé
+403	        Forbidden	                Accès interdit
+500	        Internal Server Error	    Erreur serveur
+Important : ne jamais mettre 200 OK si la requête échoue.
+
+
+3️⃣ Méthodes HTTP
+- GET → lire une ressource
+GET /index.html HTTP/1.1
+Host: localhost
+
+Ce que doit faire ton serveur :
+    - Lire la requête et extraire l’URL (/index.html).
+    - Chercher le fichier dans la racine définie dans le fichier de configuration.
+    - Si le fichier existe, renvoyer son contenu avec une réponse HTTP 200 :
+HTTP/1.1 200 OK
+Content-Length: 123
+Content-Type: text/html
+
+<html>...</html>
+
+Si le fichier n’existe pas, renvoyer une erreur 404 :
+HTTP/1.1 404 Not Found
+Content-Length: 9
+Content-Type: text/plain
+
+Not Found
+
+
+- POST → envoyer des données (upload, formulaire)
+POST /upload HTTP/1.1
+Host: localhost
+Content-Length: 13
+Content-Type: text/plain
+
+Hello World!
+
+
+Ce que doit faire ton serveur :
+    - Lire la requête, extraire l’URL (/upload) et le body (Hello World!).
+    - Vérifier que l’URL autorise le POST (config).
+    - Sauvegarder les données dans un fichier dans le dossier d’upload.
+    - Répondre avec un statut 200 ou 201 (Created) :
+HTTP/1.1 201 Created
+Content-Length: 7
+Content-Type: text/plain
+
+Success
+
+- DELETE → supprimer une ressource
+
+DELETE /files/oldfile.txt HTTP/1.1
+Host: localhost
+
+Ce que doit faire ton serveur :
+    - Lire la requête, extraire l’URL (/files/oldfile.txt).
+    - Vérifier que la méthode DELETE est autorisée.
+    - Supprimer le fichier sur le serveur (si existant).
+Répondre :
+
+* Si succès :
+HTTP/1.1 200 OK
+Content-Length: 7
+Content-Type: text/plain
+
+Deleted
+* Si fichier introuvable :  
+HTTP/1.1 404 Not Found
+Content-Length: 9
+Content-Type: text/plain
+
+Not Found
+
+
+Ces trois méthodes sont obligatoires dans Webserv.
+
+
+4️⃣ Fichier de configuration
+Sert à paramétrer le serveur :
+    - Port sur lequel écouter
+    - Racine du site (dossier contenant les fichiers à servir)
+    - Pages d’erreur par défaut
+    - Méthodes HTTP autorisées
+    - Dossier d’upload pour les fichiers envoyés par POST
+Tu devras parser ce fichier pour extraire ces informations au démarrage du serveur.
+
+
+5️⃣ Manipulation de fichiers
+    - Lire un fichier depuis la racine et renvoyer son contenu.
+    - Vérifier si le fichier existe → sinon renvoyer une page d’erreur.
+    - Déterminer le type MIME pour Content-Type : .html, .txt, .jpg, etc.
+
+6️⃣ Principe de “Hello World” pour tester
+
+Avant de gérer les fichiers et uploads :
+    - Lire une requête (GET /)
+    - Toujours renvoyer un corps fixe : “Hello World”
+    - Vérifier que la requête → réponse fonctionne
+Exemple de réponse HTTP minimale :
+    - HTTP/1.1 200 OK
+    - Content-Length: 11
+    - Content-Type: text/plain
+
