@@ -12,7 +12,7 @@ HEADER_DIR 	= include
 
 HEADER 		= $(HEADER_DIR)/
 
-SRC 		= $(SRC_DIR)/main.cpp 				\
+SRC 		= $(SRC_DIR)/webserv.cpp 				\
 
 OBJ_DIR 	= objs
 OBJ 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 13:57:44 by lserodon          #+#    #+#             */
-/*   Updated: 2025/12/19 08:52:51 by lserodon         ###   ########.fr       */
+/*   Updated: 2025/12/19 14:49:44 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,23 +77,43 @@ void send_response(int client_fd)
 	write(client_fd, response, strlen(response));
 }
 
+void handle_client_read(struct pollfd &fd_entry, std::string &buffer)
+{
+	char tmp[1024];
+	int bytes = read(fd_entry.fd, tmp, sizeof(tmp) - 1);
+	if (bytes <= 0)
+	{
+		close(fd_entry.fd);
+		fd_entry.fd = -1;
+		buffer.clear();
+		return ;
+	}
+
+	buffer.append(tmp, bytes);
+	std::cout << "BUFFER CLIENT " << fd_entry.fd << ":\n" << buffer << std::endl;
+	if (buffer.find("\r\n\r\n") != std::string::npos)
+	{
+		send_response(fd_entry.fd);
+		//write(fd_entry.fd, buffer.c_str(), buffer.size());
+		buffer.clear();
+	}
+}
+
+
 int main(void)
 {
-
 	std::string buffers[MAX_CLIENTS + 1];
 	int server_fd = create_server_socket(8080);
 	if (server_fd == -1)
 		return (-1);
 	
 	struct pollfd fds[MAX_CLIENTS + 1];
-	fds[0].fd = server_fd;
-	fds[0].events = POLLIN;
+	fds[0] = { server_fd, POLLIN, 0};
+	
 	for (int i = 1; i <= MAX_CLIENTS; ++i)
-	{
-		fds[i].events = POLLIN;
-		fds[i].fd = -1;
-	}
-	while (1)
+		fds[i] = { -1, POLLIN, 0};
+	
+	while (true)
 	{
 		poll(fds, MAX_CLIENTS + 1, -1);
 		if (fds[0].revents & POLLIN)
@@ -110,49 +130,11 @@ int main(void)
 				}
 			}
 		}
-		char buffer[1024];
-		for (int j = 0; j <= MAX_CLIENTS; ++j)
+		
+		for (int j = 1; j <= MAX_CLIENTS; j++)
 		{		
 			if (fds[j].fd != -1 && (fds[j].revents & POLLIN))
-    		{
-    			int bytes = read(fds[j].fd, buffer, sizeof(buffer));
-    			if (bytes > 0)
-				{
-					buffer[bytes] = '\0';
-					buffers[j] += buffer;
-
-					std::cout << "BUFFER CLIENT" << j << ":\n";
-					std::cout << buffers[j] << std::endl;
-
-					if (buffers[j].find("\r\n\r\n") != std::string::npos)
-					{
-						write(fds[j].fd, buffers[j].c_str(), buffers[j].size());
-						buffers[j].clear();
-						
-						std::string response_buffer;
-						char tmp[1024];
-						int bytes;
-						while ((bytes = read(fds[j].fd, tmp, sizeof(tmp))) > 0)
-							response_buffer.append(tmp, bytes);
-
-						size_t pos = response_buffer.find("\r\n\r\n");
-						if (pos != std::string::npos)
-						{
-							std::string body = response_buffer.substr(pos + 4);
-							std::cout << "BODY RECEIVED:\n" << body << std::endl;
-							response_buffer.clear();
-						}
-						//close(fds[j].fd);
-						//fds[j].fd = -1;
-					}	
-				}
-    			else
-    			{
-    		    	close(fds[j].fd);
-    		    	fds[j].fd = -1;
-					buffers[j].clear();
-    			}
-    		}
+				handle_client_read(fds[j], buffers[j]);
 		}
 	}
 	for (int i = 0; i <= MAX_CLIENTS; ++i)
