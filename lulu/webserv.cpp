@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/11 13:57:44 by lserodon          #+#    #+#             */
-/*   Updated: 2025/12/19 14:49:44 by lserodon         ###   ########.fr       */
+/*   Updated: 2025/12/19 15:17:42 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,15 @@
     char           sin_zero[8];  // Remplissage pour compatibilité
 }; */
 
+
+/**
+ * @brief Crée un socket serveur TCP IPv4.
+ * 
+ * socket() : création du fd
+ * bind() : association IP + port
+ * listen() : mise en écoute
+ * @return le fd du serveur ou -1 en cas d'erreur.
+*/
 int create_server_socket(int port)
 {
 	int fd;
@@ -49,6 +58,12 @@ int create_server_socket(int port)
 	return (fd);
 }
 
+/**
+ * @brief Accepte une nouvelle connexion entrante sur le socket serveur.
+ * - Crée un nouveau fd client avec accept()
+ * - Le fd serveur reste ouvert
+ * @return le fd du client ou -1 en cas d'erreur.
+*/
 int accept_client(int server_fd)
 {
 	struct sockaddr_in client_addr;
@@ -60,23 +75,23 @@ int accept_client(int server_fd)
 	return (client_fd);
 }
 
-int read_request(int client_fd, char *buffer, int buffer_size)
-{
-	int bytes_read;
-
-	bytes_read = read(client_fd, buffer, buffer_size - 1);
-	if (bytes_read > 0)
-		buffer[bytes_read] = '\0';
-	std::cout << buffer << std::endl;
-	return (bytes_read);
-}
-
+/**
+ * @brief Envoie une réponse HTTP minimale au client.
+ * 	Utilisée uniquement pour les tests.
+*/
 void send_response(int client_fd)
 {
 	const char *response = "HTTP/1.0 200 OK\r\nContent-Length: 13\r\n\r\nHello world!\n";
 	write(client_fd, response, strlen(response));
 }
 
+/**
+* @brief Gère la lecture des données d'un client.
+* - Lit les données disponibles (read)
+* - Accumule dans un buffer par client
+* - Ferme le fd si read <= 0
+* - Détecte la fin de requête HTTP (\r\n\r\n)
+*/
 void handle_client_read(struct pollfd &fd_entry, std::string &buffer)
 {
 	char tmp[1024];
