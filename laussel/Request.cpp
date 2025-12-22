@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/16 15:21:22 by mlaussel         ###   ########.fr       */
+/*   Updated: 2025/12/22 16:03:54 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,17 +120,6 @@ static void headers(parsingT &p, request &request)
         std::string value = trim(headerLine.substr(posDoubleDot + 1));
         request.headers[key] = value;
     }
-
-    // if (p.line.substr(0, 4) == "\r\n\r\n")
-    //     p.line = p.line.substr(4);
-    // else if (p.line.substr(0, 2) == "\r\n")
-    //     p.line = p.line.substr(2);
-    // else if (p.line.substr(0, 2) == "\n\n")
-    //     p.line = p.line.substr(2);
-    // else if (p.line.substr(0, 1) == "\n")
-    //     p.line = p.line.substr(1);
-
-
 }
 
 /**
@@ -161,10 +150,22 @@ static void postBody(parsingT &p, request &request)
 int requestMain(request &request, parsingT &p)
 {
 
-    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\nusername=bob&password=42";
-//    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 27\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    //Simple GET
+    //p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    
+    //POST with body
+    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
+    //DELETE without body
+    //p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
 
+    //GET with query params
+    //p.line = "GET /search?q=webserv HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
+
+    //POST with body but content-lenght: 0
+    //p.line = "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
+
+    
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
         return (1);
