@@ -10,9 +10,17 @@ CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -Iinclude -g -MMD -MP
 SRC_DIR 	= src
 HEADER_DIR 	= include
 
-HEADER 		= $(HEADER_DIR)/
+HEADER 		= $(HEADER_DIR)/Client.hpp			\
+			  $(HEADER_DIR)/Request.hpp			\
+			  $(HEADER_DIR)/Response.hpp		\
+			  $(HEADER_DIR)/Server.hpp			\
 
-SRC 		= $(SRC_DIR)/webserv.cpp 				\
+
+SRC 		= $(SRC_DIR)/main.cpp 				\
+			  $(SRC_DIR)/Request.cpp			\
+			  $(SRC_DIR)/Response.cpp 			\
+			  $(SRC_DIR)/Server.cpp 			\
+			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= objs
 OBJ 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
