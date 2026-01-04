@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/04 16:45:50 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/04 17:11:55 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include <fcntl.h>  //open
 #include <unistd.h> //read
+#include <cstdlib>  // atoi don't know if I can use it
 
 int openConf()
 {
@@ -44,7 +45,28 @@ int readConf(int fd, std::string &conf)
     return (0);
 }
 
-int configMain(serverT &serverConfig, locationsT &locationsConfig)
+void blocConfig(std::string conf, utilsConfigT &utils)
+{
+    size_t serverEnd = conf.find("location");
+    if (serverEnd == std::string::npos)
+    {
+        std::cout << "Error: no locations block found\n";
+        return;
+    }
+    utils.location = conf.substr(serverEnd);
+    utils.server = conf.substr(0, serverEnd);
+}
+
+void serverPars(utilsConfigT &utils)
+{
+    size_t start = utils.server.find("listen");
+    size_t end = utils.server.find("root");
+    std::string tmp;
+    tmp = utils.server.substr(start, end);
+    utils.s.listen = atoi(tmp.c_str()); // c_str() convert std::string -> const char*
+}
+
+int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
 {
     // step 1 : open conf file
     int fd = openConf();
@@ -66,9 +88,12 @@ int configMain(serverT &serverConfig, locationsT &locationsConfig)
     std::string confFinal = trim(conf);
 
     // step 4 : find bloc
+    blocConfig(conf, utils);
 
-    // step 5 : pars
+    // step 5 : pars server
+    serverPars(utils);
 
+    // step 6 : pars locations
     (void)serverConfig;
     (void)locationsConfig;
 

@@ -6,10 +6,9 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/04 16:29:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/04 16:53:34 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include <iostream> //cout
 #include <unistd.h> //read
