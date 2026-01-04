@@ -1,0 +1,17 @@
+server {
+    listen 8080;
+    root /var/www/html;
+    error_page 404 /404.html;
+    client_max_body_size 1000000;
+
+    location /upload {
+        methods POST;
+        upload_dir /tmp/uploads;
+    }
+
+    location / {
+        methods GET;
+        index index.html;
+        autoindex on;
+    }
+}

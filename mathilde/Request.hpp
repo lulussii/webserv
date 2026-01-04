@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2025/12/16 14:12:27 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/04 16:29:26 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,5 +32,6 @@ typedef struct parsingS
 } parsingT;
 
 int requestMain(request &request, parsingT &p);
+std::string trim(const std::string &str);
 
 #endif

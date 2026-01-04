@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/22 16:03:54 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/04 16:29:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static int firstLine(parsingT &p, request &request)
  * @param str The input string to be trimmed.
  * @return A new std::string without leading or trailing whitespace.
  */
-static std::string trim(const std::string &str)
+std::string trim(const std::string &str)
 {
     size_t start = 0;
     while (start < str.size() && (str[start] == ' ' || str[start] == '\t'))
