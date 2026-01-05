@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 15:15:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:22:45 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,23 @@ void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &ut
     }
     std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
 
-    std::cout << "  \n--Locations--";
+    std::cout << "  \n--Locations--\n";
     for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin() ;
-    it != serverConfig.locations.end(); it++)
+    it != serverConfig.locations.end(); ++it)
     {
-        std::cout << "Number 1 | path : " << it->second.path << std::endl;
+        locationsT &location = it->second;
+        std::cout << "location : [" << it->first << "]" << std::endl;
+         for (size_t i = 0; i < location.methods.size(); ++i)
+            std::cout << "  Methods: [" << location.methods[i] << "] ";
+        std::cout << std::endl;
+        if (!location.index.empty())
+            std::cout << "  Index: [" << location.index << "]" << std::endl;
+
+        if (!location.autoindex.empty())
+            std::cout << "  Autoindex: [" << location.autoindex << "]" << std::endl;
+
+        if (!location.upload_dir.empty())
+            std::cout << "  Upload dir: [" << location.upload_dir << "]" << std::endl;
     }
 }
 
@@ -94,6 +106,6 @@ int main(int argc, char **argv)
     locationsT locationsConfig;
     if (configMain(serverConfig, locationsConfig, utils) == 1)
         return (1);
-    // debug3(serverConfig, locationsConfig, utils);
+    debug3(serverConfig, locationsConfig, utils);
     return (0);
 }
