@@ -23,13 +23,14 @@ typedef struct serverConfigS
     std::map<int, std::string> errorPage;
     int clientMaxBodySize;
     std::map<std::string, locationsT> locations;
-
 } serverT;
 
 typedef struct utilsConfigS
 {
     std::string server;
     std::string location;
+    std::string pars;
+    std::string newS;
 } utilsConfigT;
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils);

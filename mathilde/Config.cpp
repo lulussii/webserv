@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 12:31:48 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 12:47:22 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,43 +57,28 @@ void blocConfig(std::string conf, utilsConfigT &utils)
     utils.server = conf.substr(0, serverEnd);
 }
 
-void serverPars(utilsConfigT &utils, serverT &serverConfig)
+std::string serverPars(utilsConfigT &utils, std::string string)
 {
-    std::string pars = utils.server;
-    
-    //step 1 : listen
-    size_t start = pars.find("listen");
-    size_t end = pars.find(";");
-    
-    std::string listen = pars.substr(start, end - start);
-    std::string tmp("listen");
+    size_t start = utils.pars.find(string);
+    size_t end = utils.pars.find(";");
 
-    listen = listen.substr(tmp.size() + 1);
+    utils.newS = utils.pars.substr(start, end - start);
     
-    serverConfig.listen = atoi(listen.c_str()); // c_str() convert std::string -> const char*
+    utils.newS = utils.newS.substr(string.size() + 1);
+    
+    utils.pars = utils.pars.substr(end +1, utils.pars.size() - end);
 
-    pars = pars.substr(end + 1, pars.size() - end);
-    
-    //step 2 : root
-    start = pars.find("root");
-    end = pars.find(";");
-    
-    std::string root = pars.substr(start, end - start);
-    std::string tmp2("root");
+    return(utils.newS);
+}
 
-    root = root.substr(tmp2.size() + 1);
-    
-    serverConfig.root = root;
-
-    pars = pars.substr(end + 1, pars.size() - end);
-    
-    //step 3 : error
-    while (pars.find("error_page") != std::string::npos)
+void errorPagePars(utilsConfigT &utils, serverT &serverConfig)
+{
+    while (utils.pars.find("error_page") != std::string::npos)
     {
-        start = pars.find("error_page");
-        end = pars.find(";");
+        size_t start = utils.pars.find("error_page");
+        size_t end = utils.pars.find(";");
         
-        std::string errorPage = pars.substr(start, end - start);
+        std::string errorPage = utils.pars.substr(start, end - start);
         std::string tmp3("error_page");
         
         errorPage = errorPage.substr(tmp3.size() + 1);
@@ -104,19 +89,8 @@ void serverPars(utilsConfigT &utils, serverT &serverConfig)
 
         serverConfig.errorPage[atoi(number.c_str())] = errorPage;
         
-        pars = pars.substr(end + 1, pars.size() - end);
+        utils.pars = utils.pars.substr(end + 1, utils.pars.size() - end);
     }
-
-    //step 4 : client_max_body_size
-    start = pars.find("client_max_body_size");
-    end = pars.find(";");
-
-    std::string client = pars.substr(start, end - start);
-    std::string tmp4("client_max_body_size");
-
-    std::string clientValue = client.substr(tmp4.size() + 1);
-    std::cout << "clientVAlue is : " << clientValue << std::endl;
-    serverConfig.clientMaxBodySize = atoi(clientValue.c_str());
 }
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
@@ -144,8 +118,11 @@ int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT 
     blocConfig(conf, utils);
 
     // step 5 : pars server
-    serverPars(utils, serverConfig);
-
+    utils.pars = utils.server;
+    serverConfig.listen = atoi(serverPars(utils, "listen").c_str());
+    serverConfig.root = serverPars(utils, "root");
+    errorPagePars(utils, serverConfig);
+    serverConfig.clientMaxBodySize = atoi(serverPars(utils, "client_max_body_size").c_str());
     // step 6 : pars locations
     (void)locationsConfig;
 
