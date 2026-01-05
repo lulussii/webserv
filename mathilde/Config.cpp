@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 10:42:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 12:31:48 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,7 @@ void serverPars(utilsConfigT &utils, serverT &serverConfig)
     size_t start = pars.find("listen");
     size_t end = pars.find(";");
     
-    std::string listen;
-    listen = pars.substr(start, end - start);
+    std::string listen = pars.substr(start, end - start);
     std::string tmp("listen");
 
     listen = listen.substr(tmp.size() + 1);
@@ -79,8 +78,7 @@ void serverPars(utilsConfigT &utils, serverT &serverConfig)
     start = pars.find("root");
     end = pars.find(";");
     
-    std::string root;
-    root = pars.substr(start, end - start);
+    std::string root = pars.substr(start, end - start);
     std::string tmp2("root");
 
     root = root.substr(tmp2.size() + 1);
@@ -95,36 +93,30 @@ void serverPars(utilsConfigT &utils, serverT &serverConfig)
         start = pars.find("error_page");
         end = pars.find(";");
         
-        std::string errorPage;
-        errorPage = pars.substr(start, end - start);
+        std::string errorPage = pars.substr(start, end - start);
         std::string tmp3("error_page");
         
         errorPage = errorPage.substr(tmp3.size() + 1);
 
-        end = errorPage.find("/");
-        std::string number = errorPage.substr(start, end - start);
-        errorPage = errorPage.substr(end);
+        size_t space = errorPage.find(" ");
+        std::string number = errorPage.substr(0, space);
+        errorPage = errorPage.substr(space + 1);
 
         serverConfig.errorPage[atoi(number.c_str())] = errorPage;
-        std::cout << serverConfig.errorPage[atoi(number.c_str())];
         
         pars = pars.substr(end + 1, pars.size() - end);
-        std::cout << pars << std::endl;
-        break;
     }
 
     //step 4 : client_max_body_size
     start = pars.find("client_max_body_size");
     end = pars.find(";");
 
-    std::string client;
-    client = pars.substr(start, end - start);
+    std::string client = pars.substr(start, end - start);
     std::string tmp4("client_max_body_size");
-    
-    client = client.substr(tmp4.size() + 1);
-    
-    serverConfig.clientMaxBodySize = atoi(client.c_str());
-    
+
+    std::string clientValue = client.substr(tmp4.size() + 1);
+    std::cout << "clientVAlue is : " << clientValue << std::endl;
+    serverConfig.clientMaxBodySize = atoi(clientValue.c_str());
 }
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)

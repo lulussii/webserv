@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 10:15:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 12:32:09 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,14 +39,22 @@ void debug2(responseT &response)
 
 void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
 {
-    (void)serverConfig;
     (void)locationsConfig;
+    (void)utils;
     std::cout << "\n--- CONFIG ---\n";
-    std::cout << "server : " << utils.server;
-    std::cout << "\nlocations : " << utils.location;
+    // std::cout << "server : " << utils.server << std::endl;
+    // std::cout << "\nlocations : " << utils.location << std::endl;
+    
+    std::cout << "  --Server--";
     std::cout << "\nlisten : " << serverConfig.listen;
     std::cout << "\nroot : " << serverConfig.root;
-    std::cout << "\nclientMaxBodySize : " << serverConfig.listen << std::endl;
+    std::cout << "\nerror_page : \n";
+    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin() ;
+        it != serverConfig.errorPage.end(); it++)
+    {
+        std::cout << "      Code : " << it->first << "| Page : " << it->second << std::endl;
+    }
+    std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
 }
 
 int main(int argc, char **argv)

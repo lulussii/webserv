@@ -28,8 +28,6 @@ typedef struct serverConfigS
 
 typedef struct utilsConfigS
 {
-    bool serverIn;
-    bool locationIn;
     std::string server;
     std::string location;
 } utilsConfigT;
