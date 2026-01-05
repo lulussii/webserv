@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 15:15:04 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:27:23 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,22 +120,15 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
     utils.pars = utils.pars.substr(end + 1);
 
     serverConfig.locations[path].path = path;
-    // std::cout << "path : " << serverConfig.locations[path].path << std::endl;
 
     end = utils.pars.find("}");
     utils.l = utils.pars.substr(0, end);
-    // std::cout << utils.l << std::endl << std::endl;
     utils.pars = utils.pars.substr(end);
-    // std::cout << utils.pars << std::endl;
     
     serverConfig.locations[path].methods.push_back(addLocation(utils, "methods"));
-    // std::cout << "methods : " << serverConfig.locations[path].methods[0] << std::endl;
     serverConfig.locations[path].index = addLocation(utils, "index");
-    // std::cout << "index : " << serverConfig.locations[path].index << std::endl;
     serverConfig.locations[path].autoindex = addLocation(utils, "autoindex");
-    // std::cout << "autoindex : " << serverConfig.locations[path].autoindex << std::endl;
     serverConfig.locations[path].upload_dir = addLocation(utils, "upload_dir");
-    // std::cout << "upload_dir : " << serverConfig.locations[path].upload_dir << std::endl;
 }
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
@@ -171,7 +164,10 @@ int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT 
     
     // step 6 : pars locations
     utils.pars = utils.location;
-    locationsPars(utils, serverConfig);
+    while (utils.pars.find("location") != std::string::npos)
+    {
+        locationsPars(utils, serverConfig);
+    }
     (void)locationsConfig;
 
     close(fd);
