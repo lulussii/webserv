@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/02 16:09:30 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/05 13:36:19 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include <fcntl.h>
 
 #define LISTEN_BACKLOG 5
 
@@ -39,8 +40,14 @@ Server::Server(int port) : _port(port), _serverFd(-1)
 int	Server::_createServerSocket(int port)
 {
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (fd == -1) return -1;
-    
+    if (fd == -1) 
+		return -1;
+	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
+	{
+		std::cerr << "Error : Failed to set non-blocking mode on server socket" << std::endl;
+		close (fd);
+		return (-1);
+	}
 	// Évite l'erreur "Address already in use" lors d'un redémarrage rapide
     int opt = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
@@ -51,10 +58,16 @@ int	Server::_createServerSocket(int port)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = INADDR_ANY;
 
-    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) 
-		return -1;
-    if (listen(fd, LISTEN_BACKLOG) == -1) 
-		return -1;
+    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+	{
+		std::cerr << "Error: Failed to bind to port" << port << std::endl;
+		return (-1);
+	}
+    if (listen(fd, LISTEN_BACKLOG) == -1)
+	{
+		std::cerr << "Error: Failed to listen on socket" << std::endl;
+		return (-1);
+	}
     return fd;
 }
 
@@ -120,6 +133,12 @@ void	Server::_acceptNewConnection()
 	int	client_fd = _acceptClient(_serverFd);
 	if (client_fd != -1)
 	{
+		if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
+		{
+			std::cerr << "Error: Failed to set non-blocking mode on cient FD" << std::endl;
+			close (client_fd);
+			return ;
+		}
 		for (int i = 1; i <= MAX_CLIENTS; i++)
 		{
 			if (_fds[i].fd == -1) // Un slot libre est trouvé
@@ -132,6 +151,7 @@ void	Server::_acceptNewConnection()
 			}
 		}
 		//Si on arrive ici, le serveur est plein
+		std::cerr << "Error: Max clients reached. Cnnection rejecteed on FD " << std::endl; 
 		close(client_fd);
 	}
 }
