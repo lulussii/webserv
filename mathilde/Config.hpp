@@ -32,8 +32,6 @@ typedef struct utilsConfigS
     bool locationIn;
     std::string server;
     std::string location;
-    serverT s;
-    locationsT l;
 } utilsConfigT;
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/04 17:09:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/05 10:15:07 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,9 @@ void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &ut
     std::cout << "\n--- CONFIG ---\n";
     std::cout << "server : " << utils.server;
     std::cout << "\nlocations : " << utils.location;
-    std::cout << "\nlocations : " << serverConfig.listen;
+    std::cout << "\nlisten : " << serverConfig.listen;
+    std::cout << "\nroot : " << serverConfig.root;
+    std::cout << "\nclientMaxBodySize : " << serverConfig.listen << std::endl;
 }
 
 int main(int argc, char **argv)
@@ -63,13 +65,13 @@ int main(int argc, char **argv)
     parsingT p;
     if (requestMain(request, p) == 1)
         return (1);
-    debug1(request);
+    // debug1(request);
 
     // step 2 : response
     responseT response;
     if (responseMain(request, response) == 1)
         return (1);
-    debug2(response);
+    // debug2(response);
 
     // step 3 : config file
     utilsConfigT utils;
