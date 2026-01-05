@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 13:45:54 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:15:04 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ void blocConfig(std::string conf, utilsConfigT &utils)
 std::string serverPars(utilsConfigT &utils, std::string string)
 {
     size_t start = utils.pars.find(string);
+    if (start == std::string::npos)
+        return ("NULL");
     std::string tmp = utils.pars.substr(start);
     size_t end = tmp.find(";");
     
@@ -91,9 +93,23 @@ void errorPagePars(utilsConfigT &utils, serverT &serverConfig, std::string strin
     }
 }
 
+std::string addLocation(utilsConfigT &utils, std::string string)
+{
+    size_t start = utils.l.find(string);
+    if (start == std::string::npos)
+        return ("NULL");
+    std::string tmp = utils.l.substr(start);
+    size_t end = tmp.find(";");
+
+    utils.newS = tmp.substr(0, end);
+
+    utils.newS = utils.newS.substr(string.size() + 1);
+
+    return (utils.newS);
+}
+
 void locationsPars(utilsConfigT &utils, serverT &serverConfig)
 {
-    (void)serverConfig;
     size_t start = utils.pars.find("location");
     size_t end = utils.pars.find("{");
     
@@ -104,10 +120,22 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
     utils.pars = utils.pars.substr(end + 1);
 
     serverConfig.locations[path].path = path;
+    // std::cout << "path : " << serverConfig.locations[path].path << std::endl;
 
-    // std::cout << utils.pars;
-
-    // start = utils.pars
+    end = utils.pars.find("}");
+    utils.l = utils.pars.substr(0, end);
+    // std::cout << utils.l << std::endl << std::endl;
+    utils.pars = utils.pars.substr(end);
+    // std::cout << utils.pars << std::endl;
+    
+    serverConfig.locations[path].methods.push_back(addLocation(utils, "methods"));
+    // std::cout << "methods : " << serverConfig.locations[path].methods[0] << std::endl;
+    serverConfig.locations[path].index = addLocation(utils, "index");
+    // std::cout << "index : " << serverConfig.locations[path].index << std::endl;
+    serverConfig.locations[path].autoindex = addLocation(utils, "autoindex");
+    // std::cout << "autoindex : " << serverConfig.locations[path].autoindex << std::endl;
+    serverConfig.locations[path].upload_dir = addLocation(utils, "upload_dir");
+    // std::cout << "upload_dir : " << serverConfig.locations[path].upload_dir << std::endl;
 }
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)

@@ -5,9 +5,9 @@ server {
     error_page 500 /50x.html;
     client_max_body_size 1000000;
 
-    location /upload {
-        methods POST;
+    location   /upload   {
         upload_dir /tmp/uploads;
+        methods POST;
     }
 
     location / {
