@@ -29,6 +29,7 @@ typedef struct utilsConfigS
 {
     std::string server;
     std::string location;
+    std::string l;
     std::string pars;
     std::string newS;
 } utilsConfigT;

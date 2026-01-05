@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 12:48:38 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 13:45:54 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "Request.hpp"
 #include <fcntl.h>  //open
 #include <unistd.h> //read
-#include <cstdlib>  // atoi don't know if I can use it
+#include <cstdlib> // atoi don't know if I can use it
 
 int openConf()
 {
@@ -60,13 +60,12 @@ void blocConfig(std::string conf, utilsConfigT &utils)
 std::string serverPars(utilsConfigT &utils, std::string string)
 {
     size_t start = utils.pars.find(string);
-    size_t end = utils.pars.find(";");
-
-    utils.newS = utils.pars.substr(start, end - start);
+    std::string tmp = utils.pars.substr(start);
+    size_t end = tmp.find(";");
+    
+    utils.newS = tmp.substr(0, end);
     
     utils.newS = utils.newS.substr(string.size() + 1);
-    
-    utils.pars = utils.pars.substr(end +1, utils.pars.size() - end);
 
     return(utils.newS);
 }
@@ -90,6 +89,25 @@ void errorPagePars(utilsConfigT &utils, serverT &serverConfig, std::string strin
         
         utils.pars = utils.pars.substr(end + 1, utils.pars.size() - end);
     }
+}
+
+void locationsPars(utilsConfigT &utils, serverT &serverConfig)
+{
+    (void)serverConfig;
+    size_t start = utils.pars.find("location");
+    size_t end = utils.pars.find("{");
+    
+    std::string location("location");
+    std::string path = utils.pars.substr(start, end - start - 1);
+    path = path.substr(location.size() + 1);
+
+    utils.pars = utils.pars.substr(end + 1);
+
+    serverConfig.locations[path].path = path;
+
+    // std::cout << utils.pars;
+
+    // start = utils.pars
 }
 
 int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
@@ -124,6 +142,8 @@ int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT 
     serverConfig.clientMaxBodySize = atoi(serverPars(utils, "client_max_body_size").c_str());
     
     // step 6 : pars locations
+    utils.pars = utils.location;
+    locationsPars(utils, serverConfig);
     (void)locationsConfig;
 
     close(fd);

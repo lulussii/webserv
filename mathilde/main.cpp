@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 12:32:09 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/05 13:34:25 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 
 void debug1(request &request)
 {
-    std::cout << "--- REQUEST ---\n";
+    std::cout << "--- [REQUEST] ---\n";
     std::cout << "Method: " << request._method << "\n";
     std::cout << "URL: " << request._url << "\n";
     std::cout << "Version: " << request._version << "\n";
@@ -33,7 +33,7 @@ void debug1(request &request)
 
 void debug2(responseT &response)
 {
-    std::cout << "\n--- RESPONSE ---\n";
+    std::cout << "\n--- [RESPONSE] ---\n";
     std::cout << response.response << "\n";
 }
 
@@ -41,7 +41,7 @@ void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &ut
 {
     (void)locationsConfig;
     (void)utils;
-    std::cout << "\n--- CONFIG ---\n";
+    std::cout << "\n--- [CONFIG] ---\n";
     // std::cout << "server : " << utils.server << std::endl;
     // std::cout << "\nlocations : " << utils.location << std::endl;
     
@@ -55,6 +55,13 @@ void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &ut
         std::cout << "      Code : " << it->first << "| Page : " << it->second << std::endl;
     }
     std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
+
+    std::cout << "  \n--Locations--";
+    // for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin() ;
+    // it != serverConfig.locations.end(); it++)
+    // {
+    //     std::cout << "      Name : " << it->first << "| path : " << it->second << std::endl;
+    // }
 }
 
 int main(int argc, char **argv)
