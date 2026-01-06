@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/06 15:54:59 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/06 17:39:18 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static int firstLine(parsingT &p, request &request)
     }
 
     request._method = firstLine.substr(0, pos1);
-    request._url = firstLine.substr(pos1 + 1, pos2 - pos1 - 1);
+    request._url = firstLine.substr(pos1 + 2, pos2 - pos1 - 2);
     request._version = firstLine.substr(pos2 + 1);
 
     return (0);
@@ -151,6 +151,9 @@ int requestMain(request &request, parsingT &p)
 
     // Simple GET
     p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+
+    // Simple GET 2
+    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // POST with body
     //  p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";

@@ -15,4 +15,5 @@ server {
         index index.html;
         autoindex on;
     }
+
 }

@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 16:02:23 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/06 17:45:50 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 void debug1(request &request)
 {
     std::cout << "--- [REQUEST] ---\n";
-    std::cout << "Method: " << request._method << "\n";
-    std::cout << "URL: " << request._url << "\n";
-    std::cout << "Version: " << request._version << "\n";
+    std::cout << "Method: [" << request._method << "] " << "\n";
+    std::cout << "URL: [" << request._url << "] " << "\n";
+    std::cout << "Version: [" << request._version << "] " << "\n";
     std::cout << "Headers:\n";
     for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it)
         std::cout << "  " << it->first << ": " << it->second << "\n";
@@ -75,6 +75,16 @@ void debug3(serverT &serverConfig, utilsConfigT &utils)
     }
 }
 
+void debug4(responseT &response)
+{
+    std::cout << "\n--- [GET] ---\n";
+    if (response.loc == true)
+        std::cout << "GOOD location\n";
+    if (response.get == true)
+        std::cout << "GOOD method\n";
+    std::cout << "file path : [" << response.path << "]\n";
+}
+
 int main(int argc, char **argv)
 {
     (void)argv; // delete
@@ -104,11 +114,11 @@ int main(int argc, char **argv)
     serverT serverConfig;
     if (configMain(serverConfig, utils) == 1)
         return (1);
-    // debug3(serverConfig, utils);
+    debug3(serverConfig, utils);
 
     // method GET
     if (getMain(request, response, serverConfig) == 1)
         return (1);
-    //debug4();
+    debug4(response);
     return (0);
 }
