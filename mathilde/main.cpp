@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/05 15:22:45 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/06 15:56:10 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
-#include "Response.hpp"
 #include "Config.hpp"
+#include "Get.hpp"
 
 void debug1(request &request)
 {
@@ -44,25 +44,25 @@ void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &ut
     std::cout << "\n--- [CONFIG] ---\n";
     // std::cout << "server : " << utils.server << std::endl;
     // std::cout << "\nlocations : " << utils.location << std::endl;
-    
+
     std::cout << "  --Server--";
     std::cout << "\nlisten : " << serverConfig.listen;
     std::cout << "\nroot : " << serverConfig.root;
     std::cout << "\nerror_page : \n";
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin() ;
-        it != serverConfig.errorPage.end(); it++)
+    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
+         it != serverConfig.errorPage.end(); it++)
     {
         std::cout << "      Code : " << it->first << "| Page : " << it->second << std::endl;
     }
     std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
 
     std::cout << "  \n--Locations--\n";
-    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin() ;
-    it != serverConfig.locations.end(); ++it)
+    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
+         it != serverConfig.locations.end(); ++it)
     {
         locationsT &location = it->second;
         std::cout << "location : [" << it->first << "]" << std::endl;
-         for (size_t i = 0; i < location.methods.size(); ++i)
+        for (size_t i = 0; i < location.methods.size(); ++i)
             std::cout << "  Methods: [" << location.methods[i] << "] ";
         std::cout << std::endl;
         if (!location.index.empty())
@@ -92,9 +92,9 @@ int main(int argc, char **argv)
     parsingT p;
     if (requestMain(request, p) == 1)
         return (1);
-    // debug1(request);
+    debug1(request);
 
-    // step 2 : response
+    // step 2 : simple response
     responseT response;
     if (responseMain(request, response) == 1)
         return (1);
@@ -106,6 +106,9 @@ int main(int argc, char **argv)
     locationsT locationsConfig;
     if (configMain(serverConfig, locationsConfig, utils) == 1)
         return (1);
-    debug3(serverConfig, locationsConfig, utils);
+    // debug3(serverConfig, locationsConfig, utils);
+
+    // method GET
+    getMain(request, response, serverConfig);
     return (0);
 }

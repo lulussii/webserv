@@ -7,7 +7,7 @@ server {
 
     location   /upload   {
         upload_dir /tmp/uploads;
-        methods POST;
+        methods POST GET;
     }
 
     location / {

@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/04 16:53:34 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/06 15:54:59 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,14 @@
  * @brief `firstline extract and parsing`
  *
  * step 1 : extract the first line
- * 
+ *
  * step 2 : pars the first line
- * 
+ *
  * @return 1 if problem, else 0
  */
 static int firstLine(parsingT &p, request &request)
 {
-     // step 1 : extract the first line
+    // step 1 : extract the first line
 
     size_t i = p.line.find("\r\n");
 
@@ -129,7 +129,7 @@ static void postBody(parsingT &p, request &request)
 {
     int content_length = 0;
     if (request.headers.find("Content-Length") != request.headers.end())
-        content_length = atoi(request.headers["Content-Length"].c_str()); //chang atoi
+        content_length = atoi(request.headers["Content-Length"].c_str()); // chang atoi
 
     if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
         request._body = p.line.substr(0, content_length);
@@ -139,32 +139,31 @@ static void postBody(parsingT &p, request &request)
  * @brief `main of the parsing`
  *
  * step 1 : firstline extract and parsing
- * 
+ *
  * step 2 : headers parsing
- * 
+ *
  * step 3 : if POST method, read body
- * 
+ *
  * @return 1 if problem, else 0
  */
 int requestMain(request &request, parsingT &p)
 {
 
-    //Simple GET
-    //p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-    
-    //POST with body
-    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    // Simple GET
+    p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-    //DELETE without body
-    //p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
+    // POST with body
+    //  p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
-    //GET with query params
-    //p.line = "GET /search?q=webserv HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
+    // DELETE without body
+    // p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
 
-    //POST with body but content-lenght: 0
-    //p.line = "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
+    // GET with query params
+    // p.line = "GET /search?q=webserv HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
 
-    
+    // POST with body but content-lenght: 0
+    // p.line = "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
+
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
         return (1);
@@ -174,6 +173,6 @@ int requestMain(request &request, parsingT &p)
 
     // step 3 : if POST method, read body
     postBody(p, request);
-    
+
     return (0);
 }
