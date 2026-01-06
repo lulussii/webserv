@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 15:55:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/06 16:03:00 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,20 @@ bool checkIsGet(request &request, serverT &serverConfig)
     return (false);
 }
 
+
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
     (void)response;
+    // step 1 : check if method is in server
     if (checkIsGet(request, serverConfig) == 0)
     {
         std::cout << "Error :405 Method Not Allowed\n";
         return (1);
     }
-    else
+    else // delete later
         std::cout << "GOOD\n";
+
+    // step 2 : find the good location
+
     return (0);
 }

@@ -34,6 +34,6 @@ typedef struct utilsConfigS
     std::string newS;
 } utilsConfigT;
 
-int configMain(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils);
+int configMain(serverT &serverConfig, utilsConfigT &utils);
 
 #endif

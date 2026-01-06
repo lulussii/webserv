@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 15:56:10 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/06 16:02:23 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,9 +37,8 @@ void debug2(responseT &response)
     std::cout << response.response << "\n";
 }
 
-void debug3(serverT &serverConfig, locationsT &locationsConfig, utilsConfigT &utils)
+void debug3(serverT &serverConfig, utilsConfigT &utils)
 {
-    (void)locationsConfig;
     (void)utils;
     std::cout << "\n--- [CONFIG] ---\n";
     // std::cout << "server : " << utils.server << std::endl;
@@ -103,12 +102,13 @@ int main(int argc, char **argv)
     // step 3 : config file
     utilsConfigT utils;
     serverT serverConfig;
-    locationsT locationsConfig;
-    if (configMain(serverConfig, locationsConfig, utils) == 1)
+    if (configMain(serverConfig, utils) == 1)
         return (1);
-    // debug3(serverConfig, locationsConfig, utils);
+    // debug3(serverConfig, utils);
 
     // method GET
-    getMain(request, response, serverConfig);
+    if (getMain(request, response, serverConfig) == 1)
+        return (1);
+    //debug4();
     return (0);
 }
