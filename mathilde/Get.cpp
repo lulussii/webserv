@@ -6,36 +6,66 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 17:49:36 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/08 18:31:12 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
 
 /**
- * @brief `check if the method in the request is in the server`
+ * @brief Find the best matching location for the requested URL.
  *
- * loop on all locations to compare index
+ * This function iterates over all configured locations of the server and
+ * tries to find which location matches the request URL.
  *
- * @return true if found, else false
+ * A location matches if the request URL starts with the location path.
+ * If multiple locations match, the most specific one is selected,
+ * meaning the location with the longest path.
+ *
+ * Example:
+ *  - URL: /upload/file.txt
+ *  - Matching locations: "/" and "/upload"
+ *  - Selected location: "/upload" (longest match)
+ *
+ * If a matching location is found, a pointer to this location is stored
+ * in the response structure and a flag is set to indicate success.
+ *
+ * This function only determines the correct location.
+ *
+ * @param request The parsed HTTP request containing the requested URL.
+ * @param serverConfig The server configuration holding all locations.
+ * @param response The response structure where the matched location is stored.
+ *
+ * @return true if a matching location is found, false otherwise.
  */
 int foundLocation(request &request, serverT &serverConfig, responseT &response)
 {
+    size_t bestLen = 0;
+    bool found = false;
+
     for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
          it != serverConfig.locations.end(); ++it)
     {
-        locationsT &location = it->second;
-        for (size_t i = 0; i < location.methods.size(); ++i)
+        const std::string &locPath = it->first;
+
+        // URL must be at least as long as location path
+        if (request._url.size() < locPath.size())
+            continue;
+
+        // Check if URL starts with location path
+        if (request._url.compare(0, locPath.size(), locPath) == 0)
         {
-            if (location.index == request._url)
+            // Keep the most specific (longest) match
+            if (locPath.size() > bestLen)
             {
+                bestLen = locPath.size();
                 response.location = &it->second;
                 response.loc = true;
-                return (true);
+                found = true;
             }
         }
     }
-    return (false);
+    return (found);
 }
 
 /**
@@ -49,23 +79,25 @@ bool checkIsGet(request &request, responseT &response)
 {
     for (size_t i = 0; i < response.location->methods.size(); ++i)
     {
-        if(response.location->methods[i] == request._method)
+        if (response.location->methods[i] == request._method)
         {
             response.get = true;
             return (true);
         }
     }
-    return(false);
+    return (false);
 }
-
 
 /**
  * @brief `build the file path`
  *
  */
-void pathBuild(responseT &response, serverT &serverConfig)
+void pathBuild(responseT &response, serverT &serverConfig, request &request)
 {
-    response.path = serverConfig.root + "/" + response.location->index;
+    if (request._url == "/")
+        response.location->path = serverConfig.root + "/" + response.location->index;
+    else
+        response.path = serverConfig.root + "/" + response.location->index;
 }
 
 /**
@@ -86,7 +118,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
         std::cout << "Error: no location found\n";
         return (1);
     }
-    
+
     // step 2 : check if method is in server
     if (checkIsGet(request, response) == false)
     {
@@ -95,8 +127,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     }
 
     // step 3 : build response path
-    pathBuild(response, serverConfig);
+    pathBuild(response, serverConfig, request);
 
-    
     return (0);
 }
