@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/08 09:47:08 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/08 10:14:55 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,9 @@ void	Server::run()
 {
 	while(true)
 	{
-		// poll() attend qu'un événement survienne (Lecture ou Écriture)
-		if (poll(_fds, MAX_CLIENTS + 1, -1) < 0)
+		int ret = poll(_fds, MAX_CLIENTS + 1, 1000);
+
+		if (ret < 0)
 			break;
 
 		// Cas 1 : Nouvelle tentative de connexion sur le socket serveur
@@ -127,8 +128,24 @@ void	Server::run()
 		// Cas 2 : Activité sur un socket client déjà existant
 		for (int i = 1; i <= MAX_CLIENTS; i++)
 		{
-			if (_fds[i].fd != -1)
+			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
+		}
+
+		// Gestion du TIMEOUT
+		for (int i = 1; i <= MAX_CLIENTS; i++)
+		{
+			if (_fds[i].fd != -1)
+			{
+				time_t	now = time(NULL);
+				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
+				std::cout << "[DEBUG] Client " << _fds[i].fd << " inactive for " << diff << " seconds." << std::endl;
+				if (diff > 60)
+				{
+					std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
+					_closeConnection(i);
+				}
+			}
 		}
 	}
 }
@@ -169,6 +186,7 @@ void	Server::_acceptNewConnection()
 void	Server::_handleClientActivity(int i)
 {
 	Client &c = _clients[_fds[i].fd];
+	c.lastTime = time(NULL);
 
 	// Si le client envoie des données
 	if (_fds[i].revents & POLLIN)
