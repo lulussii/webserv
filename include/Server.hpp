@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/02 16:02:52 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/08 09:19:29 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Server
 		void	_readFromClient(int i, Client &c);
 		void	_writeToClient(int i, Client &c);
 		void	_closeConnection(int i);
+		long	_getContentLength(std::string &buffer);
 
 		void	_enableWriting(int i);
 		void	_disableWriting(int i);

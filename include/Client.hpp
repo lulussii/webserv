@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/02 10:39:34 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/08 09:43:10 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@ class Client
 		response 	res;
 		bool		isReadyToWrite;
 
-		Client();
-		Client(int client_fd);
-		~Client();
+		long		contentLength;
+		bool		headersReceived;
+
+		Client() : fd(-1), isReadyToWrite(false), contentLength(0), headersReceived(false) {}
+		Client(int client_fd) : fd(client_fd), isReadyToWrite(false), contentLength(0), headersReceived(false) {}
 };
 
 #endif
