@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 12:19:36 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:37:02 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,21 +78,24 @@ void debug3(serverT &serverConfig, utilsConfigT &utils)
 void debug4(responseT &response)
 {
     std::cout << "\n--- [GET] ---\n";
-    if (response.loc == true)
+    if (response.infos.loc == true)
         std::cout << "GOOD location\n";
-    if (response.get == true)
+    if (response.infos.get == true)
         std::cout << "GOOD method\n";
     std::cout << "file path : [" << response.path << "]\n";
-    if (response.fileExist == false)
+    if (response.infos.fileExist == false)
         std::cout << "File doesn't exist\n";
     else
     {
-        if (response.file == true)
+        if (response.infos.file == true)
             std::cout << "File exist\n";
-        else 
+        else
             std::cout << "It's a repo\n";
     }
-        
+    if (response.infos.read == false)
+        std::cout << "new response : HTTP/1.1 403 Forbidden\r\n";
+    else
+        std::cout << "read ok";
 }
 
 int main(int argc, char **argv)
@@ -117,7 +120,7 @@ int main(int argc, char **argv)
     responseT response;
     if (responseMain(request, response) == 1)
         return (1);
-    // debug2(response);
+    debug2(response);
 
     // step 3 : config file
     utilsConfigT utils;

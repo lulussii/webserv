@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 12:31:11 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:39:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
             {
                 bestLen = locPath.size();
                 response.location = &it->second;
-                response.loc = true;
+                response.infos.loc = true;
                 found = true;
             }
         }
@@ -87,7 +87,7 @@ bool checkIsGet(request &request, responseT &response)
     {
         if (response.location->methods[i] == request._method)
         {
-            response.get = true;
+            response.infos.get = true;
             return (true);
         }
     }
@@ -115,19 +115,19 @@ void existFile(responseT &response)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
-        response.fileExist = false;
+        response.infos.fileExist = false;
     else
     {
-        response.fileExist = true;
+        response.infos.fileExist = true;
         if (S_ISREG(test.st_mode))
         {
-            response.file = true;
-            response.repository = false;
+            response.infos.file = true;
+            response.infos.repository = false;
         }
         else
         {
-            response.file = false;
-            response.repository = true;
+            response.infos.file = false;
+            response.infos.repository = true;
         }
     }
 }
@@ -136,16 +136,19 @@ void existFile(responseT &response)
  * @brief `check the access of the file`
  *
  */
-void    accessFile(responseT &response)
+void accessFile(responseT &response)
 {
+    response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
-        response.read = false;
+        response.infos.read = false;
+        response.code = 403;
+        response.response = "HTTP/1.1" + response.code + "Forbidden\r\n";
     }
-    else 
-        response.read = true;
+    else
+        response.infos.read = true;
 }
- 
+
 /**
  * @brief `GET method main`
  *
@@ -177,7 +180,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 4 : check is the file exist
     existFile(response);
 
-    //step 5 : access to the file
+    // step 5 : access to the file
     accessFile(response);
 
     return (0);
