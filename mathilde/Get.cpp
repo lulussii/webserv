@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/08 18:31:12 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 11:48:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,10 @@ bool checkIsGet(request &request, responseT &response)
 void pathBuild(responseT &response, serverT &serverConfig, request &request)
 {
     if (request._url == "/")
-        response.location->path = serverConfig.root + "/" + response.location->index;
+        response.path = serverConfig.root + response.location->index;
     else
-        response.path = serverConfig.root + "/" + response.location->index;
+        // response.path = serverConfig.root + response.location->index;
+        response.path = serverConfig.root + request._url;
 }
 
 /**

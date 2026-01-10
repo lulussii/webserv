@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 16:21:42 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 11:44:57 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,10 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
     utils.pars = utils.pars.substr(end);
 
     serverConfig.locations[path].methods.push_back(addLocation(utils, "methods"));
-    serverConfig.locations[path].index = addLocation(utils, "index");
+    if (addLocation(utils, "index") == "NULL")
+        serverConfig.locations[path].index = "NULL";
+    else
+        serverConfig.locations[path].index = "/" + addLocation(utils, "index");
     serverConfig.locations[path].autoindex = addLocation(utils, "autoindex");
     serverConfig.locations[path].upload_dir = addLocation(utils, "upload_dir");
 }
