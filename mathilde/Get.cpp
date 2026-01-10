@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 12:39:53 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 14:13:11 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string> //to_string()
 
 /**
  * @brief Find the best matching location for the requested URL.
@@ -143,7 +144,7 @@ void accessFile(responseT &response)
     {
         response.infos.read = false;
         response.code = 403;
-        response.response = "HTTP/1.1" + response.code + "Forbidden\r\n";
+        response.response = "HTTP/1.1" + std::to_string(response.code) + "Forbidden\r\n";
     }
     else
         response.infos.read = true;
