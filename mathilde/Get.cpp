@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 16:33:29 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 16:40:13 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string> //to_string()
+#include <string>   //to_string()
+#include <fcntl.h>  //open
+#include <unistd.h> //read
 
 /**
  * @brief Find the best matching location for the requested URL.
@@ -167,6 +169,34 @@ void accessFile(responseT &response, request &request)
         response.infos.read = true;
 }
 
+int readFile(responseT &response)
+{
+    // step 1 : open
+    int fd;
+    fd = open(response.path.c_str(), O_RDONLY);
+    if (fd < 0)
+    {
+        std::cout << "Error : cannot open file\n";
+        return (1);
+    }
+
+    // step 2 : read
+    std::string conf;
+    ssize_t len = 1;
+    while (len > 0)
+    {
+        char buffer[1024];
+        len = read(fd, buffer, sizeof(buffer));
+        if (len < 0)
+        {
+            std::cout << "Error : can't read file\n";
+            return (1);
+        }
+        conf.append(buffer, len);
+    }
+    return (0);
+}
+
 /**
  * @brief `GET method main`
  *
@@ -200,6 +230,9 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 5 : access to the file
     accessFile(response, request);
+
+    // step 6 : read file who exist and have access
+    readFile(response);
 
     return (0);
 }
