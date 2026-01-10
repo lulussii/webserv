@@ -17,7 +17,6 @@ typedef struct locationsConfigS
 
 typedef struct serverConfigS
 {
-   
     int listen;
     std::string root;
     std::map<int, std::string> errorPage;

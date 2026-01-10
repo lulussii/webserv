@@ -6,12 +6,12 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 12:19:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:31:11 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
-#include <unistd.h> //stat()
+#include <unistd.h> //stat() access()
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -107,6 +107,10 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
         response.path = serverConfig.root + request._url;
 }
 
+/**
+ * @brief `check if the file exist and if it's a file or something else`
+ *
+ */
 void existFile(responseT &response)
 {
     struct stat test;
@@ -128,6 +132,20 @@ void existFile(responseT &response)
     }
 }
 
+/**
+ * @brief `check the access of the file`
+ *
+ */
+void    accessFile(responseT &response)
+{
+    if (access(response.path.c_str(), R_OK) == -1)
+    {
+        response.read = false;
+    }
+    else 
+        response.read = true;
+}
+ 
 /**
  * @brief `GET method main`
  *
@@ -158,6 +176,9 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 4 : check is the file exist
     existFile(response);
+
+    //step 5 : access to the file
+    accessFile(response);
 
     return (0);
 }
