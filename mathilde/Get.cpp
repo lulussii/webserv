@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 14:13:11 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 16:33:29 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,11 +112,21 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
  * @brief `check if the file exist and if it's a file or something else`
  *
  */
-void existFile(responseT &response)
+void existFile(responseT &response, request &request)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
+    {
         response.infos.fileExist = false;
+        response.code = 404;
+        response.response = "HTTP/1.1 " + std::to_string(response.code) + " Forbidden\r\n";
+        response.response += "Content-Length: " + std::to_string(request._body.size());
+        response.response += "Content-Type: text/html";
+        response.response += "\r\n";
+        response.response += "\r\n";
+        request._body = "<html><body>404 Forbidden</body></html>";
+        response.response += request._body;
+    }
     else
     {
         response.infos.fileExist = true;
@@ -136,15 +146,22 @@ void existFile(responseT &response)
 /**
  * @brief `check the access of the file`
  *
+ * if not, error 403
  */
-void accessFile(responseT &response)
+void accessFile(responseT &response, request &request)
 {
     response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
         response.infos.read = false;
         response.code = 403;
-        response.response = "HTTP/1.1" + std::to_string(response.code) + "Forbidden\r\n";
+        response.response = "HTTP/1.1 " + std::to_string(response.code) + " Forbidden\r\n";
+        response.response += "Content-Length: " + std::to_string(request._body.size());
+        response.response += "Content-Type: text/html";
+        response.response += "\r\n";
+        response.response += "\r\n";
+        request._body = "<html><body>403 Forbidden</body></html>";
+        response.response += request._body;
     }
     else
         response.infos.read = true;
@@ -179,10 +196,10 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     pathBuild(response, serverConfig, request);
 
     // step 4 : check is the file exist
-    existFile(response);
+    existFile(response, request);
 
     // step 5 : access to the file
-    accessFile(response);
+    accessFile(response, request);
 
     return (0);
 }

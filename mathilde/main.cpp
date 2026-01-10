@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 14:13:34 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 16:34:33 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void debug4(responseT &response)
     if (response.infos.read == false)
         std::cout << "new response : HTTP/1.1 403 Forbidden\r\n";
     else
-        std::cout << "read ok\n";
+        std::cout << "Read OK\n";
 }
 
 int main(int argc, char **argv)
