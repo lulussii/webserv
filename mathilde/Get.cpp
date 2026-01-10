@@ -6,11 +6,17 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 11:48:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:19:04 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
+#include <unistd.h> //stat()
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * @brief Find the best matching location for the requested URL.
@@ -101,6 +107,27 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
         response.path = serverConfig.root + request._url;
 }
 
+void existFile(responseT &response)
+{
+    struct stat test;
+    if (stat(response.path.c_str(), &test) == -1)
+        response.fileExist = false;
+    else
+    {
+        response.fileExist = true;
+        if (S_ISREG(test.st_mode))
+        {
+            response.file = true;
+            response.repository = false;
+        }
+        else
+        {
+            response.file = false;
+            response.repository = true;
+        }
+    }
+}
+
 /**
  * @brief `GET method main`
  *
@@ -112,7 +139,6 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
-    (void)response;
     // step 1 : find the good location
     if (foundLocation(request, serverConfig, response) == false)
     {
@@ -129,6 +155,9 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 3 : build response path
     pathBuild(response, serverConfig, request);
+
+    // step 4 : check is the file exist
+    existFile(response);
 
     return (0);
 }

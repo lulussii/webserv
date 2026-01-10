@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 11:41:35 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:19:36 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,16 @@ void debug4(responseT &response)
     if (response.get == true)
         std::cout << "GOOD method\n";
     std::cout << "file path : [" << response.path << "]\n";
+    if (response.fileExist == false)
+        std::cout << "File doesn't exist\n";
+    else
+    {
+        if (response.file == true)
+            std::cout << "File exist\n";
+        else 
+            std::cout << "It's a repo\n";
+    }
+        
 }
 
 int main(int argc, char **argv)
@@ -101,20 +111,20 @@ int main(int argc, char **argv)
     parsingT p;
     if (requestMain(request, p) == 1)
         return (1);
-    debug1(request);
+    // debug1(request);
 
     // step 2 : simple response
     responseT response;
     if (responseMain(request, response) == 1)
         return (1);
-    debug2(response);
+    // debug2(response);
 
     // step 3 : config file
     utilsConfigT utils;
     serverT serverConfig;
     if (configMain(serverConfig, utils) == 1)
         return (1);
-    debug3(serverConfig, utils);
+    // debug3(serverConfig, utils);
 
     // method GET
     if (getMain(request, response, serverConfig) == 1)

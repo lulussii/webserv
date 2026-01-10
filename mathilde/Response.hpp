@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/06 17:30:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/10 12:15:20 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,9 @@ typedef struct response
     locationsT *location;
     bool get;
     bool loc;
+    bool fileExist;
+    bool file;
+    bool repository;
     
 } responseT;
 
