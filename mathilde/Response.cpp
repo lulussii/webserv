@@ -6,19 +6,24 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 11:53:01 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 12:18:27 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Request.hpp"
-#include <stdio.h> //sprintf
-#include <string>  //to_string()
+#include <string> //to_string()
 
 int responseMain(request &request, responseT &response)
 {
     // status line :
-    response.response = request._version + " " + std::to_string(response.code) + " OK\r\n";
+    response.response = request._version + " " + std::to_string(response.code);
+    if (response.infos.error == false)
+        response.response += " OK\r\n";
+    if (response.code == 404)
+        response.response += " Not Found\r\n";
+    if (response.code == 403)
+        response.response += " Forbidden\r\n";
 
     // header in response
     response.response += "Content-Length: " + std::to_string(response.contentLen);

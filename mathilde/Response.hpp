@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 11:38:37 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 11:55:24 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ typedef struct infos
 typedef struct response
 {
     std::string response;
-    
+
     int code;
     size_t contentLen;
-    std::string body;
     std::string contentType;
-    
+    std::string body;
+
     std::string path;
     locationsT *location;
     infosT infos;

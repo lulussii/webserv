@@ -6,23 +6,40 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/11 11:42:44 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 12:39:00 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
-#include <unistd.h> //stat() access()
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>   //to_string()
-#include <fcntl.h>  //open
-#include <unistd.h> //read
+#include <unistd.h>   //stat() access()
+#include <sys/stat.h> //struct stat
+#include <string>     //to_string()
+#include <fcntl.h>    //open
+#include <unistd.h>   //read
 
 /**
- * @brief Find the best matching location for the requested URL.
+ * @brief `Find the best matching location for the requested URL.`
+ */
+void init(responseT response)
+{
+    response.response = "";
+    response.code = 200;
+    response.contentLen = 0;
+    response.contentType = "";
+    response.body = "";
+
+    response.path = "";
+    response.infos.error = false;
+    response.infos.get = false;
+    response.infos.loc = false;
+    response.infos.fileExist = false;
+    response.infos.file = false;
+    response.infos.repository = false;
+    response.infos.read = false;
+}
+
+/**
+ * @brief `Find the best matching location for the requested URL.`
  *
  * This function iterates over all configured locations of the server and
  * tries to find which location matches the request URL.
@@ -114,20 +131,17 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
  * @brief `check if the file exist and if it's a file or something else`
  *
  */
-void existFile(responseT &response, request &request)
+void existFile(responseT &response)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
     {
+        response.infos.error = true;
         response.infos.fileExist = false;
         response.code = 404;
-        response.response = "HTTP/1.1 " + std::to_string(response.code) + " Forbidden\r\n";
-        response.response += "Content-Length: " + std::to_string(request._body.size());
-        response.response += "Content-Type: text/html";
-        response.response += "\r\n";
-        response.response += "\r\n";
-        request._body = "<html><body>404 Forbidden</body></html>";
-        response.response += request._body;
+        response.contentType += "text/plain";
+        response.body = "<html><body>404 Not Found</body></html>";
+        response.contentLen = response.body.size();
     }
     else
     {
@@ -150,20 +164,17 @@ void existFile(responseT &response, request &request)
  *
  * if not, error 403
  */
-void accessFile(responseT &response, request &request)
+void accessFile(responseT &response)
 {
     response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
-        response.infos.read = false;
+        response.infos.error = true;
+        response.infos.fileExist = false;
         response.code = 403;
-        response.response = "HTTP/1.1 " + std::to_string(response.code) + " Forbidden\r\n";
-        response.response += "Content-Length: " + std::to_string(request._body.size());
-        response.response += "Content-Type: text/html";
-        response.response += "\r\n";
-        response.response += "\r\n";
-        request._body = "<html><body>403 Forbidden</body></html>";
-        response.response += request._body;
+        response.contentType += "text/plain";
+        response.body = "<html><body>403 Forbidden</body></html>";
+        response.contentLen = response.body.size();
     }
     else
         response.infos.read = true;
@@ -214,13 +225,17 @@ int readFile(responseT &response)
 /**
  * @brief `search content type with the extension`
  *
- * .html -> text/html
+ * .html/htm -> text/html
  *
  * .css -> text/css
  *
  * .txt -> text/plain
  *
- * .jpeg -> image/jpeg
+ * .jpeg/jpg -> image/jpeg
+ *
+ * .png -> image/png
+ *
+ * .gif -> image/gif
  */
 void contentType(responseT &response, request &request)
 {
@@ -258,14 +273,29 @@ void contentType(responseT &response, request &request)
 /**
  * @brief `GET method main`
  *
- * step 1 : check if the method in the request is in the server
+ * step 0 : init
  *
- * step 2 : find the good location
+ * step 1 : find the good location
+ *
+ * step 2 : check if method is in server
+ *
+ * step 3 : build file path
+ *
+ * step 4 : check is the file exist
+ *
+ * step 5 : access to the file
+ *
+ * step 6 : read file who exist and have access to build body
+ *
+ * step 7 : search content type of the file
  *
  * @return 1 if problem, else 0
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
+    // step 0 : init
+    init(response);
+
     // step 1 : find the good location
     if (foundLocation(request, serverConfig, response) == false)
     {
@@ -280,20 +310,28 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
         return (1);
     }
 
-    // step 3 : build response path
+    // step 3 : build file path
     pathBuild(response, serverConfig, request);
 
     // step 4 : check is the file exist
-    existFile(response, request);
+    existFile(response);
 
     // step 5 : access to the file
-    accessFile(response, request);
+    if (response.infos.error == false)
+    {
+        std::cout << "\n\n\n JE SUIS ICI \n\n\n";
+        accessFile(response);
+    }
 
-    // step 6 : read file who exist and have access
-    if (readFile(response) == 1)
-        return (1);
+    // step 6 : read file who exist and have access to build body
+    if (response.infos.error == false)
+    {
+        if (readFile(response) == 1)
+            return (1);
+    }
 
     // step 7 : search content type of the file
     contentType(response, request);
+
     return (0);
 }
