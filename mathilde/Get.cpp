@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 16:40:13 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 11:42:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,8 +169,16 @@ void accessFile(responseT &response, request &request)
         response.infos.read = true;
 }
 
+/**
+ * @brief `open and read file to found body and content lenght`
+ *
+ * @return 1 if error else 0
+ */
 int readFile(responseT &response)
 {
+    response.body.clear();
+    response.contentLen = 0;
+
     // step 1 : open
     int fd;
     fd = open(response.path.c_str(), O_RDONLY);
@@ -181,7 +189,6 @@ int readFile(responseT &response)
     }
 
     // step 2 : read
-    std::string conf;
     ssize_t len = 1;
     while (len > 0)
     {
@@ -190,11 +197,62 @@ int readFile(responseT &response)
         if (len < 0)
         {
             std::cout << "Error : can't read file\n";
+            close(fd);
             return (1);
         }
-        conf.append(buffer, len);
+        response.body.append(buffer, len);
     }
+
+    // step 3 : search-content len
+    response.contentLen = response.body.size();
+
+    // step 4 : close
+    close(fd);
     return (0);
+}
+
+/**
+ * @brief `search content type with the extension`
+ *
+ * .html -> text/html
+ *
+ * .css -> text/css
+ *
+ * .txt -> text/plain
+ *
+ * .jpeg -> image/jpeg
+ */
+void contentType(responseT &response, request &request)
+{
+    size_t dot = request._url.rfind(".");
+    if (dot == std::string::npos)
+    {
+        response.contentType = "application/octet-stream";
+        return;
+    }
+    std::string extension = request._url.substr(dot);
+
+    // case index.html?user=42
+    if (extension.find("?") != std::string::npos)
+    {
+        size_t end = extension.find("?");
+        extension = extension.substr(0, end);
+    }
+
+    if (extension == ".html" || extension == ".htm")
+        response.contentType = "text/html";
+    else if (extension == ".css")
+        response.contentType = "text/css";
+    else if (extension == ".txt")
+        response.contentType = "text/plain";
+    else if (extension == ".jpeg" || extension == ".jpg")
+        response.contentType = "image/jpeg";
+    else if (extension == ".png")
+        response.contentType = "image/png";
+    else if (extension == ".gif")
+        response.contentType = "image/gif";
+    else
+        response.contentType = "application/octet-stream";
 }
 
 /**
@@ -232,7 +290,10 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     accessFile(response, request);
 
     // step 6 : read file who exist and have access
-    readFile(response);
+    if (readFile(response) == 1)
+        return (1);
 
+    // step 7 : search content type of the file
+    contentType(response, request);
     return (0);
 }
