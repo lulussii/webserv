@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/11 12:39:00 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 13:08:54 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,30 @@
 #include <unistd.h>   //read
 
 /**
- * @brief `Find the best matching location for the requested URL.`
+ * @brief `search html body for error`
+ *
+ * if code is 404 so the new path is root/404.html
+ */
+void errorCode(responseT &response, serverT &serverConfig, request &request)
+{
+    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
+         it != serverConfig.errorPage.end(); it++)
+    {
+        if (it->first == response.code)
+        {
+            if (request._url == "/")
+                response.path = serverConfig.root + it->second;
+            else
+                response.path = serverConfig.root + it->second;
+            readFile(response);
+            return;
+        }
+    }
+    response.body = "";
+}
+
+/**
+ * @brief `init response`
  */
 void init(responseT response)
 {
@@ -131,7 +154,7 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
  * @brief `check if the file exist and if it's a file or something else`
  *
  */
-void existFile(responseT &response)
+void existFile(responseT &response, serverT &serverConfig, request &request)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
@@ -140,7 +163,7 @@ void existFile(responseT &response)
         response.infos.fileExist = false;
         response.code = 404;
         response.contentType += "text/plain";
-        response.body = "<html><body>404 Not Found</body></html>";
+        errorCode(response, serverConfig, request);
         response.contentLen = response.body.size();
     }
     else
@@ -164,8 +187,10 @@ void existFile(responseT &response)
  *
  * if not, error 403
  */
-void accessFile(responseT &response)
+void accessFile(responseT &response, serverT &serverConfig, request &request)
 {
+    (void)serverConfig;
+    (void)request;
     response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
@@ -173,7 +198,7 @@ void accessFile(responseT &response)
         response.infos.fileExist = false;
         response.code = 403;
         response.contentType += "text/plain";
-        response.body = "<html><body>403 Forbidden</body></html>";
+        errorCode(response, serverConfig, request);
         response.contentLen = response.body.size();
     }
     else
@@ -314,14 +339,11 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     pathBuild(response, serverConfig, request);
 
     // step 4 : check is the file exist
-    existFile(response);
+    existFile(response, serverConfig, request);
 
     // step 5 : access to the file
     if (response.infos.error == false)
-    {
-        std::cout << "\n\n\n JE SUIS ICI \n\n\n";
-        accessFile(response);
-    }
+        accessFile(response, serverConfig, request);
 
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false)
