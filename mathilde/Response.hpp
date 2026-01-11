@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 11:55:24 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 14:30:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef struct response
     std::string body;
 
     std::string path;
+    std::string repo;
     locationsT *location;
     infosT infos;
 } responseT;

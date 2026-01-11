@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/11 13:08:54 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 14:37:40 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <string>     //to_string()
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
+#include <dirent.h>
 
 /**
  * @brief `search html body for error`
@@ -38,6 +39,26 @@ void errorCode(responseT &response, serverT &serverConfig, request &request)
         }
     }
     response.body = "";
+}
+
+void error404(responseT &response, serverT &serverConfig, request &request)
+{
+    response.infos.error = true;
+    response.infos.fileExist = false;
+    response.code = 404;
+    response.contentType += "text/plain";
+    errorCode(response, serverConfig, request);
+    response.contentLen = response.body.size();
+}
+
+void error403(responseT &response, serverT &serverConfig, request &request)
+{
+    response.infos.error = true;
+    response.infos.fileExist = false;
+    response.code = 403;
+    response.contentType += "text/plain";
+    errorCode(response, serverConfig, request);
+    response.contentLen = response.body.size();
 }
 
 /**
@@ -159,12 +180,13 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
     {
-        response.infos.error = true;
-        response.infos.fileExist = false;
-        response.code = 404;
-        response.contentType += "text/plain";
-        errorCode(response, serverConfig, request);
-        response.contentLen = response.body.size();
+        error404(response, serverConfig, request);
+        // response.infos.error = true;
+        // response.infos.fileExist = false;
+        // response.code = 404;
+        // response.contentType += "text/plain";
+        // errorCode(response, serverConfig, request);
+        // response.contentLen = response.body.size();
     }
     else
     {
@@ -177,7 +199,30 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
         else
         {
             response.infos.file = false;
-            response.infos.repository = true;
+            if (S_ISDIR(test.st_mode))
+            {
+                response.infos.repository = true;
+                if (response.location->autoindex == "on")
+                {
+                    DIR *dir = opendir(response.path.c_str());
+                    if (dir == NULL)
+                        error404(response, serverConfig, request);
+                    struct dirent *repo;
+                    while ((repo = readdir(dir)) != NULL)
+                    {
+                        std::string filename = repo->d_name;
+                        if (filename != "." && filename != "..")
+                            response.repo += filename;
+                    }
+                    response.contentType = "text/html";
+                    response.body = "<html><head><title>Index of " + request._url + "</title></head><body>";
+                    response.body += "<h1>Index of " + request._url + "</h1><ul>";
+                    response.body += "<li><a href='" + response.repo + "</a></li>";
+                    response.body += "</ul></body></html>";
+                    response.contentLen = response.body.size();
+                    closedir(dir);
+                }
+            }
         }
     }
 }
@@ -189,17 +234,16 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig, request &request)
 {
-    (void)serverConfig;
-    (void)request;
     response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
-        response.infos.error = true;
-        response.infos.fileExist = false;
-        response.code = 403;
-        response.contentType += "text/plain";
-        errorCode(response, serverConfig, request);
-        response.contentLen = response.body.size();
+        error403(response, serverConfig, request);
+        // response.infos.error = true;
+        // response.infos.fileExist = false;
+        // response.code = 403;
+        // response.contentType += "text/plain";
+        // errorCode(response, serverConfig, request);
+        // response.contentLen = response.body.size();
     }
     else
         response.infos.read = true;
@@ -342,11 +386,11 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     existFile(response, serverConfig, request);
 
     // step 5 : access to the file
-    if (response.infos.error == false)
+    if (response.infos.error == false && response.infos.repository == false)
         accessFile(response, serverConfig, request);
 
     // step 6 : read file who exist and have access to build body
-    if (response.infos.error == false)
+    if (response.infos.error == false && response.infos.repository == false)
     {
         if (readFile(response) == 1)
             return (1);
