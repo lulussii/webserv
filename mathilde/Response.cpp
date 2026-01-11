@@ -6,49 +6,32 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2025/12/22 15:46:19 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 11:53:01 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Request.hpp"
 #include <stdio.h> //sprintf
-
-/*
-
-Format : HTTP/<version> <status_code> <reason_phrase>\r\n
-
-Notion clé :
-    - HTTP/1.1 → version du protocole.
-    - 200 → code d’état (200 = succès).
-    - OK → phrase explicative (toujours obligatoire).
-
-Plus tard, tu auras d’autres codes : 404 (Not Found), 500 (Server Error), etc.
-
-*/
+#include <string>  //to_string()
 
 int responseMain(request &request, responseT &response)
 {
-    // status line : must add a int for 200 and a bool for OK
-    response.response = request._version + " 200 " + "OK\r\n";
+    // status line :
+    response.response = request._version + " " + std::to_string(response.code) + " OK\r\n";
 
     // header in response
-    response.response += "Content-Length: ";
-    size_t bodySize = request._body.size();
-    char buf[20];
-    //sprintf(buf, "%zu", bodySize); //linux
-    snprintf(buf, sizeof(buf), "%zu", bodySize); //macos
-    response.response += buf;
+    response.response += "Content-Length: " + std::to_string(response.contentLen);
     response.response += "\r\n";
 
-    response.response += "Content-Type: text/plain";
+    response.response += "Content-Type: " + response.contentType;
     response.response += "\r\n";
 
     // empty line
     response.response += "\r\n";
 
     // body
-    response.response += request._body;
+    response.response += response.body;
 
     return (0);
 }

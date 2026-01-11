@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/11 11:26:30 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 11:52:15 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,7 @@ void debug1(request &request)
                   << request._body << "\n";
 }
 
-void debug2(responseT &response)
-{
-    std::cout << "\n--- [RESPONSE] ---\n";
-    std::cout << response.response << "\n";
-}
-
-void debug3(serverT &serverConfig, utilsConfigT &utils)
+void debug2(serverT &serverConfig, utilsConfigT &utils)
 {
     (void)utils;
     std::cout << "\n--- [CONFIG] ---\n";
@@ -75,7 +69,7 @@ void debug3(serverT &serverConfig, utilsConfigT &utils)
     }
 }
 
-void debug4(responseT &response)
+void debug3(responseT &response)
 {
     std::cout << "\n--- [GET] ---\n";
     if (response.infos.loc == true)
@@ -101,16 +95,15 @@ void debug4(responseT &response)
     std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
-int main(int argc, char **argv)
+void debug4(responseT &response)
 {
-    (void)argv; // delete
+    std::cout << "\n--- [RESPONSE] ---\n";
+    std::cout << response.response << "\n";
+}
 
-    // step 0 : check number of args
-    if (argc != 1)
-    {
-        std::cout << "Usage : ./webserv \n";
-        return (1);
-    }
+int main(void)
+{
+    responseT response;
 
     // step 1 : request parsing
     request request;
@@ -119,21 +112,20 @@ int main(int argc, char **argv)
         return (1);
     // debug1(request);
 
-    // step 2 : simple response
-    responseT response;
-    if (responseMain(request, response) == 1)
-        return (1);
-    // debug2(response);
-
-    // step 3 : config file
+    // step 2 : config file
     utilsConfigT utils;
     serverT serverConfig;
     if (configMain(serverConfig, utils) == 1)
         return (1);
-    // debug3(serverConfig, utils);
+    // debug2(serverConfig, utils);
 
-    // method GET
+    // step 3 : method GET
     if (getMain(request, response, serverConfig) == 1)
+        return (1);
+    // debug3(response);
+    
+    // step  4 : response
+    if (responseMain(request, response) == 1)
         return (1);
     debug4(response);
     return (0);
