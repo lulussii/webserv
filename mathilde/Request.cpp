@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 13:12:15 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 15:07:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,16 +150,19 @@ int requestMain(request &request, parsingT &p)
 {
 
     // Simple GET
-    p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    //p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // Simple GET 2
     // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-    //inexistant 404
-    //  p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // inexistant 404
+    //p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // access 403 (must chang config file to index.html to secret.html)
     // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // autoindex : location /test { autoindex on; methods GET;
+    p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // POST with body
     //  p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";

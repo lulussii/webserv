@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 12:18:27 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 15:05:03 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ int responseMain(request &request, responseT &response)
         response.response += " Not Found\r\n";
     if (response.code == 403)
         response.response += " Forbidden\r\n";
+    if (response.code == 405)
+        response.response += " Method Not Allowed\r\n";
 
     // header in response
     response.response += "Content-Length: " + std::to_string(response.contentLen);

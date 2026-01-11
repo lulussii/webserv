@@ -6,60 +6,18 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/11 14:37:40 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/11 15:08:49 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
+#include "Error.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <string>     //to_string()
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>
-
-/**
- * @brief `search html body for error`
- *
- * if code is 404 so the new path is root/404.html
- */
-void errorCode(responseT &response, serverT &serverConfig, request &request)
-{
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
-         it != serverConfig.errorPage.end(); it++)
-    {
-        if (it->first == response.code)
-        {
-            if (request._url == "/")
-                response.path = serverConfig.root + it->second;
-            else
-                response.path = serverConfig.root + it->second;
-            readFile(response);
-            return;
-        }
-    }
-    response.body = "";
-}
-
-void error404(responseT &response, serverT &serverConfig, request &request)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 404;
-    response.contentType += "text/plain";
-    errorCode(response, serverConfig, request);
-    response.contentLen = response.body.size();
-}
-
-void error403(responseT &response, serverT &serverConfig, request &request)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 403;
-    response.contentType += "text/plain";
-    errorCode(response, serverConfig, request);
-    response.contentLen = response.body.size();
-}
 
 /**
  * @brief `init response`
@@ -179,15 +137,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
-    {
         error404(response, serverConfig, request);
-        // response.infos.error = true;
-        // response.infos.fileExist = false;
-        // response.code = 404;
-        // response.contentType += "text/plain";
-        // errorCode(response, serverConfig, request);
-        // response.contentLen = response.body.size();
-    }
     else
     {
         response.infos.fileExist = true;
@@ -208,18 +158,18 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                     if (dir == NULL)
                         error404(response, serverConfig, request);
                     struct dirent *repo;
+                    response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
+                    response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
                     while ((repo = readdir(dir)) != NULL)
                     {
                         std::string filename = repo->d_name;
                         if (filename != "." && filename != "..")
-                            response.repo += filename;
+                            response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
                     }
-                    response.contentType = "text/html";
-                    response.body = "<html><head><title>Index of " + request._url + "</title></head><body>";
-                    response.body += "<h1>Index of " + request._url + "</h1><ul>";
-                    response.body += "<li><a href='" + response.repo + "</a></li>";
-                    response.body += "</ul></body></html>";
+                    response.body += "\r\n</ul></body></html>";
                     response.contentLen = response.body.size();
+                    response.contentType = "text/html";
+                    response.code = 200;
                     closedir(dir);
                 }
             }
@@ -375,7 +325,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsGet(request, response) == false)
     {
-        std::cout << "Error: 405 Method Not Allowed\n";
+        error405(response);
         return (1);
     }
 
@@ -397,7 +347,8 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     }
 
     // step 7 : search content type of the file
-    contentType(response, request);
+    if (response.infos.repository == false)
+        contentType(response, request);
 
     return (0);
 }

@@ -6,14 +6,6 @@ server {
     error_page 500 /50x.html;
     client_max_body_size 1000000;
 
-    location /upload {
-        methods POST GET;
-        upload_dir /tmp/uploads;
-    }
-
-    location / {
-        methods GET;
-        index index.html;
-        autoindex on;
+    location /test { autoindex on; methods GET
     }
 }
