@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/07 11:56:24 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/09 15:13:58 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <map>
-#include "Client.hpp" // Assure-toi que ce fichier contient ta classe Client
+#include "Client.hpp"
 #include "Server.hpp"
+#include "ConfigParser.hpp"
 
 #define MAX_CLIENTS 10
 #define LISTEN_BACKLOG 5
@@ -123,13 +124,30 @@ int main(void) {
     return 0;
 } */
 
-int main() 
+int main(int argc, char **argv) 
 {
-	Server webServ(8080);
+	Server 			webServ(8080);
+	std::string 	config_file_path;
+	ConfigParser	parser;
 
-	try {
-		webServ.setup();
-		webServ.run();
+	if (argc == 1)
+	{
+		std::cout << "No argument provided. Using default config" << std::endl;
+		config_file_path = "default.conf";
+	}
+	else if (argc == 2)
+		config_file_path = argv[1];
+	else if (argc > 2)
+	{
+		std::cerr << "Error: Too many arguments" << std::endl;
+		return (1);
+	}
+	
+	try 
+	{
+		parser.parse(config_file_path);
+		//webServ.setup();
+		//webServ.run();
 	} catch (const std::exception &e) {
 		std::cerr << "Critical error: " << e.what() << std::endl;
 		return 1;

@@ -14,13 +14,16 @@ HEADER 		= $(HEADER_DIR)/Client.hpp			\
 			  $(HEADER_DIR)/Request.hpp			\
 			  $(HEADER_DIR)/Response.hpp		\
 			  $(HEADER_DIR)/Server.hpp			\
+			  $(HEADER_DIR)/ConfigParser.hpp	\
 
 
 SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/Request.cpp			\
 			  $(SRC_DIR)/Response.cpp 			\
 			  $(SRC_DIR)/Server.cpp 			\
-			  $(SRC_DIR)/Client.cpp
+			  $(SRC_DIR)/Client.cpp				\
+			  $(SRC_DIR)/ConfigParser.cpp		\
+
 
 OBJ_DIR 	= objs
 OBJ 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
