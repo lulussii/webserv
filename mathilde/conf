@@ -12,8 +12,9 @@ server {
     }
 
     location / {
-        methods GET;
+        methods POST GET;
         index index.html;
         autoindex on;
+        upload_dir /tmp/uploads;
     }
 }

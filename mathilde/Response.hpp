@@ -6,11 +6,15 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 14:30:44 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 15:54:56 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
+
 #include <iostream>
+#include "Config.hpp"
 #include "Request.hpp"
 
 typedef struct infos
@@ -23,6 +27,12 @@ typedef struct infos
     bool repository;
     bool read;
 } infosT;
+
+typedef struct post
+{
+    int count;
+    std::string path;
+} postT;
 
 typedef struct response
 {
@@ -37,6 +47,9 @@ typedef struct response
     std::string repo;
     locationsT *location;
     infosT infos;
+    postT *post;
 } responseT;
 
 int responseMain(request &request, responseT &response);
+
+#endif

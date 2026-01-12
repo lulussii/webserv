@@ -6,12 +6,11 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/11 15:05:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 16:16:04 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-#include "Request.hpp"
 #include <string> //to_string()
 
 int responseMain(request &request, responseT &response)
@@ -26,7 +25,12 @@ int responseMain(request &request, responseT &response)
         response.response += " Forbidden\r\n";
     if (response.code == 405)
         response.response += " Method Not Allowed\r\n";
-
+    if (response.code == 413)
+        response.response += " Payload Too Large\r\n";
+    if (response.code == 400)
+        response.response += " Bad Request\r\n";
+    if (response.code == 500)
+        response.response += " Server Error\r\n";
     // header in response
     response.response += "Content-Length: " + std::to_string(response.contentLen);
     response.response += "\r\n";

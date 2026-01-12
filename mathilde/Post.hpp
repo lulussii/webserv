@@ -1,28 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Error.hpp                                          :+:      :+:    :+:   */
+/*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/11 15:04:14 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 16:16:24 by mathildelau      ###   ########.fr       */
+/*   Created: 2026/01/12 13:28:43 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/12 14:59:35 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ERROR_HPP
-#define ERROR_HPP
+#ifndef POST_HPP
+#define POST_HPP
 
-#include "Response.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Config.hpp"
 
-void errorCode(responseT &response, serverT &serverConfig, request &request);
-void error404(responseT &response, serverT &serverConfig, request &request);
-void error403(responseT &response, serverT &serverConfig, request &request);
-void error405(responseT &response);
-void error413(responseT &response);
-void error400(responseT &response);
-void error500(responseT &response);
+int postMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

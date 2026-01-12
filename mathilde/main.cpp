@@ -6,16 +6,19 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 13:18:12 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 19:50:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream> //cout
 #include <unistd.h> //read
 #include <fcntl.h>  //open
+
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Config.hpp"
 #include "Get.hpp"
+#include "Post.hpp"
 
 void debug1(request &request)
 {
@@ -95,7 +98,30 @@ void debug3(responseT &response)
     std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
-void debug4(responseT &response)
+void debug4(responseT &response, int i)
+{
+    std::cout << "\n--- [POST] ---\n";
+    if (i == 1)
+    {
+        std::cout << "location : [" << response.location->path << "]" << std::endl;
+        for (size_t i = 0; i < response.location->methods.size(); ++i)
+            std::cout << "  Methods: [" << response.location->methods[i] << "] ";
+        std::cout << std::endl;
+        if (!response.location->index.empty())
+            std::cout << "  Index: [" << response.location->index << "]" << std::endl;
+
+        if (!response.location->autoindex.empty())
+            std::cout << "  Autoindex: [" << response.location->autoindex << "]" << std::endl;
+
+        if (!response.location->upload_dir.empty())
+            std::cout << "  Upload dir: [" << response.location->upload_dir << "]" << std::endl;
+    }
+    std::cout << "path new file : [" << response.post->path << "]\n";
+    if (response.infos.repository == true)
+        std::cout << "REPO OK\n";
+}
+
+void debug5(responseT &response)
 {
     std::cout << "\n--- [RESPONSE] ---\n";
     std::cout << response.response << "\n";
@@ -104,6 +130,7 @@ void debug4(responseT &response)
 int main(void)
 {
     responseT response;
+    response.post->count = 0;
 
     // step 1 : request parsing
     request request;
@@ -120,13 +147,25 @@ int main(void)
     // debug2(serverConfig, utils);
 
     // step 3 : method GET
-    if (getMain(request, response, serverConfig) == 1)
-        return (1);
+    if (request._method == "GET")
+    {
+        if (getMain(request, response, serverConfig) == 1)
+            return (1);
+    }
     // debug3(response);
-    
-    // step  4 : response
+
+    // step 4 : method POST
+    // if (request._method == "POST")
+    // {
+    // if (postMain(request, response, serverConfig) == 1)
+    //     return (1);
+    // }
+    postMain(request, response, serverConfig);
+    // debug4(response, 1);
+
+    // step  5 : response
     if (responseMain(request, response) == 1)
         return (1);
-    debug4(response);
+    // debug5(response);
     return (0);
 }

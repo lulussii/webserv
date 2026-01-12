@@ -1,4 +1,16 @@
-#include "Request.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Error.cpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/12 16:15:41 by mathildelau      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "Error.hpp"
 #include "Get.hpp"
 
 /**
@@ -49,6 +61,36 @@ void error405(responseT &response)
     response.infos.error = true;
     response.infos.fileExist = false;
     response.code = 405;
+    response.contentType += "text/plain";
+    response.body = "";
+    response.contentLen = response.body.size();
+}
+
+void error413(responseT &response)
+{
+    response.infos.error = true;
+    response.infos.fileExist = false;
+    response.code = 413;
+    response.contentType += "text/plain";
+    response.body = "";
+    response.contentLen = response.body.size();
+}
+
+void error400(responseT &response)
+{
+    response.infos.error = true;
+    response.infos.fileExist = false;
+    response.code = 400;
+    response.contentType += "text/plain";
+    response.body = "";
+    response.contentLen = response.body.size();
+}
+
+void error500(responseT &response)
+{
+    response.infos.error = true;
+    response.infos.fileExist = false;
+    response.code = 500;
     response.contentType += "text/plain";
     response.body = "";
     response.contentLen = response.body.size();

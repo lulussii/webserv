@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/12 13:19:42 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 19:51:31 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,9 @@ static void postBody(parsingT &p, request &request)
 
     if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
         request._body = p.line.substr(0, content_length);
+    request._body += "jsp";
+    std::cout << request._body;
+    request.contentLenght = content_length;
 }
 
 /**
@@ -150,23 +153,27 @@ int requestMain(request &request, parsingT &p)
 {
 
     // Simple GET
-    p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    // p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // Simple GET 2
     // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-    // inexistant 404
+    // GET inexistant 404
     // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // access 403 (must chang config file to index.html to secret.html)
+    // GET access 403 (must chang config file to index.html to secret.html)
     // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // autoindex : location /test { autoindex on; methods GET;
+    // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // POST with body
-    //  p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
+    // POST simple test
+    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+
+    
     // DELETE without body
     // p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
 

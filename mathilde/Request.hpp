@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/06 17:13:19 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 14:56:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 
 #include <iostream>
 #include <map>
-#include "Config.hpp"
 
 class request
 {
@@ -25,6 +24,7 @@ public:
     std::string _version;
     std::map<std::string, std::string> headers;
     std::string _body;
+    size_t contentLenght;
 };
 
 typedef struct parsingS

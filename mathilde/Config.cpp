@@ -6,15 +6,15 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/10 11:44:57 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/12 16:55:35 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
-#include "Request.hpp"
 #include <fcntl.h>  //open
 #include <unistd.h> //read
 #include <cstdlib>  // atoi don't know if I can use it
+#include <sstream> //streamstring
 
 /**
  * @brief `open config file`
@@ -214,7 +214,17 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
     utils.l = utils.pars.substr(0, end);
     utils.pars = utils.pars.substr(end);
 
-    serverConfig.locations[path].methods.push_back(addLocation(utils, "methods"));
+    // serverConfig.locations[path].methods.push_back(addLocation(utils, "methods"));
+    std::string methodsLine = addLocation(utils, "methods");
+
+    std::stringstream ss(methodsLine);
+    std::string method;
+
+    while (ss >> method)
+    {
+        serverConfig.locations[path].methods.push_back(method);
+    }
+
     if (addLocation(utils, "index") == "NULL")
         serverConfig.locations[path].index = "NULL";
     else
