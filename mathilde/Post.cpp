@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 10:45:38 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 11:35:12 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include <string>     //to_string()
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
+#include <fcntl.h>    //open
+#include <unistd.h>   //read
 #include <dirent.h>
 
 void initPost(responseT &response)
@@ -139,10 +141,13 @@ bool clientMaxBodySize(serverT &serverConfig, request &request)
  *
  * @return true if ok, else false
  */
-bool bodyExist(request &request)
+bool bodyExist(request &request, responseT &response)
 {
     if (request._body.size() > 0)
+    {
+        response.body = request._body;
         return (true);
+    }
     return (false);
 }
 
@@ -182,11 +187,92 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
     }
     else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
-        std::cout << "ICI\n";
         error403(response, serverConfig, request);
+        return ;
     }
     else
         response.infos.repository = true;
+}
+
+/**
+ * @brief `create a file and write in`
+ *
+ * step 1 : check is file exist, yes code 200 else code 201
+ * 
+ * step 2 : open file and create it if it's not
+ * 
+ * step 3 : write body in file
+ * 
+ * 
+ * step 4 : close fd
+ * 
+ */
+int createAndWriteFile(responseT &response)
+{
+    struct stat test;
+    int fd;
+    
+    if (stat(response.post.path.c_str(), &test) == -1)
+    {
+        response.code = 201;
+        fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 777);
+        if (fd < 0)
+        {
+            std::cout << "Error : cannot open file\n";
+            return (1);
+        }
+    }
+    else
+    {
+        response.code = 200;
+        fd = open(response.post.path.c_str(), O_TRUNC | O_WRONLY, 777);
+        if (fd < 0)
+        {
+            std::cout << "Error : cannot open file\n";
+            return (1);
+        }
+    }
+
+    write(fd, response.body.c_str(), response.body.size());
+
+    close(fd);
+
+    return (0);
+}
+
+void prepareResponse(responseT &response, request request)
+{
+    response.contentLen = response.body.size();
+    
+    size_t dot = request._url.rfind(".");
+    if (dot == std::string::npos)
+    {
+        response.contentType = "application/octet-stream";
+        return;
+    }
+    std::string extension = request._url.substr(dot);
+
+    // case index.html?user=42
+    if (extension.find("?") != std::string::npos)
+    {
+        size_t end = extension.find("?");
+        extension = extension.substr(0, end);
+    }
+
+    if (extension == ".html" || extension == ".htm")
+        response.contentType = "text/html";
+    else if (extension == ".css")
+        response.contentType = "text/css";
+    else if (extension == ".txt")
+        response.contentType = "text/plain";
+    else if (extension == ".jpeg" || extension == ".jpg")
+        response.contentType = "image/jpeg";
+    else if (extension == ".png")
+        response.contentType = "image/png";
+    else if (extension == ".gif")
+        response.contentType = "image/gif";
+    else
+        response.contentType = "application/octet-stream";
 }
 
 int postMain(request &request, responseT &response, serverT &serverConfig)
@@ -216,7 +302,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     }
 
     // step 4 : check if body exist
-    if (bodyExist(request) == false)
+    if (bodyExist(request, response) == false)
     {
         error400(response);
         return (1);
@@ -227,6 +313,12 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 6 : check repo
     checkRepo(request, response, serverConfig);
+
+    // step 7 : create and write on file
+    if (createAndWriteFile(response) == 1)
+        return (1);
+
+    prepareResponse(response, request);
 
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:46:39 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 10:50:37 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,9 @@ void debug4(responseT &response, int i)
     std::cout << "path new file : [" << response.post.path << "]\n";
     if (response.infos.repository == true)
         std::cout << "REPO OK\n";
+    std::cout << "Body : \n[" << response.body << "]\n";
+    // std::cout << "Content Lenght : " << response.contentLen << std::endl;
+    // std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
 void debug5(responseT &response)

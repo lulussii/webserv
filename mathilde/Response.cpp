@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/12 16:16:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 11:40:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int responseMain(request &request, responseT &response)
 {
     // status line :
     response.response = request._version + " " + std::to_string(response.code);
-    if (response.infos.error == false)
+    if (response.code == 200)
         response.response += " OK\r\n";
     if (response.code == 404)
         response.response += " Not Found\r\n";
@@ -31,6 +31,8 @@ int responseMain(request &request, responseT &response)
         response.response += " Bad Request\r\n";
     if (response.code == 500)
         response.response += " Server Error\r\n";
+    if (response.code == 201)
+        response.response += " Created\r\n";
     // header in response
     response.response += "Content-Length: " + std::to_string(response.contentLen);
     response.response += "\r\n";
@@ -42,7 +44,8 @@ int responseMain(request &request, responseT &response)
     response.response += "\r\n";
 
     // body
-    response.response += response.body;
+    if (request._method == "GET")
+        response.response += response.body;
 
     return (0);
 }

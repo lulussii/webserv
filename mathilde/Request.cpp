@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 10:48:12 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 11:38:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ static void postBody(parsingT &p, request &request)
         content_length = atoi(request.headers["Content-Length"].c_str()); // chang atoi
 
     if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
-        request._body = p.line.substr(0, content_length);
+        request._body = p.line.substr(0, content_length + 1);
     
     request.contentLenght = content_length;
 }
@@ -167,7 +167,7 @@ int requestMain(request &request, parsingT &p)
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // POST with body /home/mlaussel/test/www/html/tmp/uploads
-    //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
    
     // POST simple test 
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";

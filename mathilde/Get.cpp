@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:14:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 10:57:53 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,27 +18,6 @@
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>
-
-// /**
-//  * @brief `init response`
-//  */
-// void init(responseT &response)
-// {
-//     response.response = "";
-//     response.code = 200;
-//     response.contentLen = 0;
-//     response.contentType = "";
-//     response.body = "";
-
-//     response.path = "";
-//     response.infos.error = false;
-//     response.infos.get = false;
-//     response.infos.loc = false;
-//     response.infos.fileExist = false;
-//     response.infos.file = false;
-//     response.infos.repository = false;
-//     response.infos.read = false;
-// }
 
 /**
  * @brief `Find the best matching location for the requested URL.`
