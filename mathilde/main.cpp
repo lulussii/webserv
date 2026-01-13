@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:35:30 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 09:46:39 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ int main(void)
     {
         if (getMain(request, response, serverConfig) == 1)
             return (1);
-        // debug3(response, 1);
+        debug3(response, 1);
     }
     
 

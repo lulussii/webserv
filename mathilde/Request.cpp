@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 09:39:47 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 09:56:13 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int firstLine(parsingT &p, request &request)
 
     size_t i = p.line.find("\r\n");
 
-    if (i == std::string::npos) // security macos
+    if (i == std::string::npos)
         i = p.line.find('\n');
 
     if (i == std::string::npos) // security for find, if doesn't find, find return the bigger size_t
@@ -168,19 +168,13 @@ int requestMain(request &request, parsingT &p)
 
     // POST with body
     p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+   
 
     // POST simple test
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     
-    // DELETE without body
-    // p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
-
-    // GET with query params
-    // p.line = "GET /search?q=webserv HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
-
-    // POST with body but content-lenght: 0
-    // p.line = "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
+    
 
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
