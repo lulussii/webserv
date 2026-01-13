@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 10:26:14 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/13 10:27:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@
 int openConf()
 {
     int fd;
-    fd = open("./conf", O_RDONLY);
+    fd = open("/home/lserodon/Desktop/webserv/src/conf", O_RDONLY);
     if (fd < 0)
     {
-        std::cout << "Error : cannot open file\n";
+        std::cout << "ICIError : cannot open file\n";
         return (-1);
     }
     return (fd);

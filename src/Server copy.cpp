@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/13 13:32:43 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/02 16:09:30 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,119 +18,7 @@
 #include <arpa/inet.h>
 #include <poll.h>
 
-#include "Init.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
-#include "Config.hpp"
-#include "Get.hpp"
-#include "Post.hpp"
-
 #define LISTEN_BACKLOG 5
-
-void debug1(request &request)
-{
-    std::cout << "--- [REQUEST] ---\n";
-    std::cout << "Method: [" << request._method << "] " << "\n";
-    std::cout << "URL: [" << request._url << "] " << "\n";
-    std::cout << "Version: [" << request._version << "] " << "\n";
-    std::cout << "Headers:\n";
-    for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it)
-        std::cout << "  " << it->first << ": " << it->second << "\n";
-    if (!request._body.empty())
-        std::cout << "Body:\n"
-                  << request._body << "\n";
-}
-
-void debug2(serverT &serverConfig, utilsConfigT &utils)
-{
-    (void)utils;
-    std::cout << "\n--- [CONFIG] ---\n";
-    // std::cout << "server : " << utils.server << std::endl;
-    // std::cout << "\nlocations : " << utils.location << std::endl;
-
-    std::cout << "  --Server--";
-    std::cout << "\nlisten : " << serverConfig.listen;
-    std::cout << "\nroot : " << serverConfig.root;
-    std::cout << "\nerror_page : \n";
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
-         it != serverConfig.errorPage.end(); it++)
-    {
-        std::cout << "      Code : " << it->first << "| Page : " << it->second << std::endl;
-    }
-    std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
-
-    std::cout << "  \n--Locations--\n";
-    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
-         it != serverConfig.locations.end(); ++it)
-    {
-        locationsT &location = it->second;
-        std::cout << "location : [" << it->first << "]" << std::endl;
-        for (size_t i = 0; i < location.methods.size(); ++i)
-            std::cout << "  Methods: [" << location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!location.index.empty())
-            std::cout << "  Index: [" << location.index << "]" << std::endl;
-
-        if (!location.autoindex.empty())
-            std::cout << "  Autoindex: [" << location.autoindex << "]" << std::endl;
-
-        if (!location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << location.upload_dir << "]" << std::endl;
-    }
-}
-
-void debug3(responseT &response, int i)
-{
-    std::cout << "\n--- [GET] ---\n";
-    if (i == 1)
-    {
-        std::cout << "location : [" << response.location.path << "]" << std::endl;
-        for (size_t i = 0; i < response.location.methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!response.location.index.empty())
-            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-        if (!response.location.autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-        if (!response.location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-    }
-    std::cout << "file path : [" << response.path << "]\n";
-    // std::cout << "Body : \n[" << response.body << "]\n";
-    // std::cout << "Content Lenght : " << response.contentLen << std::endl;
-    // std::cout << "Content Type : " << response.contentType << std::endl;
-}
-
-void debug4(responseT &response, int i)
-{
-    std::cout << "\n--- [POST] ---\n";
-    if (i == 1)
-    {
-        std::cout << "location : [" << response.location.path << "]" << std::endl;
-        for (size_t i = 0; i < response.location.methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!response.location.index.empty())
-            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-        if (!response.location.autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-        if (!response.location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-    }
-    std::cout << "path new file : [" << response.post.path << "]\n";
-    if (response.infos.repository == true)
-        std::cout << "REPO OK\n";
-}
-
-void debug5(responseT &response)
-{
-    std::cout << "\n--- [RESPONSE] ---\n";
-    std::cout << response.response << "\n";
-}
 
 /**
  * @brief Constructeur : Initialise le serveur et vide le tableau de pollfd.
@@ -254,25 +142,11 @@ void	Server::_acceptNewConnection()
 void	Server::_handleClientActivity(int i)
 {
 	Client &c = _clients[_fds[i].fd];
-	parsingT	p; 
 
 	// Si le client envoie des données
 	if (_fds[i].revents & POLLIN)
 		_readFromClient(i, c);
 
-	if (c.requestComplete == true)
-	{
-		p.line = c.readBuffer;
-		requestMain(c.req, p);
-		responseMain(c.req, c.res);
-		std::cout << c.res.response << std::endl;
-		c.writeBuffer = c.res.response;
-		c.isReadyToWrite = true;
-		_enableWriting(i);
-		c.requestComplete = false;
-		c.readBuffer.clear();
-	}
-		
 	// Si la réponse est prête et que le client est prêt à la recevoir
 	if (_fds[i].fd != -1 && (_fds[i].revents & POLLOUT))
 		_writeToClient(i, c);
@@ -295,7 +169,21 @@ void	Server::_readFromClient(int i, Client &c)
 		// Détection de la fin des headers HTTP (\r\n\r\n)
 		if (c.readBuffer.find("\r\n\r\n") != std::string::npos)
 		{
-			c.requestComplete = true;
+			parsingT p;
+			p.line = c.readBuffer;
+			
+			// Parsing de la requête 
+			if (requestMain(c.req, p) == 0)
+			{
+				// Génération de la réponse
+				responseMain(c.req, c.res);
+
+				//Stockage de la réponse brute et on préient poll qu'on veut écrire
+				c.writeBuffer = c.res.response;
+				c.isReadyToWrite = true;
+				_enableWriting(i);
+			}
+			c.readBuffer.clear(); // On vide pour la prochaine requête
 		}
 	}
 }
@@ -353,50 +241,3 @@ void	Server::_disableWriting(int i)
 {
 	_fds[i].events = POLLIN;
 }
-/* 
-
-	
-	responseT response;
-    utilsConfigT utils;
-    serverT serverConfig;
-    request request;
-    parsingT p;
-    
-    // step 0 : init
-    initMain(request, response, serverConfig);
-    
-    // step 1 : request parsing
-
-    if (requestMain(request, p) == 1)
-        return;
-    // debug1(request);
-
-    // step 2 : config file
-    
-    if (configMain(serverConfig, utils) == 1)
-        return;
-    // debug2(serverConfig, utils);
-
-    // step 3 : method GET
-    if (request._method == "GET")
-    {
-        if (getMain(request, response, serverConfig) == 1)
-            return;
-        // debug3(response, 1);
-    }
-    
-
-    // step 4 : method POST
-    if (request._method == "POST")
-    {
-        if (postMain(request, response, serverConfig) == 1)
-            return;
-        // debug4(response, 1);
-    }
-    
-    // step  5 : response
-    if (responseMain(request, response) == 1)
-	{return ;}
-
-    // debug5(response);
-	c.reponse = response.response; */

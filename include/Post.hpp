@@ -1,36 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/13 13:15:42 by lserodon         ###   ########.fr       */
+/*   Created: 2026/01/12 13:28:43 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/12 14:59:35 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef POST_HPP
+#define POST_HPP
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Config.hpp"
 
-class Client
-{
-	public: 
-		int			fd;
-		std::string	readBuffer;
-		std::string	writeBuffer;
-		std::string reponse;
-		request		req;
-		response 	res;
-		bool		isReadyToWrite;
-		bool		requestComplete;
-
-		Client();
-		Client(int client_fd);
-		~Client();
-};
+int postMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

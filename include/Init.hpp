@@ -1,36 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Init.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/13 13:15:42 by lserodon         ###   ########.fr       */
+/*   Created: 2026/01/13 08:52:02 by mlaussel          #+#    #+#             */
+/*   Updated: 2026/01/13 08:52:41 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef INIT_HPP
+#define INIT_HPP
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Config.hpp"
 
-class Client
-{
-	public: 
-		int			fd;
-		std::string	readBuffer;
-		std::string	writeBuffer;
-		std::string reponse;
-		request		req;
-		response 	res;
-		bool		isReadyToWrite;
-		bool		requestComplete;
-
-		Client();
-		Client(int client_fd);
-		~Client();
-};
+void initMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

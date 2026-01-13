@@ -5,7 +5,7 @@
 NAME 		= webserv
 
 CC 			= c++
-CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -Iinclude -g -MMD -MP
+CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -std=c++11 -Iinclude -g -MMD -MP
 
 SRC_DIR 	= src
 HEADER_DIR 	= include
@@ -20,6 +20,11 @@ SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/Request.cpp			\
 			  $(SRC_DIR)/Response.cpp 			\
 			  $(SRC_DIR)/Server.cpp 			\
+			  $(SRC_DIR)/Config.cpp 			\
+			  $(SRC_DIR)/Error.cpp 			\
+			  $(SRC_DIR)/Get.cpp 			\
+			  $(SRC_DIR)/Post.cpp 			\
+			  $(SRC_DIR)/Init.cpp 			\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= objs
