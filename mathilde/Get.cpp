@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 15:03:45 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 09:14:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,26 +19,26 @@
 #include <unistd.h>   //read
 #include <dirent.h>
 
-/**
- * @brief `init response`
- */
-void init(responseT &response)
-{
-    response.response = "";
-    response.code = 200;
-    response.contentLen = 0;
-    response.contentType = "";
-    response.body = "";
+// /**
+//  * @brief `init response`
+//  */
+// void init(responseT &response)
+// {
+//     response.response = "";
+//     response.code = 200;
+//     response.contentLen = 0;
+//     response.contentType = "";
+//     response.body = "";
 
-    response.path = "";
-    response.infos.error = false;
-    response.infos.get = false;
-    response.infos.loc = false;
-    response.infos.fileExist = false;
-    response.infos.file = false;
-    response.infos.repository = false;
-    response.infos.read = false;
-}
+//     response.path = "";
+//     response.infos.error = false;
+//     response.infos.get = false;
+//     response.infos.loc = false;
+//     response.infos.fileExist = false;
+//     response.infos.file = false;
+//     response.infos.repository = false;
+//     response.infos.read = false;
+// }
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -87,7 +87,7 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
             if (locPath.size() > bestLen)
             {
                 bestLen = locPath.size();
-                response.location = &it->second;
+                response.location = it->second;
                 response.infos.loc = true;
                 found = true;
             }
@@ -105,9 +105,9 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
  */
 bool checkIsGet(request &request, responseT &response)
 {
-    for (size_t i = 0; i < response.location->methods.size(); ++i)
+    for (size_t i = 0; i < response.location.methods.size(); ++i)
     {
-        if (response.location->methods[i] == request._method)
+        if (response.location.methods[i] == request._method)
         {
             response.infos.get = true;
             return (true);
@@ -123,9 +123,9 @@ bool checkIsGet(request &request, responseT &response)
 void pathBuild(responseT &response, serverT &serverConfig, request &request)
 {
     if (request._url == "/")
-        response.path = serverConfig.root + response.location->index;
+        response.path = serverConfig.root + response.location.index;
     else
-        // response.path = serverConfig.root + response.location->index;
+        // response.path = serverConfig.root + response.location.index;
         response.path = serverConfig.root + request._url;
 }
 
@@ -152,7 +152,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
             if (S_ISDIR(test.st_mode))
             {
                 response.infos.repository = true;
-                if (response.location->autoindex == "on")
+                if (response.location.autoindex == "on")
                 {
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
@@ -312,8 +312,8 @@ void contentType(responseT &response, request &request)
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
-    // step 0 : init
-    init(response);
+    // // step 0 : init
+    // init(response);
 
     // step 1 : find the good location
     if (foundLocation(request, serverConfig, response) == false)

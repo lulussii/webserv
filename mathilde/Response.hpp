@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/12 15:54:56 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 09:13:23 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,9 @@ typedef struct response
 
     std::string path;
     std::string repo;
-    locationsT *location;
+    locationsT location;
     infosT infos;
-    postT *post;
+    postT post;
 } responseT;
 
 int responseMain(request &request, responseT &response);

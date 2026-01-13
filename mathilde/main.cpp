@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 19:50:44 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 09:35:30 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 
+#include "Init.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Config.hpp"
@@ -72,30 +73,28 @@ void debug2(serverT &serverConfig, utilsConfigT &utils)
     }
 }
 
-void debug3(responseT &response)
+void debug3(responseT &response, int i)
 {
     std::cout << "\n--- [GET] ---\n";
-    if (response.infos.loc == true)
-        std::cout << "GOOD location\n";
-    if (response.infos.get == true)
-        std::cout << "GOOD method\n";
-    std::cout << "file path : [" << response.path << "]\n";
-    if (response.infos.fileExist == false)
-        std::cout << "File doesn't exist\n";
-    else
+    if (i == 1)
     {
-        if (response.infos.file == true)
-            std::cout << "File exist\n";
-        else
-            std::cout << "It's a repo\n";
+        std::cout << "location : [" << response.location.path << "]" << std::endl;
+        for (size_t i = 0; i < response.location.methods.size(); ++i)
+            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
+        std::cout << std::endl;
+        if (!response.location.index.empty())
+            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
+
+        if (!response.location.autoindex.empty())
+            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
+
+        if (!response.location.upload_dir.empty())
+            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
     }
-    if (response.infos.read == false)
-        std::cout << "new response : HTTP/1.1 403 Forbidden\r\n";
-    else
-        std::cout << "Read OK\n";
-    std::cout << "Body : \n[" << response.body << "]\n";
-    std::cout << "Content Lenght : " << response.contentLen << std::endl;
-    std::cout << "Content Type : " << response.contentType << std::endl;
+    std::cout << "file path : [" << response.path << "]\n";
+    // std::cout << "Body : \n[" << response.body << "]\n";
+    // std::cout << "Content Lenght : " << response.contentLen << std::endl;
+    // std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
 void debug4(responseT &response, int i)
@@ -103,20 +102,20 @@ void debug4(responseT &response, int i)
     std::cout << "\n--- [POST] ---\n";
     if (i == 1)
     {
-        std::cout << "location : [" << response.location->path << "]" << std::endl;
-        for (size_t i = 0; i < response.location->methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location->methods[i] << "] ";
+        std::cout << "location : [" << response.location.path << "]" << std::endl;
+        for (size_t i = 0; i < response.location.methods.size(); ++i)
+            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
         std::cout << std::endl;
-        if (!response.location->index.empty())
-            std::cout << "  Index: [" << response.location->index << "]" << std::endl;
+        if (!response.location.index.empty())
+            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
 
-        if (!response.location->autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location->autoindex << "]" << std::endl;
+        if (!response.location.autoindex.empty())
+            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
 
-        if (!response.location->upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location->upload_dir << "]" << std::endl;
+        if (!response.location.upload_dir.empty())
+            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
     }
-    std::cout << "path new file : [" << response.post->path << "]\n";
+    std::cout << "path new file : [" << response.post.path << "]\n";
     if (response.infos.repository == true)
         std::cout << "REPO OK\n";
 }
@@ -130,18 +129,22 @@ void debug5(responseT &response)
 int main(void)
 {
     responseT response;
-    response.post->count = 0;
-
-    // step 1 : request parsing
+    utilsConfigT utils;
+    serverT serverConfig;
     request request;
     parsingT p;
+    
+    // step 0 : init
+    initMain(request, response, serverConfig);
+    
+    // step 1 : request parsing
+
     if (requestMain(request, p) == 1)
         return (1);
     // debug1(request);
 
     // step 2 : config file
-    utilsConfigT utils;
-    serverT serverConfig;
+    
     if (configMain(serverConfig, utils) == 1)
         return (1);
     // debug2(serverConfig, utils);
@@ -151,21 +154,21 @@ int main(void)
     {
         if (getMain(request, response, serverConfig) == 1)
             return (1);
+        // debug3(response, 1);
     }
-    // debug3(response);
+    
 
     // step 4 : method POST
-    // if (request._method == "POST")
-    // {
-    // if (postMain(request, response, serverConfig) == 1)
-    //     return (1);
-    // }
-    postMain(request, response, serverConfig);
-    // debug4(response, 1);
-
+    if (request._method == "POST")
+    {
+        if (postMain(request, response, serverConfig) == 1)
+            return (1);
+        debug4(response, 1);
+    }
+    
     // step  5 : response
     if (responseMain(request, response) == 1)
         return (1);
-    // debug5(response);
+    debug5(response);
     return (0);
 }

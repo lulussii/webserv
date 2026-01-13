@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 19:51:46 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 09:39:49 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,34 @@
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <dirent.h>
+
+void initPost(responseT &response)
+{
+    response.response = "";
+    response.code = 200;
+    response.contentLen = 0;
+    response.contentType = "";
+    response.body = "";
+
+    response.path = "";
+    response.repo = "";
+    
+    response.infos.error = false;
+    response.infos.get = false;
+    response.infos.loc = false;
+    response.infos.fileExist = false;
+    response.infos.file = false;
+    response.infos.repository = false;
+    response.infos.read = false;
+
+    response.post.count = 0;
+    response.post.path = "";
+
+    response.location.path = "";
+    response.location.index = "";
+    response.location.autoindex = "";
+    response.location.upload_dir = "";
+}
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -64,7 +92,7 @@ int foundLocationPost(request &request, serverT &serverConfig, responseT &respon
             if (locPath.size() > bestLen)
             {
                 bestLen = locPath.size();
-                response.location = &it->second;
+                response.location = it->second;
                 response.infos.loc = true;
                 found = true;
             }
@@ -82,9 +110,9 @@ int foundLocationPost(request &request, serverT &serverConfig, responseT &respon
  */
 bool checkIsPost(request &request, responseT &response)
 {
-    for (size_t i = 0; i < response.location->methods.size(); ++i)
+    for (size_t i = 0; i < response.location.methods.size(); ++i)
     {
-        if (response.location->methods[i] == request._method)
+        if (response.location.methods[i] == request._method)
         {
             response.infos.get = true;
             return (true);
@@ -123,7 +151,7 @@ bool bodyExist(request &request)
  */
 void createFileName(responseT &response)
 {
-    response.post->path = response.location->upload_dir + "/" + "upload_" + std::to_string(response.post->count) + ".txt";
+    response.post.path = response.location.upload_dir + "/" + "upload_" + std::to_string(response.post.count) + ".txt";
 }
 
 /**
@@ -141,8 +169,9 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
 {
     struct stat test;
 
-    if (stat(response.location->upload_dir.c_str(), &test) == -1)
+    if (stat(response.location.upload_dir.c_str(), &test) == -1)
     {
+        std::cout << "ICI\n";
         error500(response);
         return;
     }
@@ -151,7 +180,7 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
         error500(response);
         return;
     }
-    else if (access(response.location->upload_dir.c_str(), W_OK) == -1)
+    else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
         error403(response, serverConfig, request);
     }
@@ -161,6 +190,9 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
 
 int postMain(request &request, responseT &response, serverT &serverConfig)
 {
+    // step 0 : init 
+    initPost(response);
+    
     // step 1 : find the good location
     if (foundLocationPost(request, serverConfig, response) == false)
     {
