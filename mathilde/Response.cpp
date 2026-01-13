@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 11:40:19 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 12:23:06 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,13 @@ int responseMain(request &request, responseT &response)
         response.response += " Server Error\r\n";
     if (response.code == 201)
         response.response += " Created\r\n";
+    if (response.code == 204)
+        response.response += " No Content\r\n";
     // header in response
-    response.response += "Content-Length: " + std::to_string(response.contentLen);
+    if (request._method == "DELETE")
+        response.response += "Content-Length: 0";
+    else
+        response.response += "Content-Length: " + std::to_string(response.contentLen);
     response.response += "\r\n";
 
     response.response += "Content-Type: " + response.contentType;

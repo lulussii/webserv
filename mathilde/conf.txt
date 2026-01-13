@@ -1,0 +1,22 @@
+server {
+    listen 8080;
+    root /home/mlaussel/test/www/html;
+    error_page 404 /404.html;
+    error_page 403 /403.html;
+    error_page 500 /50x.html;
+    client_max_body_size 1000000;
+
+    location /upload {
+        methods POST GET;
+        index index.html;
+        autoindex on;
+        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
+    }
+
+    location / {
+        methods POST GET;
+        index index.html;
+        autoindex on;
+        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
+    }
+}

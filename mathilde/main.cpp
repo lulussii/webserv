@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 10:50:37 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 12:25:51 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "Config.hpp"
 #include "Get.hpp"
 #include "Post.hpp"
+#include "Delete.hpp"
 
 void debug1(request &request)
 {
@@ -92,9 +93,6 @@ void debug3(responseT &response, int i)
             std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
     }
     std::cout << "file path : [" << response.path << "]\n";
-    // std::cout << "Body : \n[" << response.body << "]\n";
-    // std::cout << "Content Lenght : " << response.contentLen << std::endl;
-    // std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
 void debug4(responseT &response, int i)
@@ -123,7 +121,28 @@ void debug4(responseT &response, int i)
     // std::cout << "Content Type : " << response.contentType << std::endl;
 }
 
-void debug5(responseT &response)
+void debug5(responseT &response, int i)
+{
+    std::cout << "\n--- [DELETE] ---\n";
+    if (i == 1)
+    {
+        std::cout << "location : [" << response.location.path << "]" << std::endl;
+        for (size_t i = 0; i < response.location.methods.size(); ++i)
+            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
+        std::cout << std::endl;
+        if (!response.location.index.empty())
+            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
+
+        if (!response.location.autoindex.empty())
+            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
+
+        if (!response.location.upload_dir.empty())
+            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
+    }
+    std::cout << "file path : [" << response.path << "]\n";
+}
+
+void debug6(responseT &response)
 {
     std::cout << "\n--- [RESPONSE] ---\n";
     std::cout << response.response << "\n";
@@ -157,7 +176,7 @@ int main(void)
     {
         if (getMain(request, response, serverConfig) == 1)
             return (1);
-        debug3(response, 1);
+        // debug3(response, 1);
     }
     
 
@@ -166,12 +185,20 @@ int main(void)
     {
         if (postMain(request, response, serverConfig) == 1)
             return (1);
-        debug4(response, 1);
+        // debug4(response, 1);
     }
     
-    // step  5 : response
+    // step 5 : method POST
+    if (request._method == "DELETE")
+    {
+        if (deleteMain(request, response, serverConfig) == 1)
+            return (1);
+        debug5(response, 1);
+    }
+    
+    // step  6 : response
     if (responseMain(request, response) == 1)
         return (1);
-    debug5(response);
+    debug6(response);
     return (0);
 }

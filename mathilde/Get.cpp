@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 10:57:53 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 12:15:11 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,16 +163,9 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig, request &request)
 {
-    response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
         error403(response, serverConfig, request);
-        // response.infos.error = true;
-        // response.infos.fileExist = false;
-        // response.code = 403;
-        // response.contentType += "text/plain";
-        // errorCode(response, serverConfig, request);
-        // response.contentLen = response.body.size();
     }
     else
         response.infos.read = true;
@@ -291,9 +284,6 @@ void contentType(responseT &response, request &request)
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
-    // // step 0 : init
-    // init(response);
-
     // step 1 : find the good location
     if (foundLocation(request, serverConfig, response) == false)
     {

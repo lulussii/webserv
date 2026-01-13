@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 11:35:12 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 11:55:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,33 +19,6 @@
 #include <unistd.h>   //read
 #include <dirent.h>
 
-void initPost(responseT &response)
-{
-    response.response = "";
-    response.code = 200;
-    response.contentLen = 0;
-    response.contentType = "";
-    response.body = "";
-
-    response.path = "";
-    response.repo = "";
-    
-    response.infos.error = false;
-    response.infos.get = false;
-    response.infos.loc = false;
-    response.infos.fileExist = false;
-    response.infos.file = false;
-    response.infos.repository = false;
-    response.infos.read = false;
-
-    response.post.count = 0;
-    response.post.path = "";
-
-    response.location.path = "";
-    response.location.index = "";
-    response.location.autoindex = "";
-    response.location.upload_dir = "";
-}
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -240,6 +213,26 @@ int createAndWriteFile(responseT &response)
     return (0);
 }
 
+/**
+ * @brief `prepare response`
+ *
+ * step 1 : content lenght
+ * 
+ * step 2 : content type
+ * .html/htm -> text/html
+ *
+ * .css -> text/css
+ *
+ * .txt -> text/plain
+ *
+ * .jpeg/jpg -> image/jpeg
+ *
+ * .png -> image/png
+ *
+ * .gif -> image/gif
+ * 
+ * 
+ */
 void prepareResponse(responseT &response, request request)
 {
     response.contentLen = response.body.size();
@@ -275,10 +268,30 @@ void prepareResponse(responseT &response, request request)
         response.contentType = "application/octet-stream";
 }
 
+/**
+ * @brief `POST method main`
+ *
+ *
+ * step 1 : find the good location
+ *
+ * step 2 : check if method is in server
+ *
+ * step 3 : check client_max_body_size
+ *
+ * step 4 : check if body exist
+ *
+ * step 5 : create name file
+ *
+ * step 6 : check repo
+ *
+ * step 7 : create and write on file
+ * 
+ * step 8 : prepare response
+ *
+ * @return 1 if problem, else 0
+ */
 int postMain(request &request, responseT &response, serverT &serverConfig)
 {
-    // step 0 : init 
-    initPost(response);
     
     // step 1 : find the good location
     if (foundLocationPost(request, serverConfig, response) == false)
@@ -318,6 +331,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (createAndWriteFile(response) == 1)
         return (1);
 
+        // step 8 : prepare response
     prepareResponse(response, request);
 
     return (0);
