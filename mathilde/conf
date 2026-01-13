@@ -17,6 +17,6 @@ server {
         methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/test/www/html/tmp/notexist;
+        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
     }
 }

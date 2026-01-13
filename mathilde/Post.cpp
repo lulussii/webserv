@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:39:49 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 10:45:38 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,7 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
 
     if (stat(response.location.upload_dir.c_str(), &test) == -1)
     {
-        std::cout << "ICI\n";
+        
         error500(response);
         return;
     }
@@ -182,6 +182,7 @@ void checkRepo(request &request, responseT &response, serverT &serverConfig)
     }
     else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
+        std::cout << "ICI\n";
         error403(response, serverConfig, request);
     }
     else

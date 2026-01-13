@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 09:56:13 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/13 10:48:12 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,14 +166,15 @@ int requestMain(request &request, parsingT &p)
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // POST with body
-    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    // POST with body /home/mlaussel/test/www/html/tmp/uploads
+    //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
    
+    // POST simple test 
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
-    // POST simple test
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
-
+    // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
     
+    // POST access 403 chmod 400 tmp/uploads
     
 
     // step 1 : firstline extract and parsing
