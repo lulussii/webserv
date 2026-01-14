@@ -1,6 +1,6 @@
 server {
     listen 8080;
-    root /home/mlaussel/test/www/html;
+    root /home/lserodon/test/www/html;
     error_page 404 /404.html;
     error_page 403 /403.html;
     error_page 500 /50x.html;
@@ -10,13 +10,13 @@ server {
         methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
+        upload_dir /home/lserodon/test/www/html;
     }
 
     location / {
         methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/test/www/html/tmp/notexist;
+        upload_dir /home/lserodon/test/www/html;
     }
 }

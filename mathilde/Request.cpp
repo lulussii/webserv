@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/04 16:53:34 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/13 09:56:13 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,18 +21,18 @@
  * @brief `firstline extract and parsing`
  *
  * step 1 : extract the first line
- * 
+ *
  * step 2 : pars the first line
- * 
+ *
  * @return 1 if problem, else 0
  */
 static int firstLine(parsingT &p, request &request)
 {
-     // step 1 : extract the first line
+    // step 1 : extract the first line
 
     size_t i = p.line.find("\r\n");
 
-    if (i == std::string::npos) // security macos
+    if (i == std::string::npos)
         i = p.line.find('\n');
 
     if (i == std::string::npos) // security for find, if doesn't find, find return the bigger size_t
@@ -58,7 +58,7 @@ static int firstLine(parsingT &p, request &request)
     }
 
     request._method = firstLine.substr(0, pos1);
-    request._url = firstLine.substr(pos1 + 1, pos2 - pos1 - 1);
+    request._url = "/" + firstLine.substr(pos1 + 2, pos2 - pos1 - 2);
     request._version = firstLine.substr(pos2 + 1);
 
     return (0);
@@ -129,42 +129,53 @@ static void postBody(parsingT &p, request &request)
 {
     int content_length = 0;
     if (request.headers.find("Content-Length") != request.headers.end())
-        content_length = atoi(request.headers["Content-Length"].c_str()); //chang atoi
+        content_length = atoi(request.headers["Content-Length"].c_str()); // chang atoi
 
     if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
         request._body = p.line.substr(0, content_length);
+    
+    request.contentLenght = content_length;
 }
 
 /**
  * @brief `main of the parsing`
  *
  * step 1 : firstline extract and parsing
- * 
+ *
  * step 2 : headers parsing
- * 
+ *
  * step 3 : if POST method, read body
- * 
+ *
  * @return 1 if problem, else 0
  */
 int requestMain(request &request, parsingT &p)
 {
 
-    //Simple GET
-    //p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-    
-    //POST with body
+    // Simple GET
+    // p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+
+    // Simple GET 2
+    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+
+    // GET inexistant 404
+    // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // GET access 403 (must chang config file to index.html to secret.html)
+    // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // GET autoindex : location /test { autoindex on; methods GET;
+    // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // POST with body
     p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+   
 
-    //DELETE without body
-    //p.line = "DELETE /user/42 HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer abc123\r\n\r\n";
-
-    //GET with query params
-    //p.line = "GET /search?q=webserv HTTP/1.1\r\nHost: localhost\r\nAccept: text/html\r\n\r\n";
-
-    //POST with body but content-lenght: 0
-    //p.line = "POST /submit HTTP/1.1\r\nHost: localhost\r\nContent-Length: 0\r\n\r\n";
+    // POST simple test
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     
+    
+
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
         return (1);
@@ -173,7 +184,8 @@ int requestMain(request &request, parsingT &p)
     headers(p, request);
 
     // step 3 : if POST method, read body
-    postBody(p, request);
-    
+    if (request._method == "POST")
+        postBody(p, request);
+
     return (0);
 }

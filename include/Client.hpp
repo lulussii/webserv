@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/08 10:02:33 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/14 09:26:44 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Client
 		int			fd;
 		std::string	readBuffer;
 		std::string	writeBuffer;
+		std::string reponse;
 		request		req;
 		response 	res;
 		bool		isReadyToWrite;
