@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/14 09:27:43 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/17 17:39:24 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include <fcntl.h>
 
 #include "Init.hpp"
 #include "Request.hpp"
@@ -26,111 +27,6 @@
 #include "Post.hpp"
 
 #define LISTEN_BACKLOG 5
-
-void debug1(request &request)
-{
-    std::cout << "--- [REQUEST] ---\n";
-    std::cout << "Method: [" << request._method << "] " << "\n";
-    std::cout << "URL: [" << request._url << "] " << "\n";
-    std::cout << "Version: [" << request._version << "] " << "\n";
-    std::cout << "Headers:\n";
-    for (std::map<std::string, std::string>::iterator it = request.headers.begin(); it != request.headers.end(); ++it)
-        std::cout << "  " << it->first << ": " << it->second << "\n";
-    if (!request._body.empty())
-        std::cout << "Body:\n"
-                  << request._body << "\n";
-}
-
-void debug2(serverT &serverConfig, utilsConfigT &utils)
-{
-    (void)utils;
-    std::cout << "\n--- [CONFIG] ---\n";
-    // std::cout << "server : " << utils.server << std::endl;
-    // std::cout << "\nlocations : " << utils.location << std::endl;
-
-    std::cout << "  --Server--";
-    std::cout << "\nlisten : " << serverConfig.listen;
-    std::cout << "\nroot : " << serverConfig.root;
-    std::cout << "\nerror_page : \n";
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
-         it != serverConfig.errorPage.end(); it++)
-    {
-        std::cout << "      Code : " << it->first << "| Page : " << it->second << std::endl;
-    }
-    std::cout << "clientMaxBodySize : " << serverConfig.clientMaxBodySize << std::endl;
-
-    std::cout << "  \n--Locations--\n";
-    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
-         it != serverConfig.locations.end(); ++it)
-    {
-        locationsT &location = it->second;
-        std::cout << "location : [" << it->first << "]" << std::endl;
-        for (size_t i = 0; i < location.methods.size(); ++i)
-            std::cout << "  Methods: [" << location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!location.index.empty())
-            std::cout << "  Index: [" << location.index << "]" << std::endl;
-
-        if (!location.autoindex.empty())
-            std::cout << "  Autoindex: [" << location.autoindex << "]" << std::endl;
-
-        if (!location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << location.upload_dir << "]" << std::endl;
-    }
-}
-
-void debug3(responseT &response, int i)
-{
-    std::cout << "\n--- [GET] ---\n";
-    if (i == 1)
-    {
-        std::cout << "location : [" << response.location.path << "]" << std::endl;
-        for (size_t i = 0; i < response.location.methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!response.location.index.empty())
-            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-        if (!response.location.autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-        if (!response.location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-    }
-    std::cout << "file path : [" << response.path << "]\n";
-    // std::cout << "Body : \n[" << response.body << "]\n";
-    // std::cout << "Content Lenght : " << response.contentLen << std::endl;
-    // std::cout << "Content Type : " << response.contentType << std::endl;
-}
-
-void debug4(responseT &response, int i)
-{
-    std::cout << "\n--- [POST] ---\n";
-    if (i == 1)
-    {
-        std::cout << "location : [" << response.location.path << "]" << std::endl;
-        for (size_t i = 0; i < response.location.methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!response.location.index.empty())
-            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-        if (!response.location.autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-        if (!response.location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-    }
-    std::cout << "path new file : [" << response.post.path << "]\n";
-    if (response.infos.repository == true)
-        std::cout << "REPO OK\n";
-}
-
-void debug5(responseT &response)
-{
-    std::cout << "\n--- [RESPONSE] ---\n";
-    std::cout << response.response << "\n";
-}
 
 /**
  * @brief Constructeur : Initialise le serveur et vide le tableau de pollfd.
@@ -150,26 +46,41 @@ Server::Server(int port) : _port(port), _serverFd(-1)
  */
 int	Server::_createServerSocket(int port)
 {
-	int fd = socket(AF_INET, SOCK_STREAM, 0); // Création du socket 
-    if (fd == -1) 
-		return -1;
-	// Permet de rendre le socket non-bloquant
+	// 1. Création du socket
+	// AF_INET 		: Utilisation de l'IPv4 (Internet Protocol v4)
+	// SOCK_STREAM	: Utilisation du protocole TCP
+	// 0			: Protocole par défaut
+	int fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd == -1) 
+		return (-1);
+
+	// 2. Mode non-bloquant
+	// Par défaut, un socket bloque le programme s'il n'y a rien à lire.
+	// C'est ce qui permet au server de gérer 1000 clients avec 1 seul thread.
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "Error : Failed to set non-blocking mode on server socket" << std::endl;
 		close (fd);
 		return (-1);
 	}
-	// Évite l'erreur "Address already in use" lors d'un redémarrage rapide
+	
+	// 3. Reuse adress
+	// Quand le serveur est coupé, le port reste en état de "TIME-WAIT" pendant quelques minutes.
+	// SO_REUSEADDR force la reprise du port 8080 immédiatement sans avoir*
+	// l'erreur "Adress already in use".
     int opt = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
+	// 4. Préparation de l'adresse
+	// htons(Host TO Network Short) : Convertit le port dans le format compris par le réseau.
+	// INADRR_ANY : Ecoute sur toutes les interfaces (wifi, Ethernet, Localhost, etc)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port); // htons : Convertit le port (format humain) vers le format réseau
-	addr.sin_addr.s_addr = INADDR_ANY; // INADDR_ANY : Accepte les connexions de n'importe quelle adresse (localhost, wifi, etc)
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = INADDR_ANY;
 
+	// 5. Bind (assignation)
 	// Réservation de l'adresse pour le socket
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 	{
@@ -177,13 +88,19 @@ int	Server::_createServerSocket(int port)
 		close(fd);
 		return (-1);
 	}
-	// Déclaration d'ouverture de la file d'attente
+	
+	// 6. Listen
+	// Le socket passe en mode "passif".
+	// Il ne chechera pas à se connecter, il attendra les connexions.
+	// LISTEN_BACKLOG : taille de la file d'attente.
 	if (listen(fd, LISTEN_BACKLOG) == -1)
 	{
 		std::cerr << "Error: Failed to listen on socket" << std::endl;
 		close (fd);
 		return (-1);
 	}
+
+	// nLe socket est prêt, on retourne son numéro au serveur
 	return fd;
 }
 
@@ -192,9 +109,11 @@ int	Server::_createServerSocket(int port)
  */
 int	Server::_acceptClient(int server_fd)
 {
+	// 1. "Carte d'identité" du client.
+	// Contient l'IP du client et son port source 
 	struct sockaddr_in client_addr;
-
 	socklen_t size = sizeof(client_addr);
+
 	int client_fd = (accept(server_fd, (struct sockaddr *) &client_addr, &size));
 	if (client_fd == -1)
 		return (-1);
@@ -206,13 +125,30 @@ int	Server::_acceptClient(int server_fd)
  */
 void Server::setup()
 {
+	// 1. Récupération du FD
+	// _createServersocker fait socket() + bind() + listen()
 	_serverFd = _createServerSocket(_port);
 	if (_serverFd == -1)
 		throw std::runtime_error("[ERROR] Failed to create server socket");
 
-	// Le premier slot de poll est toujours réservé au serveur lui-même
+	// 2. Configuration de POLL
+	// L'index 0 esr réservé au serveur
+	// Si POLLIN, c'est qu'il y  a une nouvelle connexion (et non pas des données à lire)
 	_fds[0].fd = _serverFd;
-	_fds[0].events = POLLIN;
+	_fds[0].events = POLLIN; 
+	
+	_defaultConfig.root = "./www/";
+	_defaultConfig.listen = _port;
+	_defaultConfig.clientMaxBodySize = 1000000;
+	
+	locationsT locRoot;
+	locRoot.path = "/";
+	locRoot.index = "index.html";
+	locRoot.autoindex = "off";
+	locRoot.methods.push_back("GET");
+	locRoot.methods.push_back("POST");
+
+	_defaultConfig.locations["/"] = locRoot;
 	
 	std::cout << "[SUCCESS] Server started succesfully" << std::endl;
 	std::cout << "[INFO] Listening on port " << _port << std::endl;
@@ -225,29 +161,44 @@ void	Server::run()
 {
 	while(true)
 	{
+		// 1. POLL
+		// La fonction poll met le programme en pause.
+		// Elle ne la main que dans 2 cas :
+		//	A. Il y a de l'activité (un client parle ou se connecte).
+		//	B. 1000ms se sont écoulées sans rien.
 		int ret = poll(_fds, MAX_CLIENTS + 1, 1000);
-
 		if (ret < 0)
 			break;
 
-		// Cas 1 : Nouvelle tentative de connexion sur le socket serveur
+		// 2. Vérification de la porte d'entrée (slot 0)
+		// L'index 0 de _fds correspond au serveur
+		// Si poll a mis le flag POLLIN -> quelqu'un veut entrer, on crée un nouveau client.
 		if (_fds[0].revents & POLLIN)
 			_acceptNewConnection();
 
-		// Cas 2 : Activité sur un socket client déjà existant
+		// 3. Vérification des clients déjà là
+		// On parcourt toute la liste des places possibles pour les clients.
 		for (int i = 1; i <= MAX_CLIENTS; i++)
 		{
+			// Vérification des deux conditions pour agir : 
+			// 1. _fds[i].fd != -1  -> Est-ce qu'il y a vraiment un client à cette place ?
+			// 2. _fds[i].revents != 0 -> Est-ce qu'il s'est passé un truc (lecture/écriture) ?
+			// Si oui, traitement de la demande
 			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
 		}
 
-		// Gestion du TIMEOUT
+		// 4. Gestion du temps
+		// On repasse sur tous les clients pour vérifier leur inactivité.
 		for (int i = 1; i <= MAX_CLIENTS; i++)
 		{
 			if (_fds[i].fd != -1)
 			{
+				// Calcul du temps qui s'est écoulé depuis la dernière action.
 				time_t	now = time(NULL);
 				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
+
+				// Si ça fait plus de 60 secondes qu'il est muet -> déconnexion
 				std::cout << "[DEBUG] Client " << _fds[i].fd << " inactive for " << diff << " seconds." << std::endl;
 				if (diff > 60)
 				{
@@ -264,26 +215,40 @@ void	Server::run()
  */
 void	Server::_acceptNewConnection()
 {
+	// 1. Accepter  l'appel
+	// Récupération du fd du nouveau client.
+	// A partir de maintenant, on parlera à ce client via 'client_fd', pas via '_serverFd'.
 	int	client_fd = _acceptClient(_serverFd);
 	if (client_fd != -1)
 	{
+		// 2. Mode non-bloquant (Sécurité)
+		// Comme pour le serveur, on veut que ce client ne bloque jamais tout le programme?
+		// Si on essaie de lire et qu'il n'a rien envoyé, on passe.
 		if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
 		{
 			std::cerr << "[Error] Failed to set non-blocking mode on cient FD" << std::endl;
 			close (client_fd);
 			return ;
 		}
+
+		// 3. Trouver une place libre (Gestion des slots)
+		// On parcourt _fds pour trouver une case vide.
 		for (int i = 1; i <= MAX_CLIENTS; i++)
 		{
 			if (_fds[i].fd == -1) // Un slot libre est trouvé
 			{
+				// A. Inscription dans le tableau de surveillance 
 				_fds[i].fd = client_fd;
-				_clients[client_fd] = Client(client_fd); // Création de l'objet Client
+				_fds[i].events = POLLIN;
+				
+				// B. Création de l'objet "Client"
+				_clients[client_fd] = Client(client_fd);
 				std::cout << "[CONNEXION] New connection established (FD: " << client_fd << ")" << std::endl;
 				return;
 			}
 		}
-		//Si on arrive ici, le serveur est plein
+
+		// 4. Plus de place (serveur plein)
 		std::cerr << "[Error] Max clients reached. Connection rejected on FD " << client_fd << std::endl; 
 		close(client_fd);
 	}
@@ -294,140 +259,30 @@ void	Server::_acceptNewConnection()
  */
 void	Server::_handleClientActivity(int i)
 {
-	Client &c = _clients[_fds[i].fd];
-	c.lastTime = time(NULL);
-	parsingT	p; 
+	int	fd = _fds[i].fd;
+	Client	&client = _clients[fd];
 
-	// Si le client envoie des données
-	if (_fds[i].revents & POLLIN)
-		_readFromClient(i, c);
-
-	if (c.requestComplete == true)
-	{
-		p.line = c.readBuffer;
-		requestMain(c.req, p);
-		responseMain(c.req, c.res);
-		std::cout << c.res.response << std::endl;
-		c.writeBuffer = c.res.response;
-		c.isReadyToWrite = true;
-		_enableWriting(i);
-		c.requestComplete = false;
-		c.readBuffer.clear();
+	try {
+		// 1. Gestion de lecture (Entrée)
+		// Si revents contient POLLIN -> le client a envoyé un message
+		if (_fds[i].revents & POLLIN)
+			client.handleRead(_defaultConfig);
+		// 2. Gestion de l'écriture (Sortie)
+		// Envoi des données seulement si 2 conditions sont réunies : 
+		// A. Le réseau est libre pour accepter des données (POLLOUT).
+		// B. Le client a une réponse prête à être envoyée
+		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite)
+			client.handleWrite();
+		// 3. Préparation du prochain tour (Mise à jour des flags)
+		if (client.isReadyToWrite)
+			_fds[i].events = POLLIN | POLLOUT;
+		else
+			_fds[i].events = POLLIN;
 	}
-		
-	// Si la réponse est prête et que le client est prêt à la recevoir
-	if (_fds[i].fd != -1 && (_fds[i].revents & POLLOUT))
-		_writeToClient(i, c);
-}
-
-/**
- *  @brief Cherche "Content-Length" dans la requête. Retourne 0 si pas trouvé.
- */
-long	Server::_getContentLength(std::string &request)
-{
-	size_t pos = request.find("Content-Length: ");
-	if (pos == std::string::npos)
-		return (0);
-	
-	// On se place juste après "Content-Length: "
-	size_t	start = pos + 16;
-
-	// On cherche la fin de la ligne (\r\n)
-	size_t	end = request.find("\r\n", start);
-
-	// On extrait le nombre
-	std::string num = request.substr(start, end - start);
-	long	res = atol(num.c_str());
-
-	return (res);
-}
-
-/**
- * @brief Lit les données entrantes, les accumule, et appelle le Parser quand la requête est finie.
- */
-void	Server::_readFromClient(int i, Client &c)
-{
-	char 	tmp[1024];
-	int		bytes = read(_fds[i].fd, tmp, sizeof(tmp) - 1);
-
-	if (bytes > 0)
+	catch (std::exception &e)
 	{
-		c.readBuffer.append(tmp, bytes);
-		
-		// Détection de la fin des headers HTTP (\r\n\r\n)
-		if (c.readBuffer.find("\r\n\r\n") != std::string::npos)
-		{
-			c.requestComplete = true;
-		}
-		if (!c.headersReceived)
-		{
-			if (c.readBuffer.find("\r\n\r\n") != std::string::npos)
-			{
-				c.headersReceived = true;
-				c.contentLength = _getContentLength(c.readBuffer);
-				std::cout << "[DEBUG] Headers received. Waiting for body size:" << c.contentLength << std::endl;
-			}
-		}
-		if (c.headersReceived)
-		{
-			size_t	headerEnd = c.readBuffer.find("\r\n\r\n");
-			size_t	totalExcpected = headerEnd + 4 + c.contentLength;
-			
-			if (c.readBuffer.size() >= totalExcpected)
-			{
-				std::cout << "[REQ] Full request received (" << c.readBuffer.size() << " bytes)" << std::endl;
-				
-				parsingT p;
-				p.line = c.readBuffer;
-				
-				// Parsing de la requête 
-				if (requestMain(c.req, p) == 0)
-				{
-					// Génération de la réponse
-					responseMain(c.req, c.res);
-
-					//Stockage de la réponse brute et on préient poll qu'on veut écrire
-					c.writeBuffer = c.res.response;
-					c.isReadyToWrite = true;
-					_enableWriting(i);
-				}
-				c.readBuffer.erase(0, totalExcpected);
-				c.headersReceived = false;
-				c.contentLength = 0;
-			}
-		}
-	}
-	else if (bytes == 0)
+		std::cout << "[INFO] " << e.what() << "(FD: " << fd << ")" << std::endl;
 		_closeConnection(i);
-	else
-	{
-		if (errno != EWOULDBLOCK && errno != EAGAIN)
-			_closeConnection(i);	
-	}
-}
-
-/**
- * @brief Envoie la réponse stockée dans writeBuffer vers le client.
- */
-void	Server::_writeToClient(int i, Client &c)
-{
-	if (c.isReadyToWrite && !c.writeBuffer.empty())
-	{
-		int sent = write(_fds[i].fd, c.writeBuffer.c_str(), c.writeBuffer.size());
-		if (sent > 0) 
-		{
-			std::cout << "[SEND] Response send to FD " << _fds[i].fd << " (" << sent << " bytes)" << std::endl;			
-			// On retire de buffer ce qui a déjà été envoyé
-			c.writeBuffer.erase(0, sent);
-
-			// Si tout est envoyé, on arrête d'écouter en POLLOUT
-			if (c.writeBuffer.empty()) 
-			{
-				c.isReadyToWrite = false;
-				std::cout << "[CLOSE] Closing connection (FD: " << _fds[i].fd << ")" << std::endl;
-				_closeConnection(i);
-			}
-		}
 	}
 }
 
@@ -461,50 +316,3 @@ void	Server::_disableWriting(int i)
 {
 	_fds[i].events = POLLIN;
 }
-/* 
-
-	
-	responseT response;
-    utilsConfigT utils;
-    serverT serverConfig;
-    request request;
-    parsingT p;
-    
-    // step 0 : init
-    initMain(request, response, serverConfig);
-    
-    // step 1 : request parsing
-
-    if (requestMain(request, p) == 1)
-        return;
-    // debug1(request);
-
-    // step 2 : config file
-    
-    if (configMain(serverConfig, utils) == 1)
-        return;
-    // debug2(serverConfig, utils);
-
-    // step 3 : method GET
-    if (request._method == "GET")
-    {
-        if (getMain(request, response, serverConfig) == 1)
-            return;
-        // debug3(response, 1);
-    }
-    
-
-    // step 4 : method POST
-    if (request._method == "POST")
-    {
-        if (postMain(request, response, serverConfig) == 1)
-            return;
-        // debug4(response, 1);
-    }
-    
-    // step  5 : response
-    if (responseMain(request, response) == 1)
-	{return ;}
-
-    // debug5(response);
-	c.reponse = response.response; */

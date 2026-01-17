@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/08 09:19:29 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/15 13:39:48 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ class Server
 		int						_serverFd;
 		struct pollfd			_fds[MAX_CLIENTS + 1];
 		std::map<int, Client>	_clients;
+
+		serverT	_defaultConfig;
 
 		int		_createServerSocket(int port);
 		int		_acceptClient(int server_fd);

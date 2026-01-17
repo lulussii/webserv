@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:14:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/14 14:10:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,19 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
     size_t bestLen = 0;
     bool found = false;
 
+    // --- DEBUG START ---
+    std::cout << "\n[DEBUG] Searching location for URL: [" << request._url << "]" << std::endl;
+    std::cout << "[DEBUG] Number of locations in config: " << serverConfig.locations.size() << std::endl;
+    // --- DEBUG END ---
+
     for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
          it != serverConfig.locations.end(); ++it)
     {
         const std::string &locPath = it->first;
+        
+        // --- DEBUG LOOP ---
+        std::cout << "   -> Testing against location: [" << locPath << "]" << std::endl;
+        // ------------------
 
         // URL must be at least as long as location path
         if (request._url.size() < locPath.size())
@@ -90,6 +99,7 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
                 response.location = it->second;
                 response.infos.loc = true;
                 found = true;
+                std::cout << "   -> MATCH FOUND! (New best match)" << std::endl;
             }
         }
     }
@@ -125,8 +135,17 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
     if (request._url == "/")
         response.path = serverConfig.root + response.location.index;
     else
+	{
         // response.path = serverConfig.root + response.location.index;
         response.path = serverConfig.root + request._url;
+
+	}
+		
+	std::cout << "--- DEBUG PATH ---" << std::endl;
+    std::cout << "Root config: " << serverConfig.root << std::endl;
+    std::cout << "Request URL: " << request._url << std::endl;
+    std::cout << ">> FINAL PATH GENERATED: [" << response.path << "]" << std::endl; // ou response.fullPath ?
+    std::cout << "------------------" << std::endl;
 }
 
 /**
