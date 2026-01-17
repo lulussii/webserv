@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 16:15:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/17 17:35:51 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,20 @@
  */
 void errorCode(responseT &response, serverT &serverConfig, request &request)
 {
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
-         it != serverConfig.errorPage.end(); it++)
+    (void) request;
+    response.infos.error = true;
+    response.contentType += "text/html";
+    
+    std::map<int, std::string>::iterator it =
+        serverConfig.errorPage.find(response.code);
+
+    if (it != serverConfig.errorPage.end())
     {
-        if (it->first == response.code)
+        response.path = serverConfig.root + it->second;
+
+        if (readFile(response) == 0 && !response.body.empty())
         {
-            if (request._url == "/")
-                response.path = serverConfig.root + it->second;
-            else
-                response.path = serverConfig.root + it->second;
-            readFile(response);
+            response.contentLen = response.body.size();
             return;
         }
     }
@@ -38,60 +42,42 @@ void errorCode(responseT &response, serverT &serverConfig, request &request)
 
 void error404(responseT &response, serverT &serverConfig, request &request)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 404;
-    response.contentType += "text/plain";
     errorCode(response, serverConfig, request);
     response.contentLen = response.body.size();
 }
 
 void error403(responseT &response, serverT &serverConfig, request &request)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 403;
-    response.contentType += "text/plain";
     errorCode(response, serverConfig, request);
     response.contentLen = response.body.size();
 }
 
 void error405(responseT &response)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 405;
-    response.contentType += "text/plain";
     response.body = "";
     response.contentLen = response.body.size();
 }
 
 void error413(responseT &response)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 413;
-    response.contentType += "text/plain";
     response.body = "";
     response.contentLen = response.body.size();
 }
 
 void error400(responseT &response)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 400;
-    response.contentType += "text/plain";
     response.body = "";
     response.contentLen = response.body.size();
 }
 
 void error500(responseT &response)
 {
-    response.infos.error = true;
-    response.infos.fileExist = false;
     response.code = 500;
-    response.contentType += "text/plain";
     response.body = "";
     response.contentLen = response.body.size();
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 12:28:48 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/17 17:16:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,7 @@ int requestMain(request &request, parsingT &p)
     // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET inexistant 404
-    // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET access 403 (must chang config file to index.html to secret.html)
     // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -177,7 +177,7 @@ int requestMain(request &request, parsingT &p)
     // POST access 403 chmod 400 tmp/uploads
 
     // DELETE
-    p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     
 

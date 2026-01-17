@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 12:29:59 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/17 16:54:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ void pathBuildDelete(responseT &response, serverT &serverConfig, request &reques
 }
 
 /**
- * @brief `check if the file exist and if we can access before delete`
+ * @brief `check if the file exist and if we can access before delete with unlink`
  *
  */
 void existFileDelete(responseT &response, serverT &serverConfig, request &request)

@@ -1,6 +1,6 @@
 server {
     listen 8080;
-    root /home/mlaussel/www;   # on va créer ce dossier localement
+    root /home/mlaussel/www;
     error_page 404 /404.html;
 
     location /files {
