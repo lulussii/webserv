@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 09:53:53 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/12 12:16:53 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/18 16:59:21 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 
 class ServerConfig
 {
+	friend class ConfigParser;
+	
 	private:
 		int 						_port;
 		std::string					_host;
@@ -29,13 +31,6 @@ class ServerConfig
 
 	public:
 		ServerConfig();
-		~ServerConfig();
-		
-		//SETTERS
-		void	setPort(int port);
-		void	setHost(std::string host);
-		void	setErrorPages(std::map<int, std::string> errorPages);
-		void	setClientMaxBodySize(size_t clientMaxBodySize);
 };
 
 

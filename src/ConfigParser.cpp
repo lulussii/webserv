@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/12 15:15:42 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/18 17:01:29 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	ConfigParser::parseErrorPage(std::string &args, ServerConfig &server)
 	std::string errorPath = tmp.back();
 	tmp.pop_back();
 
-	for (int i = 0; i < tmp.size(); i++)
+	for (size_t i = 0; i < tmp.size(); i++)
 	{
 		int code = std::atoi(tmp[i].c_str());
 		if (code < 300 || code > 599)
@@ -287,7 +287,7 @@ void ConfigParser::parse(std::string path)
 				if (!hasOpeningBraceOnNextLine(config))
 					throw std::runtime_error("Error: Server block not opened with '{'");
 			}
-			//parseServer(config);
+			parseServer(config);
 			std::cout << "serveur trouve !" << std::endl;
 		}
 		else {

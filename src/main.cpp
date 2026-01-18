@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/15 09:20:04 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/18 17:00:47 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include <map>
 #include "Client.hpp"
 #include "Server.hpp"
-//#include "ConfigParser.hpp"
+#include "ConfigParser.hpp"
 
 #define MAX_CLIENTS 10
 #define LISTEN_BACKLOG 5
@@ -29,12 +29,12 @@ int main(int argc, char **argv)
 {
 	Server 			webServ(8080);
 	std::string 	config_file_path;
-	//ConfigParser	parser;
+	ConfigParser	parser;
 
 	if (argc == 1)
 	{
 		std::cout << "No argument provided. Using default config" << std::endl;
-		config_file_path = "default.conf";
+		config_file_path = "src/conf";
 	}
 	else if (argc == 2)
 		config_file_path = argv[1];
@@ -46,9 +46,9 @@ int main(int argc, char **argv)
 	
 	try 
 	{
-		//parser.parse(config_file_path);
-		webServ.setup();
-		webServ.run();
+		parser.parse(config_file_path);
+		//webServ.setup();
+		//webServ.run();
 	} catch (const std::exception &e) {
 		std::cerr << "Critical error: " << e.what() << std::endl;
 		return 1;
