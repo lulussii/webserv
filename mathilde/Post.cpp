@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 11:10:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 12:59:31 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,38 @@ bool bodyExist(request &request, responseT &response)
         return (true);
     }
     return (false);
+}
+
+
+/**
+ * @brief `Check if is Chunked`
+ * 
+ */
+bool isChunked(request &request)
+{
+    std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
+    
+    if (it != request.headers.end() && it->second == "chunked")
+        return (true);
+    return (false);
+}
+
+void chunkedParsing(request &request)
+{
+    std::string tmp = request._body;
+    std::string cut;
+    std::string newBody = "";
+    
+    // while(!tmp.empty())
+    // {
+        size_t len = tmp.find("\r\n");
+        cut = tmp.substr(0, len);
+        newBody += cut;
+        
+        std::cout << "DANS CUT: [" << cut << "]" << std::endl;
+        tmp = tmp.substr(len + 2);
+        std::cout << "DANS TMP: [" << tmp << "]" << std::endl;
+    // }
 }
 
 /**
@@ -322,6 +354,12 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     {
         errorCode(response, serverConfig, 400);
         return (0);
+    }
+
+    // step : check if there is a chuncked
+    if (isChunked(request) == true)
+    {
+        chunkedParsing(request);
     }
     
     // step 5 : create name file
