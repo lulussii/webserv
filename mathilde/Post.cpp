@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 09:46:46 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 10:28:53 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,21 +303,20 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (checkIsPost(request, response) == false)
     {
         errorCode(response, serverConfig, 405);
-        return (1);
+        return (0);
     }
-
     // step 3 : check client_max_body_size
     if (clientMaxBodySize(serverConfig, request) == false)
     {
         errorCode(response, serverConfig, 413);
-        return (1);
+        return (0);
     }
-
+    
     // step 4 : check if body exist
     if (bodyExist(request, response) == false)
     {
         errorCode(response, serverConfig, 400);
-        return (1);
+        return (0);
     }
     
     // step 5 : create name file

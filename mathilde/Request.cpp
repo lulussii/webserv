@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 09:43:56 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 10:54:09 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,14 +127,8 @@ static void headers(parsingT &p, request &request)
  */
 static void postBody(parsingT &p, request &request)
 {
-    int content_length = 0;
-    if (request.headers.find("Content-Length") != request.headers.end())
-        content_length = atoi(request.headers["Content-Length"].c_str()); // chang atoi
-
-    if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
-        request._body = p.line.substr(0, content_length + 1);
-    
-    request.contentLenght = content_length;
+    request._body = p.line;
+    request.contentLenght = request._body.size();
 }
 
 /**
@@ -152,25 +146,25 @@ int requestMain(request &request, parsingT &p)
 {
 
     // Simple GET
-    p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    // p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // Simple GET 2
-    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET inexistant 404
     // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET access 403 (must chang config file to index.html to secret.html)
+    // GET access 403 (must chang config file to index.html to chmod 000 secret.html)
     // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // POST with body /home/mlaussel/test/www/html/tmp/uploads
-    // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
    
     // POST simple test 
-    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
     
@@ -178,8 +172,6 @@ int requestMain(request &request, parsingT &p)
 
     // DELETE
     // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    
 
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 12:25:51 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 10:46:55 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,7 @@ int main(void)
         return (1);
     // debug2(serverConfig, utils);
 
+   
     // step 3 : method GET
     if (request._method == "GET")
     {
@@ -187,18 +188,19 @@ int main(void)
             return (1);
         // debug4(response, 1);
     }
+
     
-    // step 5 : method POST
+    // step 5 : method DELETE
     if (request._method == "DELETE")
     {
         if (deleteMain(request, response, serverConfig) == 1)
             return (1);
-        debug5(response, 1);
+        // debug5(response, 1);
     }
     
     // step  6 : response
-    if (responseMain(request, response) == 1)
-        return (1);
+    responseMain(request, response);
     debug6(response);
+    
     return (0);
 }

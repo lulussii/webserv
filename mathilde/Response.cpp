@@ -6,16 +6,30 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 12:23:06 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 10:32:06 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include <string> //to_string()
 
-int responseMain(request &request, responseT &response)
+/**
+ * @brief `POST method main`
+ *
+ *
+ * step 1 : status line
+ *
+ * step 2 : Content Lenght
+ *
+ * step 3 : Content-Type
+ *
+ * step 4 : empty line
+ *
+ * step 5 : body
+ *
+ */
+void responseMain(request &request, responseT &response)
 {
-    // status line :
     response.response = request._version + " " + std::to_string(response.code);
     if (response.code == 200)
         response.response += " OK\r\n";
@@ -35,7 +49,7 @@ int responseMain(request &request, responseT &response)
         response.response += " Created\r\n";
     if (response.code == 204)
         response.response += " No Content\r\n";
-    // header in response
+        
     if (request._method == "DELETE")
         response.response += "Content-Length: 0";
     else
@@ -49,8 +63,6 @@ int responseMain(request &request, responseT &response)
     response.response += "\r\n";
 
     // body
-    if (request._method == "GET")
+    if (request._method == "GET" || request._method == "POST")
         response.response += response.body;
-
-    return (0);
 }
