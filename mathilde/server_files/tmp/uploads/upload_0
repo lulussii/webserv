@@ -1,6 +1,0 @@
---boundary42
-Content-Disposition: form-data; name="file"; filename="test.txt"
-Content-Type: text/plain
-
-Hello Webserv!
---boundary42--

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 14:33:17 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 15:19:36 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,15 +188,49 @@ void chunkedParsing(request &request, responseT &response)
 bool isMultipart(request &request)
 {
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
-
-    if (it != request.headers.end() && it->second == "multipart/form-data")
-        return (true);
+    
+    if (it != request.headers.end())
+    {
+        if (it->second.find("multipart/form-data;") != std::string::npos)
+            return (true);
+    }
     return (false);
 }
 
+/**
+ * @brief `parsing multipart`
+ * 
+ * step 1 : extract from filename
+ * 
+ * step 2 : search /r/n who is at the end of file name
+ * 
+ * step 3 : split before /r/n
+ * 
+ * step 4 : delete "" and filename=
+ * 
+ */
+void extractFileName(request &request)
+{
+    std::string filename;
+    std::string tmp = "filename=\"";
+    
+    size_t len = request._body.find("filename");
+    filename = request._body.substr(len);
+
+    size_t space = filename.find("\r\n");
+    filename = filename.substr(0, space);
+
+    filename = filename.substr(tmp.size());
+    filename = filename.substr(0, filename.size() - 1);
+    
+    std::cout << "filename [" << filename << "]\n";
+
+    
+}
 
 void multipartParsing()
 {
+
     
 }
 
@@ -408,7 +442,8 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     // step : multipart/form-data
     if (isMultipart(request) == true)
     {
-        std::cout << "ICI\n";
+        extractFileName(request);
+        multipartParsing();
     }
     
     // step 5 : create name file
