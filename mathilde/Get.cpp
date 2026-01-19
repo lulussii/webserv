@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 11:08:19 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:30:38 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,15 +227,18 @@ int readFile(responseT &response)
  *
  * .gif -> image/gif
  */
-void contentType(responseT &response, request &request)
+void contentType(responseT &response)
 {
-    size_t dot = request._url.rfind(".");
+    size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
         response.contentType = "application/octet-stream";
         return;
     }
-    std::string extension = request._url.substr(dot);
+    std::string extension = response.location.index.substr(dot);
+
+
+    std::cout << "extension : " << extension << std::endl;
 
     // case index.html?user=42
     if (extension.find("?") != std::string::npos)
@@ -316,7 +319,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 7 : search content type of the file
     if (response.infos.repository == false)
-        contentType(response, request);
+        contentType(response);
 
     return (0);
 }

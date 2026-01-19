@@ -1,6 +1,6 @@
 server {
     listen 8080;
-    root /home/mlaussel/www;
+    root /home/mlaussel/webserv/mathilde/server_files;
     error_page 404 /404.html;
 
     location /files {

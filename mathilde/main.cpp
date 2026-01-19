@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 10:46:55 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:26:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,7 @@ int main(void)
 
     if (requestMain(request, p) == 1)
         return (1);
-    // debug1(request);
+    debug1(request);
 
     // step 2 : config file
     
