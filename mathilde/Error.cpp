@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 16:15:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/19 10:25:24 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,81 +17,38 @@
  * @brief `search html body for error`
  *
  * if code is 404 so the new path is root/404.html
+ * 
+ * step 1 : add content type who is an html (404.html etc)
+ * 
+ * step 2 : search an error page in my config
+ * 
+ * step 3 : if there is the error page in my config 
+ * (it != serverConfig.errorPage.end() because end it's the end of the map)
+ * So if it is different from nothing, the end, it's that I found an error page
+ * 
+ * step 4 : if ok --> build response path to search error page html 
+ * Exemple : serverConfig.root = /Users/mathildelaussel/server/ + it->second = 404.html
+ * 
+ * step  5 : read file to add the body html
+ * 
  */
-void errorCode(responseT &response, serverT &serverConfig, request &request)
+void errorCode(responseT &response, serverT &serverConfig, int code)
 {
-    for (std::map<int, std::string>::iterator it = serverConfig.errorPage.begin();
-         it != serverConfig.errorPage.end(); it++)
+    response.code = code;
+    response.infos.error = true;
+    response.contentType += "text/html";
+    
+    std::map<int, std::string>::iterator it = serverConfig.errorPage.find(response.code);
+
+    if (it != serverConfig.errorPage.end())
     {
-        if (it->first == response.code)
+        response.path = serverConfig.root + it->second;
+
+        if (readFile(response) == 0 && !response.body.empty())
         {
-            if (request._url == "/")
-                response.path = serverConfig.root + it->second;
-            else
-                response.path = serverConfig.root + it->second;
-            readFile(response);
+            response.contentLen = response.body.size();
             return;
         }
     }
     response.body = "";
-}
-
-void error404(responseT &response, serverT &serverConfig, request &request)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 404;
-    response.contentType += "text/plain";
-    errorCode(response, serverConfig, request);
-    response.contentLen = response.body.size();
-}
-
-void error403(responseT &response, serverT &serverConfig, request &request)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 403;
-    response.contentType += "text/plain";
-    errorCode(response, serverConfig, request);
-    response.contentLen = response.body.size();
-}
-
-void error405(responseT &response)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 405;
-    response.contentType += "text/plain";
-    response.body = "";
-    response.contentLen = response.body.size();
-}
-
-void error413(responseT &response)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 413;
-    response.contentType += "text/plain";
-    response.body = "";
-    response.contentLen = response.body.size();
-}
-
-void error400(responseT &response)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 400;
-    response.contentType += "text/plain";
-    response.body = "";
-    response.contentLen = response.body.size();
-}
-
-void error500(responseT &response)
-{
-    response.infos.error = true;
-    response.infos.fileExist = false;
-    response.code = 500;
-    response.contentType += "text/plain";
-    response.body = "";
-    response.contentLen = response.body.size();
 }

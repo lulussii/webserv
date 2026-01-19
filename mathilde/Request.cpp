@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 09:56:13 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 15:00:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
-
-#include <stdlib.h> //atoi to delete
 
 /**
  * @brief `firstline extract and parsing`
@@ -97,7 +95,7 @@ static void headers(parsingT &p, request &request)
         size_t end = p.line.find("\r\n");
         size_t skip = 2; // if \r\n
 
-        if (end == std::string::npos) // security macos
+        if (end == std::string::npos)
         {
             end = p.line.find('\n');
             skip = 1;
@@ -127,14 +125,8 @@ static void headers(parsingT &p, request &request)
  */
 static void postBody(parsingT &p, request &request)
 {
-    int content_length = 0;
-    if (request.headers.find("Content-Length") != request.headers.end())
-        content_length = atoi(request.headers["Content-Length"].c_str()); // chang atoi
-
-    if (content_length > 0 && p.line.size() >= static_cast<size_t>(content_length))
-        request._body = p.line.substr(0, content_length);
-    
-    request.contentLenght = content_length;
+    request._body = p.line;
+    request.contentLenght = request._body.size();
 }
 
 /**
@@ -160,21 +152,31 @@ int requestMain(request &request, parsingT &p)
     // GET inexistant 404
     // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET access 403 (must chang config file to index.html to secret.html)
+    // GET access 403 (must chang config file to index.html to chmod 000 secret.html)
     // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // POST with body
-    p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 21\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    // POST with body /home/mlaussel/test/www/html/tmp/uploads
+    // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
    
+    // POST simple test 
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
-    // POST simple test
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
+    
+    // POST access 403 chmod 400 tmp/uploads
+
+    // POST chunked
+    // p.line = "POST /upload HTTP/1.1\r\n Host: localhost\r\n Transfer-Encoding: chunked\r\n\r\n11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n";
+
+    //POST multipart
+    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary\r\nContent-Length: 144\r\n\r\n--boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary--\r\n";
 
     
-    
+    // DELETE
+    // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
