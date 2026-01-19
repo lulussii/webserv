@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 12:15:11 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 09:46:25 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
-        error404(response, serverConfig, request);
+        errorCode(response, serverConfig, 404);
     else
     {
         response.infos.fileExist = true;
@@ -135,7 +135,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                 {
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
-                        error404(response, serverConfig, request);
+                         errorCode(response, serverConfig, 404);
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
@@ -161,11 +161,11 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  *
  * if not, error 403
  */
-void accessFile(responseT &response, serverT &serverConfig, request &request)
+void accessFile(responseT &response, serverT &serverConfig)
 {
     if (access(response.path.c_str(), R_OK) == -1)
     {
-        error403(response, serverConfig, request);
+         errorCode(response, serverConfig, 403);
     }
     else
         response.infos.read = true;
@@ -294,7 +294,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsGet(request, response) == false)
     {
-        error405(response);
+         errorCode(response, serverConfig, 405);
         return (1);
     }
 
@@ -306,7 +306,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 5 : access to the file
     if (response.infos.error == false && response.infos.repository == false)
-        accessFile(response, serverConfig, request);
+        accessFile(response, serverConfig);
 
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)

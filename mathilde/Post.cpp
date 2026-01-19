@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 11:55:19 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 09:46:46 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,24 +143,23 @@ void createFileName(responseT &response)
  * 
  * step 4 : everything is OK
  */
-void checkRepo(request &request, responseT &response, serverT &serverConfig)
+void checkRepo(responseT &response, serverT &serverConfig)
 {
     struct stat test;
 
     if (stat(response.location.upload_dir.c_str(), &test) == -1)
     {
-        
-        error500(response);
+         errorCode(response, serverConfig, 500);
         return;
     }
     else if (!S_ISDIR(test.st_mode))
     {
-        error500(response);
+         errorCode(response, serverConfig, 500);
         return;
     }
     else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
-        error403(response, serverConfig, request);
+         errorCode(response, serverConfig, 403);
         return ;
     }
     else
@@ -303,21 +302,21 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsPost(request, response) == false)
     {
-        error405(response);
+        errorCode(response, serverConfig, 405);
         return (1);
     }
 
     // step 3 : check client_max_body_size
     if (clientMaxBodySize(serverConfig, request) == false)
     {
-        error413(response);
+        errorCode(response, serverConfig, 413);
         return (1);
     }
 
     // step 4 : check if body exist
     if (bodyExist(request, response) == false)
     {
-        error400(response);
+        errorCode(response, serverConfig, 400);
         return (1);
     }
     
@@ -325,7 +324,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     createFileName(response);
 
     // step 6 : check repo
-    checkRepo(request, response, serverConfig);
+    checkRepo(response, serverConfig);
 
     // step 7 : create and write on file
     if (createAndWriteFile(response) == 1)

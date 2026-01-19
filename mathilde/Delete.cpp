@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/17 16:54:43 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/19 09:46:11 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,21 +109,21 @@ void pathBuildDelete(responseT &response, serverT &serverConfig, request &reques
  * @brief `check if the file exist and if we can access before delete with unlink`
  *
  */
-void existFileDelete(responseT &response, serverT &serverConfig, request &request)
+void existFileDelete(responseT &response, serverT &serverConfig)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
-        error404(response, serverConfig, request);
+        errorCode(response, serverConfig, 404);
     else
     {
         if (access(response.path.c_str(), R_OK) == -1)
         {
-            error403(response, serverConfig, request);
+            errorCode(response, serverConfig, 403);
             return;
         }
         if (unlink(response.path.c_str()) != 0)
         {
-            error500(response);
+            errorCode(response, serverConfig, 500);
             return;
         }
         response.code = 204;
@@ -156,15 +156,15 @@ int deleteMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsDelete(request, response) == false)
     {
-        error405(response);
+         errorCode(response, serverConfig, 405);
         return (1);
     }
 
     // step 3 : build file path
     pathBuildDelete(response, serverConfig, request);
 
-   //step 4 : check if the file exist and if we can access before delete
-   existFileDelete(response, serverConfig, request);
+    //step 4 : check if the file exist and if we can access before delete
+    existFileDelete(response, serverConfig);
 
    return (0);
 
