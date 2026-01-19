@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 12:59:31 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 13:22:08 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <unistd.h>   //read
 #include <dirent.h>
 #include <sstream> //std::stringstream
+#include <stdlib.h> //atoi to delete ????
 
 
 
@@ -139,22 +140,27 @@ bool isChunked(request &request)
     return (false);
 }
 
-void chunkedParsing(request &request)
+void chunkedParsing(request &request, responseT &response)
 {
     std::string tmp = request._body;
     std::string cut;
     std::string newBody = "";
-    
-    // while(!tmp.empty())
-    // {
-        size_t len = tmp.find("\r\n");
-        cut = tmp.substr(0, len);
-        newBody += cut;
+
+    while(!tmp.empty())
+    {
+        size_t space = tmp.find("\r\n");
         
-        std::cout << "DANS CUT: [" << cut << "]" << std::endl;
-        tmp = tmp.substr(len + 2);
-        std::cout << "DANS TMP: [" << tmp << "]" << std::endl;
-    // }
+        cut = tmp.substr(0, space);
+        if  (static_cast<size_t>(atoi(cut.c_str())) == 0)
+            break;
+
+        tmp = tmp.substr(space + 2);
+
+        newBody += tmp.substr(0, static_cast<size_t>(atoi(cut.c_str())));
+
+        tmp = tmp.substr(static_cast<size_t>(atoi(cut.c_str())) + 2);
+    }
+    response.body = newBody;
 }
 
 /**
@@ -359,7 +365,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     // step : check if there is a chuncked
     if (isChunked(request) == true)
     {
-        chunkedParsing(request);
+        chunkedParsing(request, response);
     }
     
     // step 5 : create name file
