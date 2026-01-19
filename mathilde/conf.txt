@@ -7,14 +7,14 @@ server {
     client_max_body_size 1000000;
 
     location /upload {
-        methods POST GET;
+        methods POST GET DELETE;
         index index.html;
         autoindex on;
         upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
     }
 
     location / {
-        methods POST GET;
+        methods POST GET DELETE;
         index index.html;
         autoindex on;
         upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
