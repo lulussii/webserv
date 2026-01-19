@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 09:46:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:08:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "Error.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
-#include <string>     //to_string()
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>

@@ -10,13 +10,13 @@ server {
         methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
+        upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
     }
 
     location / {
         methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/test/www/html/tmp/uploads;
+        upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
     }
 }

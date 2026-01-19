@@ -6,18 +6,19 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 10:28:53 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:10:25 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Post.hpp"
 #include "Error.hpp"
-#include <string>     //to_string()
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>
+#include <sstream> //std::stringstream
+
 
 
 /**
@@ -126,10 +127,14 @@ bool bodyExist(request &request, responseT &response)
 
 /**
  * @brief `create random file with path in location`
+ * 
+ * stringstream use to convert an int into a string 
  */
 void createFileName(responseT &response)
 {
-    response.post.path = response.location.upload_dir + "/" + "upload_" + std::to_string(response.post.count) + ".txt";
+    std::stringstream count;
+    count << response.post.count;
+    response.post.path = response.location.upload_dir + "/" + "upload_" +  count.str();
 }
 
 /**

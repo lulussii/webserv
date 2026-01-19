@@ -6,12 +6,12 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 10:32:06 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:09:07 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-#include <string> //to_string()
+#include <sstream> //std::stringstream
 
 /**
  * @brief `POST method main`
@@ -30,7 +30,12 @@
  */
 void responseMain(request &request, responseT &response)
 {
-    response.response = request._version + " " + std::to_string(response.code);
+    std::stringstream code;
+    code << response.code;
+
+    std::stringstream contentL;
+    contentL << response.contentLen;
+    response.response = request._version + " " + code.str();
     if (response.code == 200)
         response.response += " OK\r\n";
     if (response.code == 404)
@@ -53,7 +58,7 @@ void responseMain(request &request, responseT &response)
     if (request._method == "DELETE")
         response.response += "Content-Length: 0";
     else
-        response.response += "Content-Length: " + std::to_string(response.contentLen);
+        response.response += "Content-Length: " + contentL.str();
     response.response += "\r\n";
 
     response.response += "Content-Type: " + response.contentType;

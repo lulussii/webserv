@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 10:54:09 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:02:16 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include <unistd.h> //read
 #include <fcntl.h>  //open
 #include "Request.hpp"
-
-#include <stdlib.h> //atoi to delete
 
 /**
  * @brief `firstline extract and parsing`
@@ -164,7 +162,7 @@ int requestMain(request &request, parsingT &p)
     //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
    
     // POST simple test 
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    //  p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
     
