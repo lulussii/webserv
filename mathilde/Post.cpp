@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 13:22:08 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/19 14:33:17 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@
 #include <dirent.h>
 #include <sstream> //std::stringstream
 #include <stdlib.h> //atoi to delete ????
-
-
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -140,6 +138,26 @@ bool isChunked(request &request)
     return (false);
 }
 
+/**
+ * @brief `Split body part to delete lenght part`
+ * 
+ * Exemple "11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n"
+ * step 1 : loop on the body
+ * 
+ * step 2 : search \r\n who is a separator between len and string
+ * 
+ * step 3 : in cut, extract lenght part (cut = [11])
+ * 
+ * step 4 : check if lenght == 0, return if == 0, means end body
+ * 
+ * step 5 : delete len part in body, tmp = \r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n
+ * + 2 because we don't want \r\n --> Hello World\r\n5\r\n12345\r\n0\r\n\r\n
+ * 
+ * step 6 : in newBody, put the lenght string ask, here len = 11 so we copy Hello World
+ * 
+ * step 7 : we delete the string part, tmp = 5\r\n12345\r\n0\r\n\r\n
+ * 
+ */
 void chunkedParsing(request &request, responseT &response)
 {
     std::string tmp = request._body;
@@ -161,6 +179,25 @@ void chunkedParsing(request &request, responseT &response)
         tmp = tmp.substr(static_cast<size_t>(atoi(cut.c_str())) + 2);
     }
     response.body = newBody;
+}
+
+/**
+ * @brief `Check if is multipart/form-data`
+ * 
+ */
+bool isMultipart(request &request)
+{
+    std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
+
+    if (it != request.headers.end() && it->second == "multipart/form-data")
+        return (true);
+    return (false);
+}
+
+
+void multipartParsing()
+{
+    
 }
 
 /**
@@ -362,10 +399,16 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
         return (0);
     }
 
-    // step : check if there is a chuncked
+    // step : chuncked
     if (isChunked(request) == true)
     {
         chunkedParsing(request, response);
+    }
+
+    // step : multipart/form-data
+    if (isMultipart(request) == true)
+    {
+        std::cout << "ICI\n";
     }
     
     // step 5 : create name file
