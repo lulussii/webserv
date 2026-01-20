@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/20 11:17:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/20 11:27:20 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,7 @@ int requestMain(request &request, parsingT &p)
     // p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // Simple GET 2
-    p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET inexistant 404
     // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
