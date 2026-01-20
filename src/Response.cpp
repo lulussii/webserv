@@ -3,21 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 13:34:05 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/19 11:09:07 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
-#include <string> //to_string()
+#include <sstream> //std::stringstream
 
-int responseMain(request &request, responseT &response)
+/**
+ * @brief `POST method main`
+ *
+ *
+ * step 1 : status line
+ *
+ * step 2 : Content Lenght
+ *
+ * step 3 : Content-Type
+ *
+ * step 4 : empty line
+ *
+ * step 5 : body
+ *
+ */
+void responseMain(request &request, responseT &response)
 {
-    // status line :
-    response.response = request._version + " " + std::to_string(response.code);
-    if (response.infos.error == false)
+    std::stringstream code;
+    code << response.code;
+
+    std::stringstream contentL;
+    contentL << response.contentLen;
+    response.response = request._version + " " + code.str();
+    if (response.code == 200)
         response.response += " OK\r\n";
     if (response.code == 404)
         response.response += " Not Found\r\n";
@@ -31,8 +50,15 @@ int responseMain(request &request, responseT &response)
         response.response += " Bad Request\r\n";
     if (response.code == 500)
         response.response += " Server Error\r\n";
-    // header in response
-    response.response += "Content-Length: " + std::to_string(response.contentLen);
+    if (response.code == 201)
+        response.response += " Created\r\n";
+    if (response.code == 204)
+        response.response += " No Content\r\n";
+        
+    if (request._method == "DELETE")
+        response.response += "Content-Length: 0";
+    else
+        response.response += "Content-Length: " + contentL.str();
     response.response += "\r\n";
 
     response.response += "Content-Type: " + response.contentType;
@@ -42,7 +68,6 @@ int responseMain(request &request, responseT &response)
     response.response += "\r\n";
 
     // body
-    response.response += response.body;
-
-    return (0);
+    if (request._method == "GET" || request._method == "POST")
+        response.response += response.body;
 }

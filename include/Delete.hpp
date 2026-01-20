@@ -1,36 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.hpp                                         :+:      :+:    :+:   */
+/*   Delete.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/20 11:08:20 by mathildelau      ###   ########.fr       */
+/*   Created: 2026/01/13 12:06:02 by mlaussel          #+#    #+#             */
+/*   Updated: 2026/01/13 12:08:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_HPP
-# define CLIENT_HPP
+#ifndef DELETE_HPP
+#define DELETE_HPP
 
 #include "Request.hpp"
+#include "Config.hpp"
 #include "Response.hpp"
 
-class Client
-{
-	public: 
-		int			fd;
-		std::string	readBuffer;
-		std::string	writeBuffer;
-		std::string response;
-		request		req;
-		struct response 	res;
-		bool		isReadyToWrite;
-		bool		requestComplete;
-
-		Client();
-		Client(int client_fd);
-		~Client();
-};
+int deleteMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

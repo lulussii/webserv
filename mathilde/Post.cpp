@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 15:19:36 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/20 11:16:11 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,7 @@ void extractFileName(request &request)
     filename = filename.substr(tmp.size());
     filename = filename.substr(0, filename.size() - 1);
     
-    std::cout << "filename [" << filename << "]\n";
+    // std::cout << "filename [" << filename << "]\n";
 
     
 }

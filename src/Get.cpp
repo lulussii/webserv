@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/13 09:14:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/20 11:19:25 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,31 +14,9 @@
 #include "Error.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
-#include <string>     //to_string()
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>
-
-// /**
-//  * @brief `init response`
-//  */
-// void init(responseT &response)
-// {
-//     response.response = "";
-//     response.code = 200;
-//     response.contentLen = 0;
-//     response.contentType = "";
-//     response.body = "";
-
-//     response.path = "";
-//     response.infos.error = false;
-//     response.infos.get = false;
-//     response.infos.loc = false;
-//     response.infos.fileExist = false;
-//     response.infos.file = false;
-//     response.infos.repository = false;
-//     response.infos.read = false;
-// }
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -137,7 +115,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
 {
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
-        error404(response, serverConfig, request);
+        errorCode(response, serverConfig, 404);
     else
     {
         response.infos.fileExist = true;
@@ -156,7 +134,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                 {
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
-                        error404(response, serverConfig, request);
+                        errorCode(response, serverConfig, 404);
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
@@ -182,18 +160,11 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  *
  * if not, error 403
  */
-void accessFile(responseT &response, serverT &serverConfig, request &request)
+void accessFile(responseT &response, serverT &serverConfig)
 {
-    response.code = 200;
     if (access(response.path.c_str(), R_OK) == -1)
     {
-        error403(response, serverConfig, request);
-        // response.infos.error = true;
-        // response.infos.fileExist = false;
-        // response.code = 403;
-        // response.contentType += "text/plain";
-        // errorCode(response, serverConfig, request);
-        // response.contentLen = response.body.size();
+        errorCode(response, serverConfig, 403);
     }
     else
         response.infos.read = true;
@@ -256,15 +227,15 @@ int readFile(responseT &response)
  *
  * .gif -> image/gif
  */
-void contentType(responseT &response, request &request)
+void contentType(responseT &response)
 {
-    size_t dot = request._url.rfind(".");
+    size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
         response.contentType = "application/octet-stream";
         return;
     }
-    std::string extension = request._url.substr(dot);
+    std::string extension = response.location.index.substr(dot);
 
     // case index.html?user=42
     if (extension.find("?") != std::string::npos)
@@ -312,9 +283,6 @@ void contentType(responseT &response, request &request)
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
-    // // step 0 : init
-    // init(response);
-
     // step 1 : find the good location
     if (foundLocation(request, serverConfig, response) == false)
     {
@@ -325,7 +293,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsGet(request, response) == false)
     {
-        error405(response);
+        errorCode(response, serverConfig, 405);
         return (1);
     }
 
@@ -337,7 +305,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 5 : access to the file
     if (response.infos.error == false && response.infos.repository == false)
-        accessFile(response, serverConfig, request);
+        accessFile(response, serverConfig);
 
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)
@@ -348,7 +316,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
 
     // step 7 : search content type of the file
     if (response.infos.repository == false)
-        contentType(response, request);
+        contentType(response);
 
     return (0);
 }

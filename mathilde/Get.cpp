@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 11:30:38 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/20 11:19:17 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                 {
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
-                         errorCode(response, serverConfig, 404);
+                        errorCode(response, serverConfig, 404);
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
@@ -164,7 +164,7 @@ void accessFile(responseT &response, serverT &serverConfig)
 {
     if (access(response.path.c_str(), R_OK) == -1)
     {
-         errorCode(response, serverConfig, 403);
+        errorCode(response, serverConfig, 403);
     }
     else
         response.infos.read = true;
@@ -237,9 +237,6 @@ void contentType(responseT &response)
     }
     std::string extension = response.location.index.substr(dot);
 
-
-    std::cout << "extension : " << extension << std::endl;
-
     // case index.html?user=42
     if (extension.find("?") != std::string::npos)
     {
@@ -296,7 +293,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 2 : check if method is in server
     if (checkIsGet(request, response) == false)
     {
-         errorCode(response, serverConfig, 405);
+        errorCode(response, serverConfig, 405);
         return (1);
     }
 
