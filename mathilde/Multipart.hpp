@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 16:10:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:36:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@ public:
 
 bool isMultipart(request &request);
 void extractBundary(request &request);
-void splitPart(request &reques, responseT &response);
+int splitPart(request &reques, responseT &response, serverT &serverConfig);
 void extractName(Multipart &m);
-void extractFileName(Multipart &m);
+int extractFileName(Multipart &m);
 void extractContentType(Multipart &m);
 void extractContent(Multipart &m);
-int  createAndWriteMultipartFile(responseT &response, Multipart &m);
+int createAndWriteMultipartFile(responseT &response, Multipart &m);
 
 #endif

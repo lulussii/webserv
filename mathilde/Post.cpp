@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 16:25:18 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:40:23 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,27 +149,29 @@ void createFileName(responseT &response)
  *
  * step 4 : everything is OK
  */
-void checkRepo(responseT &response, serverT &serverConfig)
+int checkRepo(responseT &response, serverT &serverConfig)
 {
     struct stat test;
 
     if (stat(response.location.upload_dir.c_str(), &test) == -1)
     {
         errorCode(response, serverConfig, 500);
-        return;
+        return (500);
     }
     else if (!S_ISDIR(test.st_mode))
     {
         errorCode(response, serverConfig, 500);
-        return;
+        return (500);
     }
     else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
         errorCode(response, serverConfig, 403);
-        return;
+        return (403);
     }
     else
         response.infos.repository = true;
+
+    return (0);
 }
 
 /**
@@ -193,7 +195,7 @@ int createAndWriteFile(responseT &response)
     if (stat(response.post.path.c_str(), &test) == -1)
     {
         response.code = 201;
-        fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 777);
+        fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (fd < 0)
         {
             std::cout << "Error : cannot open file\n";
@@ -203,7 +205,7 @@ int createAndWriteFile(responseT &response)
     else
     {
         response.code = 200;
-        fd = open(response.post.path.c_str(), O_TRUNC | O_WRONLY, 777);
+        fd = open(response.post.path.c_str(), O_TRUNC | O_WRONLY, 0644);
         if (fd < 0)
         {
             std::cout << "Error : cannot open file\n";
@@ -334,9 +336,10 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (isMultipart(request) == true)
     {
         extractBundary(request);
-        checkRepo(response, serverConfig);
-        splitPart(request, response);
-
+        if (checkRepo(response, serverConfig) != 0)
+            return (0);
+        if (splitPart(request, response, serverConfig) != 0)
+            return (0);
         return (0); // to delete
     }
 

@@ -6,12 +6,13 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 16:27:39 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:37:32 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Multipart.hpp"
 #include "Request.hpp"
+#include "Error.hpp"
 #include <ctime>
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
@@ -74,15 +75,15 @@ void extractBundary(request &request)
  *
  * step 7 : create path with file name
  */
-void splitPart(request &request, responseT &response)
+int splitPart(request &request, responseT &response, serverT &serverConfig)
 {
     std::string tmp = request._body;
     request.party.clear();
 
     if (tmp.find(request.boundary) == std::string::npos)
     {
-        // error 400
-        return;
+        errorCode(response, serverConfig, 400);
+        return (400);
     }
 
     while (tmp.find(request.boundary) != std::string::npos)
@@ -102,7 +103,12 @@ void splitPart(request &request, responseT &response)
         Multipart m;
         m.fullPart = fullPart;
         extractName(m);
-        extractFileName(m);
+        if (extractFileName(m) == 0)
+        {
+            errorCode(response, serverConfig, 400);
+            return (400);
+        }
+            
         extractContentType(m);
         extractContent(m);
         request.party.push_back(m);
@@ -122,6 +128,7 @@ void splitPart(request &request, responseT &response)
         std::cout << "Content = [" << m.content << "]\n";
         std::cout << "tmp = [" << tmp << "]\n";
     }
+    return (0);
 }
 
 /**
@@ -136,7 +143,7 @@ void splitPart(request &request, responseT &response)
  * step 4 : delete "" and filename=
  *
  */
-void extractFileName(Multipart &m)
+int extractFileName(Multipart &m)
 {
     std::string filename;
     std::string tmp = "filename=\"";
@@ -144,9 +151,8 @@ void extractFileName(Multipart &m)
     size_t len = m.fullPart.find("filename");
     if (len == std::string::npos)
     {
-        // error 400
         filename = "";
-        return;
+        return (1);
     }
     filename = m.fullPart.substr(len);
 
@@ -157,6 +163,8 @@ void extractFileName(Multipart &m)
     filename = filename.substr(0, filename.size() - 1);
 
     m.filename = filename;
+
+    return (0);
 }
 
 /**
