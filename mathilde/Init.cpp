@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 09:14:42 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/20 12:29:28 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void initResponse(responseT &response)
 
     response.path = "";
     response.repo = "";
-    
+
     response.infos.error = false;
     response.infos.get = false;
     response.infos.loc = false;
@@ -47,6 +47,7 @@ void initRequest(request &request)
     request._method = "";
     request._url = "";
     request._version = "";
+    request.boundary = "";
     request._body = "";
     request.contentLenght = 0;
 }
@@ -62,5 +63,5 @@ void initMain(request &request, responseT &response, serverT &serverConfig)
 {
     initRequest(request);
     initConfig(serverConfig);
-    initResponse(response);   
+    initResponse(response);
 }

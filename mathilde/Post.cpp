@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/20 11:16:11 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/20 12:35:08 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <dirent.h>
-#include <sstream> //std::stringstream
+#include <sstream>  //std::stringstream
 #include <stdlib.h> //atoi to delete ????
 
 /**
@@ -124,15 +124,14 @@ bool bodyExist(request &request, responseT &response)
     return (false);
 }
 
-
 /**
  * @brief `Check if is Chunked`
- * 
+ *
  */
 bool isChunked(request &request)
 {
     std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
-    
+
     if (it != request.headers.end() && it->second == "chunked")
         return (true);
     return (false);
@@ -140,23 +139,23 @@ bool isChunked(request &request)
 
 /**
  * @brief `Split body part to delete lenght part`
- * 
+ *
  * Exemple "11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n"
  * step 1 : loop on the body
- * 
+ *
  * step 2 : search \r\n who is a separator between len and string
- * 
+ *
  * step 3 : in cut, extract lenght part (cut = [11])
- * 
+ *
  * step 4 : check if lenght == 0, return if == 0, means end body
- * 
+ *
  * step 5 : delete len part in body, tmp = \r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n
  * + 2 because we don't want \r\n --> Hello World\r\n5\r\n12345\r\n0\r\n\r\n
- * 
+ *
  * step 6 : in newBody, put the lenght string ask, here len = 11 so we copy Hello World
- * 
+ *
  * step 7 : we delete the string part, tmp = 5\r\n12345\r\n0\r\n\r\n
- * 
+ *
  */
 void chunkedParsing(request &request, responseT &response)
 {
@@ -164,12 +163,12 @@ void chunkedParsing(request &request, responseT &response)
     std::string cut;
     std::string newBody = "";
 
-    while(!tmp.empty())
+    while (!tmp.empty())
     {
         size_t space = tmp.find("\r\n");
-        
+
         cut = tmp.substr(0, space);
-        if  (static_cast<size_t>(atoi(cut.c_str())) == 0)
+        if (static_cast<size_t>(atoi(cut.c_str())) == 0)
             break;
 
         tmp = tmp.substr(space + 2);
@@ -183,12 +182,12 @@ void chunkedParsing(request &request, responseT &response)
 
 /**
  * @brief `Check if is multipart/form-data`
- * 
+ *
  */
 bool isMultipart(request &request)
 {
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
-    
+
     if (it != request.headers.end())
     {
         if (it->second.find("multipart/form-data;") != std::string::npos)
@@ -197,23 +196,31 @@ bool isMultipart(request &request)
     return (false);
 }
 
+void extractBundary(request &request)
+{
+    std::string s = "boundary=";
+    size_t pos = request._body.find("boundary=");
+    std::string tmp = request._body.substr(pos + s.size());
+    // std::cout << "bundary found : [" << tmp << "]\n";
+}
+
 /**
  * @brief `parsing multipart`
- * 
+ *
  * step 1 : extract from filename
- * 
+ *
  * step 2 : search /r/n who is at the end of file name
- * 
+ *
  * step 3 : split before /r/n
- * 
+ *
  * step 4 : delete "" and filename=
- * 
+ *
  */
 void extractFileName(request &request)
 {
     std::string filename;
     std::string tmp = "filename=\"";
-    
+
     size_t len = request._body.find("filename");
     filename = request._body.substr(len);
 
@@ -222,39 +229,35 @@ void extractFileName(request &request)
 
     filename = filename.substr(tmp.size());
     filename = filename.substr(0, filename.size() - 1);
-    
-    // std::cout << "filename [" << filename << "]\n";
 
-    
+    // std::cout << "filename [" << filename << "]\n";
 }
 
 void multipartParsing()
 {
-
-    
 }
 
 /**
  * @brief `create random file with path in location`
- * 
- * stringstream use to convert an int into a string 
+ *
+ * stringstream use to convert an int into a string
  */
 void createFileName(responseT &response)
 {
     std::stringstream count;
     count << response.post.count;
-    response.post.path = response.location.upload_dir + "/" + "upload_" +  count.str();
+    response.post.path = response.location.upload_dir + "/" + "upload_" + count.str();
 }
 
 /**
  * @brief `check repo`
  *
  * step 1 : exist else error 500
- * 
+ *
  * step 2 : is repo else error 500
- * 
+ *
  * step 3 : can access else error 403
- * 
+ *
  * step 4 : everything is OK
  */
 void checkRepo(responseT &response, serverT &serverConfig)
@@ -263,18 +266,18 @@ void checkRepo(responseT &response, serverT &serverConfig)
 
     if (stat(response.location.upload_dir.c_str(), &test) == -1)
     {
-         errorCode(response, serverConfig, 500);
+        errorCode(response, serverConfig, 500);
         return;
     }
     else if (!S_ISDIR(test.st_mode))
     {
-         errorCode(response, serverConfig, 500);
+        errorCode(response, serverConfig, 500);
         return;
     }
     else if (access(response.location.upload_dir.c_str(), W_OK) == -1)
     {
-         errorCode(response, serverConfig, 403);
-        return ;
+        errorCode(response, serverConfig, 403);
+        return;
     }
     else
         response.infos.repository = true;
@@ -284,20 +287,20 @@ void checkRepo(responseT &response, serverT &serverConfig)
  * @brief `create a file and write in`
  *
  * step 1 : check is file exist, yes code 200 else code 201
- * 
+ *
  * step 2 : open file and create it if it's not
- * 
+ *
  * step 3 : write body in file
- * 
- * 
+ *
+ *
  * step 4 : close fd
- * 
+ *
  */
 int createAndWriteFile(responseT &response)
 {
     struct stat test;
     int fd;
-    
+
     if (stat(response.post.path.c_str(), &test) == -1)
     {
         response.code = 201;
@@ -330,7 +333,7 @@ int createAndWriteFile(responseT &response)
  * @brief `prepare response`
  *
  * step 1 : content lenght
- * 
+ *
  * step 2 : content type
  * .html/htm -> text/html
  *
@@ -343,20 +346,29 @@ int createAndWriteFile(responseT &response)
  * .png -> image/png
  *
  * .gif -> image/gif
- * 
- * 
+ *
+ *
  */
 void prepareResponse(responseT &response, request request)
 {
-    response.contentLen = response.body.size();
-    
-    size_t dot = request._url.rfind(".");
+    // if (response.contentType.empty())
+    // {
+    //     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
+    //     if (it != request.headers.end())
+    //     {
+    //         response.contentType = it->second;
+
+    //         return;
+    //     }
+    // }
+(void) request;
+    size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
         response.contentType = "application/octet-stream";
         return;
     }
-    std::string extension = request._url.substr(dot);
+    std::string extension = response.location.index.substr(dot);
 
     // case index.html?user=42
     if (extension.find("?") != std::string::npos)
@@ -398,14 +410,14 @@ void prepareResponse(responseT &response, request request)
  * step 6 : check repo
  *
  * step 7 : create and write on file
- * 
+ *
  * step 8 : prepare response
  *
  * @return 1 if problem, else 0
  */
 int postMain(request &request, responseT &response, serverT &serverConfig)
 {
-    
+
     // step 1 : find the good location
     if (foundLocationPost(request, serverConfig, response) == false)
     {
@@ -425,7 +437,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
         errorCode(response, serverConfig, 413);
         return (0);
     }
-    
+
     // step 4 : check if body exist
     if (bodyExist(request, response) == false)
     {
@@ -442,10 +454,12 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     // step : multipart/form-data
     if (isMultipart(request) == true)
     {
+        extractBundary(request);
         extractFileName(request);
         multipartParsing();
+        return (1); // to delete
     }
-    
+
     // step 5 : create name file
     createFileName(response);
 
@@ -456,7 +470,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (createAndWriteFile(response) == 1)
         return (1);
 
-        // step 8 : prepare response
+    // step 8 : prepare response
     prepareResponse(response, request);
 
     return (0);

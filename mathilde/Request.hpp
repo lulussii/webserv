@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 14:56:44 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/20 12:28:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ public:
     std::string _url;
     std::string _version;
     std::map<std::string, std::string> headers;
+    std::string boundary;
     std::string _body;
     size_t contentLenght;
 };
