@@ -15,7 +15,7 @@ NAME = webserv
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRCS = main.cpp Request.cpp Response.cpp Config.cpp Get.cpp Error.cpp Post.cpp Init.cpp Delete.cpp
+SRCS = main.cpp Request.cpp Response.cpp Config.cpp Get.cpp Error.cpp Post.cpp Init.cpp Delete.cpp Chunked.cpp Multipart.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

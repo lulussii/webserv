@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/20 12:30:33 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 13:50:23 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,7 @@ int requestMain(request &request, parsingT &p)
     // p.line = "POST /upload HTTP/1.1\r\n Host: localhost\r\n Transfer-Encoding: chunked\r\n\r\n11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n";
 
     //POST multipart
-    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary--\r\n";
+    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary42\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary42--\r\n";
 
     
     // DELETE

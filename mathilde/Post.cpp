@@ -6,11 +6,13 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/20 12:35:08 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 15:10:57 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Post.hpp"
+#include "Chunked.hpp"
+#include "Multipart.hpp"
 #include "Error.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
@@ -122,119 +124,6 @@ bool bodyExist(request &request, responseT &response)
         return (true);
     }
     return (false);
-}
-
-/**
- * @brief `Check if is Chunked`
- *
- */
-bool isChunked(request &request)
-{
-    std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
-
-    if (it != request.headers.end() && it->second == "chunked")
-        return (true);
-    return (false);
-}
-
-/**
- * @brief `Split body part to delete lenght part`
- *
- * Exemple "11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n"
- * step 1 : loop on the body
- *
- * step 2 : search \r\n who is a separator between len and string
- *
- * step 3 : in cut, extract lenght part (cut = [11])
- *
- * step 4 : check if lenght == 0, return if == 0, means end body
- *
- * step 5 : delete len part in body, tmp = \r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n
- * + 2 because we don't want \r\n --> Hello World\r\n5\r\n12345\r\n0\r\n\r\n
- *
- * step 6 : in newBody, put the lenght string ask, here len = 11 so we copy Hello World
- *
- * step 7 : we delete the string part, tmp = 5\r\n12345\r\n0\r\n\r\n
- *
- */
-void chunkedParsing(request &request, responseT &response)
-{
-    std::string tmp = request._body;
-    std::string cut;
-    std::string newBody = "";
-
-    while (!tmp.empty())
-    {
-        size_t space = tmp.find("\r\n");
-
-        cut = tmp.substr(0, space);
-        if (static_cast<size_t>(atoi(cut.c_str())) == 0)
-            break;
-
-        tmp = tmp.substr(space + 2);
-
-        newBody += tmp.substr(0, static_cast<size_t>(atoi(cut.c_str())));
-
-        tmp = tmp.substr(static_cast<size_t>(atoi(cut.c_str())) + 2);
-    }
-    response.body = newBody;
-}
-
-/**
- * @brief `Check if is multipart/form-data`
- *
- */
-bool isMultipart(request &request)
-{
-    std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
-
-    if (it != request.headers.end())
-    {
-        if (it->second.find("multipart/form-data;") != std::string::npos)
-            return (true);
-    }
-    return (false);
-}
-
-void extractBundary(request &request)
-{
-    std::string s = "boundary=";
-    size_t pos = request._body.find("boundary=");
-    std::string tmp = request._body.substr(pos + s.size());
-    // std::cout << "bundary found : [" << tmp << "]\n";
-}
-
-/**
- * @brief `parsing multipart`
- *
- * step 1 : extract from filename
- *
- * step 2 : search /r/n who is at the end of file name
- *
- * step 3 : split before /r/n
- *
- * step 4 : delete "" and filename=
- *
- */
-void extractFileName(request &request)
-{
-    std::string filename;
-    std::string tmp = "filename=\"";
-
-    size_t len = request._body.find("filename");
-    filename = request._body.substr(len);
-
-    size_t space = filename.find("\r\n");
-    filename = filename.substr(0, space);
-
-    filename = filename.substr(tmp.size());
-    filename = filename.substr(0, filename.size() - 1);
-
-    // std::cout << "filename [" << filename << "]\n";
-}
-
-void multipartParsing()
-{
 }
 
 /**
@@ -361,7 +250,7 @@ void prepareResponse(responseT &response, request request)
     //         return;
     //     }
     // }
-(void) request;
+    (void)request;
     size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
@@ -455,8 +344,8 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (isMultipart(request) == true)
     {
         extractBundary(request);
+        splitPart(request);
         extractFileName(request);
-        multipartParsing();
         return (1); // to delete
     }
 
