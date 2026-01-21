@@ -1,6 +1,6 @@
 server {
     listen 8080;
-    root /home/mlaussel/webserv/mathilde/server_files/html;
+    root /Users/mathildelaussel/webserv/mathilde/server_files/html;
     error_page 404 /404.html;
     error_page 403 /403.html;
     error_page 500 /50x.html;
@@ -10,13 +10,13 @@ server {
         methods POST GET DELETE;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
+        upload_dir /Users/mathildelaussel/webserv/mathilde/server_files/tmp/uploads;
     }
 
     location / {
         methods POST GET DELETE;
         index index.html;
         autoindex on;
-        upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp/uploads;
+        upload_dir /Users/mathildelaussel/webserv/mathilde/server_files/tmp/uploads;
     }
 }

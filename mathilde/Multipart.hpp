@@ -6,15 +6,16 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:33:34 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:10:41 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MULTIPART_HPP
 #define MULTIPART_HPP
 
-class request;
 #include <iostream>
+#include "Response.hpp"
+class request;
 
 class Multipart
 {
@@ -28,8 +29,11 @@ public:
 
 bool isMultipart(request &request);
 void extractBundary(request &request);
-void splitPart(request &request);
+void splitPart(request &reques, responseT &response);
 void extractName(Multipart &m);
 void extractFileName(Multipart &m);
+void extractContentType(Multipart &m);
+void extractContent(Multipart &m);
+int  createAndWriteMultipartFile(responseT &response, Multipart &m);
 
 #endif

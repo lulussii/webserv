@@ -6,12 +6,19 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:34:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:27:39 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Multipart.hpp"
 #include "Request.hpp"
+#include <ctime>
+#include <unistd.h>   //stat() access()
+#include <sys/stat.h> //struct stat
+#include <fcntl.h>    //open
+#include <unistd.h>   //read
+#include <sstream> //streamstring
+
 /**
  * @brief `Check if is multipart/form-data`
  *
@@ -63,12 +70,20 @@ void extractBundary(request &request)
  *
  * step 5 : create new string without --bundary or end, - 1 for space
  *
- * step 6 : add full part part to class Multipart
+ * step 6 : add part to class Multipart
+ *
+ * step 7 : create path with file name
  */
-void splitPart(request &request)
+void splitPart(request &request, responseT &response)
 {
     std::string tmp = request._body;
     request.party.clear();
+
+    if (tmp.find(request.boundary) == std::string::npos)
+    {
+        // error 400
+        return;
+    }
 
     while (tmp.find(request.boundary) != std::string::npos)
     {
@@ -81,7 +96,6 @@ void splitPart(request &request)
             if (end == std::string::npos)
                 break;
         }
-            
 
         std::string fullPart = tmp.substr(0, end - 1);
 
@@ -89,13 +103,23 @@ void splitPart(request &request)
         m.fullPart = fullPart;
         extractName(m);
         extractFileName(m);
+        extractContentType(m);
+        extractContent(m);
         request.party.push_back(m);
         tmp = tmp.substr(end);
+
+        std::stringstream ss;
+        ss << response.location.upload_dir << "/" << m.filename << "_" << std::time(nullptr);
+        response.post.path = ss.str();
+
+        createAndWriteMultipartFile(response, m);
 
         std::cout << "DEBUG\n";
         std::cout << "full part = [" << m.fullPart << "]\n";
         std::cout << "name = [" << m.name << "]\n";
         std::cout << "file name = [" << m.filename << "]\n";
+        std::cout << "Content-Type = [" << m.contentType << "]\n";
+        std::cout << "Content = [" << m.content << "]\n";
         std::cout << "tmp = [" << tmp << "]\n";
     }
 }
@@ -118,6 +142,12 @@ void extractFileName(Multipart &m)
     std::string tmp = "filename=\"";
 
     size_t len = m.fullPart.find("filename");
+    if (len == std::string::npos)
+    {
+        // error 400
+        filename = "";
+        return;
+    }
     filename = m.fullPart.substr(len);
 
     size_t space = filename.find("\r\n");
@@ -158,3 +188,77 @@ void extractName(Multipart &m)
     m.name = name;
 }
 
+void extractContentType(Multipart &m)
+{
+    std::string contentType;
+    std::string tmp = "Content-Type: ";
+
+    size_t len = m.fullPart.find("Content-Type:");
+    contentType = m.fullPart.substr(len);
+
+    size_t space = contentType.find("\r\n");
+    contentType = contentType.substr(0, space);
+
+    contentType = contentType.substr(tmp.size());
+    contentType = contentType.substr(0, contentType.size());
+
+    m.contentType = contentType;
+}
+
+void extractContent(Multipart &m)
+{
+    std::string content;
+    std::string tmp = "\r\n\r\n";
+
+    size_t len = m.fullPart.find("\r\n\r\n");
+
+    content = m.fullPart.substr(len + tmp.size());
+
+    m.content = content;
+}
+
+/**
+ * @brief `create a file and write in`
+ *
+ * step 1 : check is file exist, yes code 200 else code 201
+ *
+ * step 2 : open file and create it if it's not
+ *
+ * step 3 : write body in file
+ *
+ *
+ * step 4 : close fd
+ *
+ */
+int createAndWriteMultipartFile(responseT &response, Multipart &m)
+{
+    struct stat test;
+    int fd;
+
+    if (stat(response.post.path.c_str(), &test) == -1)
+    {
+        response.code = 201;
+        fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
+        if (fd < 0)
+        {
+            std::cout << "Error : cannot open file\n";
+            return (1);
+        }
+    }
+    else
+    {
+        response.code = 200;
+        fd = open(response.post.path.c_str(), O_TRUNC | O_WRONLY, 0644);
+        if (fd < 0)
+        {
+            std::cout << "Error : cannot open file\n";
+            return (1);
+        }
+    }
+
+    write(fd, m.content.data(), m.content.size());
+
+    close(fd);
+
+    return (0);
+}

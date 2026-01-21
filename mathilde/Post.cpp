@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:19:47 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:25:18 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,16 +240,6 @@ int createAndWriteFile(responseT &response)
  */
 void prepareResponse(responseT &response, request request)
 {
-    // if (response.contentType.empty())
-    // {
-    //     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
-    //     if (it != request.headers.end())
-    //     {
-    //         response.contentType = it->second;
-
-    //         return;
-    //     }
-    // }
     (void)request;
     size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
@@ -344,9 +334,10 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     if (isMultipart(request) == true)
     {
         extractBundary(request);
-        splitPart(request);
-        // extractFileName(request);
-        return (1); // to delete
+        checkRepo(response, serverConfig);
+        splitPart(request, response);
+
+        return (0); // to delete
     }
 
     // step 5 : create name file

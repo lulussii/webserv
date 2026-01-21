@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/21 13:50:23 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 16:28:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,21 +160,23 @@ int requestMain(request &request, parsingT &p)
 
     // POST with body /home/mlaussel/test/www/html/tmp/uploads
     // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
-   
-    // POST simple test 
-    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+
+    // POST simple test
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
-    
+
     // POST access 403 chmod 400 tmp/uploads
 
     // POST chunked
     // p.line = "POST /upload HTTP/1.1\r\n Host: localhost\r\n Transfer-Encoding: chunked\r\n\r\n11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n";
 
-    //POST multipart
-    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary42\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary42--\r\n";
+    // POST multipart simple
+    //  p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary42\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary42--\r\n";
 
-    
+    // POST multipart complex
+    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
+
     // DELETE
     // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
