@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:17:26 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 15:34:03 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,15 +76,26 @@ void splitPart(request &request)
 
         size_t end = tmp.find("--" + request.boundary);
         if (end == std::string::npos)
+        {
             end = tmp.find("--" + request.boundary + "--");
+            if (end == std::string::npos)
+                break;
+        }
+            
 
         std::string fullPart = tmp.substr(0, end - 1);
 
         Multipart m;
         m.fullPart = fullPart;
+        extractName(m);
+        extractFileName(m);
         request.party.push_back(m);
         tmp = tmp.substr(end);
+
+        std::cout << "DEBUG\n";
         std::cout << "full part = [" << m.fullPart << "]\n";
+        std::cout << "name = [" << m.name << "]\n";
+        std::cout << "file name = [" << m.filename << "]\n";
         std::cout << "tmp = [" << tmp << "]\n";
     }
 }
@@ -92,7 +103,7 @@ void splitPart(request &request)
 /**
  * @brief `find filename`
  *
- * step 1 : extract from filename
+ * step 1 : search filename= and from filename=
  *
  * step 2 : search /r/n who is at the end of file name
  *
@@ -101,13 +112,13 @@ void splitPart(request &request)
  * step 4 : delete "" and filename=
  *
  */
-void extractFileName(request &request)
+void extractFileName(Multipart &m)
 {
     std::string filename;
     std::string tmp = "filename=\"";
 
-    size_t len = request._body.find("filename");
-    filename = request._body.substr(len);
+    size_t len = m.fullPart.find("filename");
+    filename = m.fullPart.substr(len);
 
     size_t space = filename.find("\r\n");
     filename = filename.substr(0, space);
@@ -115,5 +126,35 @@ void extractFileName(request &request)
     filename = filename.substr(tmp.size());
     filename = filename.substr(0, filename.size() - 1);
 
-    // std::cout << "filename [" << filename << "]\n";
+    m.filename = filename;
 }
+
+/**
+ * @brief `find filename`
+ *
+ * step 1 : search name=" and copy from name="
+ *
+ * step 2 : search ; who is at the end of name
+ *
+ * step 3 : split before;
+ *
+ * step 4 : delete "" and name=
+ *
+ */
+void extractName(Multipart &m)
+{
+    std::string name;
+    std::string tmp = "name=\"";
+
+    size_t len = m.fullPart.find("name");
+    name = m.fullPart.substr(len);
+
+    size_t space = name.find(";");
+    name = name.substr(0, space);
+
+    name = name.substr(tmp.size());
+    name = name.substr(0, name.size() - 1);
+
+    m.name = name;
+}
+

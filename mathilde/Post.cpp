@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:10:57 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 15:19:47 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -345,7 +345,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     {
         extractBundary(request);
         splitPart(request);
-        extractFileName(request);
+        // extractFileName(request);
         return (1); // to delete
     }
 

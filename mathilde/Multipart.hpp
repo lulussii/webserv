@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:11:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/21 15:33:34 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ public:
 bool isMultipart(request &request);
 void extractBundary(request &request);
 void splitPart(request &request);
-void extractFileName(request &request);
+void extractName(Multipart &m);
+void extractFileName(Multipart &m);
 
 #endif
