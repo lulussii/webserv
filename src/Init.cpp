@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 09:14:42 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/20 11:26:37 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,17 @@ void initRequest(request &request)
     request.contentLenght = 0;
 }
 
-void initConfig(serverT &serverConfigS)
+/* void initConfig(serverT &serverConfigS)
 {
     serverConfigS.listen = 0;
     serverConfigS.root = "";
     serverConfigS.clientMaxBodySize = 0;
-}
+} */
 
 void initMain(request &request, responseT &response, serverT &serverConfig)
 {
+	(void)serverConfig;
     initRequest(request);
-    initConfig(serverConfig);
+    //initConfig(serverConfig);
     initResponse(response);   
 }

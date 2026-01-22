@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/17 17:39:24 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/21 15:28:16 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void Server::setup()
 	// _createServersocker fait socket() + bind() + listen()
 	_serverFd = _createServerSocket(_port);
 	if (_serverFd == -1)
-		throw std::runtime_error("[ERROR] Failed to create server socket");
+		std::runtime_error("[ERROR] Failed to create server socket");
 
 	// 2. Configuration de POLL
 	// L'index 0 esr réservé au serveur

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/18 17:00:47 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/21 15:38:41 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 		//webServ.setup();
 		//webServ.run();
 	} catch (const std::exception &e) {
-		std::cerr << "Critical error: " << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		return 1;
 	}
 	return 0;

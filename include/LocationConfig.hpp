@@ -1,41 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConfig.hpp                                   :+:      :+:    :+:   */
+/*   LocationConfig.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/12 09:53:53 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 14:04:04 by lserodon         ###   ########.fr       */
+/*   Created: 2026/01/20 14:15:25 by lserodon          #+#    #+#             */
+/*   Updated: 2026/01/21 14:19:51 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVERCONFIG_HPP
-# define SERVERCONFIG_HPP
+#ifndef LOCATIONCONFIG_HPP
+# define LOCATIONCONFIG_HPP
 
-#include <iostream>
-#include <map>
+#include <string>
 #include <vector>
-#include "LocationConfig.hpp"
+#include <cstddef>
 
-class ServerConfig
+class LocationConfig
 {
 	friend class ConfigParser;
-	
+
 	private:
-		int 						_port; 
-		int							_autoIndex;
-		std::string					_host; 
-		std::map<int, std::string>	_errorPages;
-		size_t						_clientMaxBodySize;
-		std::string					_root;
-		std::vector<std::string>	_serverNames;
+		std::string	_path;
+		std::string	_root;
 		std::vector<std::string>	_index;
-		std::vector<LocationConfig>	_locations;
+		int			_autoIndex;
+		size_t		_clientMaxBodySize;
+
+		bool		_allowGet;
+		bool		_allowPost;
+		bool		_allowDelete;
+		bool		_allowMethodsDefined;
+
+		int			_returnCode;
+		std::string	_returnPath;
+		std::string	_uploadPath;
 
 	public:
-		ServerConfig();
+		LocationConfig();
 };
-
 
 #endif

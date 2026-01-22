@@ -4,7 +4,6 @@ server {
 	listen 127.0.0.1:8081;
 
 	server_name example ;
-GET /home/fcretin/project/webserv/server_files/ HTTP/1.1
 	root /home/fcretin/project/webserv/server_files;
 
 	# Pages d'erreur personnalisées :
@@ -14,7 +13,7 @@ GET /home/fcretin/project/webserv/server_files/ HTTP/1.1
 
 	client_max_body_size 1000000;
 
-	allow_methods GET POST; # Méthodes HTTP acceptées
+	#allow_methods GET POST; # Méthodes HTTP acceptées
 	autoindex on;
 
 	location /newsite {
@@ -30,7 +29,7 @@ GET /home/fcretin/project/webserv/server_files/ HTTP/1.1
 		return 301 https://www.nginx.com;
 	}
 
-	location = / {
+	location / {
 		# error_page 404 /404.html;
 		allow_methods GET POST DELETE; # Méthodes HTTP acceptées
 	}

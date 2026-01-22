@@ -6,17 +6,18 @@ server {
     error_page 500 /50x.html;
     client_max_body_size 1000000;
 
-    location /upload {
-        methods POST GET;
+    location /upload 
+	{
+        allow_methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/lserodon/test/www/html;
+        upload_store /home/lserodon/test/www/html;
     }
 
     location / {
-        methods POST GET;
+        allow_methods POST GET;
         index index.html;
         autoindex on;
-        upload_dir /home/lserodon/test/www/html;
+        upload_store /home/lserodon/test/www/html;
     }
 }

@@ -15,6 +15,7 @@ HEADER 		= $(HEADER_DIR)/Client.hpp			\
 			  $(HEADER_DIR)/Response.hpp		\
 			  $(HEADER_DIR)/Server.hpp			\
 			  $(HEADER_DIR)/ServerConfig.hpp	\
+			  $(HEADER_DIR)/LocationConfig.hpp	\
 			  $(HEADER_DIR)/ConfigParser.hpp	
 
 
@@ -29,6 +30,7 @@ SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/Init.cpp 				\
 			  $(SRC_DIR)/ServerConfig.cpp		\
 			  $(SRC_DIR)/ConfigParser.cpp		\
+			  $(SRC_DIR)/LocationConfig.cpp		\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= objs

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/17 18:03:38 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/21 15:29:29 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include "Get.hpp"
 #include "Response.hpp"
+#include "Init.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -111,6 +112,7 @@ void	Client::processRequest(serverT &serverConfig)
 
 	this->req = request();
 
+	initMain(this->req, this->res, serverConfig);
 	// 2. Parsing 
 	requestMain(this->req, p);
 	
@@ -150,7 +152,7 @@ void	Client::handleRead(serverT &serverConfig)
 		return;
 
 	if (bytesRead == 0)
-		throw std::runtime_error("Client disconnected");
+		std::runtime_error("Client disconnected");
 
 	// 2. Accumulation
 	// Ajout du nouveau morceau à la suite de ce qu'il y a déjà.
