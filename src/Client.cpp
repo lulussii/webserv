@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 15:29:29 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/25 13:46:40 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 
 Client::Client() 
 	:	fd(-1),
+		serverPort(-1),
 		lastTime(time(NULL)),
 		contentLength(0),
 		headersReceived(false),
@@ -29,8 +30,9 @@ Client::Client()
 		isReadyToWrite(false)
 {}
 
-Client::Client(int client_fd) 
-	:	fd(client_fd),
+Client::Client(int fd, int port) 
+	:	fd(fd),
+		serverPort(port),
 		lastTime(time(NULL)),
 		contentLength(0),
 		headersReceived(false),
@@ -38,6 +40,11 @@ Client::Client(int client_fd)
 		isReadyToWrite(false)
 {
 	reset();
+}
+
+int Client::getServerPort() const 
+{
+    return this->serverPort;
 }
 
 /**
@@ -74,21 +81,21 @@ long	Client::getContentLength(const std::string &buffer)
 void Client::reset()
 {
 	// 1. Reset des buffers 
-    readBuffer.clear();
-    writeBuffer.clear();
+	readBuffer.clear();
+	writeBuffer.clear();
 
 	// 2. Reset des drapeaux d'état
-    headersReceived = false;
-    contentLength = 0;
-    requestComplete = false;
-    isReadyToWrite = false;
+	headersReceived = false;
+	contentLength = 0;
+	requestComplete = false;
+	isReadyToWrite = false;
 
 	// 3. Reset du timer à 0
-    lastTime = time(NULL);
-    
-    // Reset de la requête
-    this->req = request();
-    
+	lastTime = time(NULL);
+
+	// Reset de la requête
+	this->req = request();
+
 	// Nettoyage manuel de la structure de réponse
 	this->res.code = 0;  
 	this->res.contentLen = 0;

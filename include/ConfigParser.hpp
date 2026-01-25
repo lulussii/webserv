@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 15:38:01 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/25 13:45:29 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ class ConfigParser
 		~ConfigParser() {};
 
 		std::vector<ServerConfig> getServers() const;
+		std::vector<ServerConfig> getConfigs() const;
 		
 		void	parse(std::string path);
 		void	parseServer(std::ifstream &file);
@@ -69,13 +70,16 @@ class ConfigParser
 				 _throwError("Syntax Error: Root directive is empty");
 			if (value[value.size() - 1] != ';')
 				 _throwError("Syntax Error: Root path must end with ';'");
+        	value.erase(value.size() - 1);
+			if (value[value.size() - 1] != '/')
+				value += "/";
 			if (config._root != "")
 				 _throwError("Config Error: Duplicate root directive");
 
 			std::string extraArg;
 			if (ss >> extraArg && extraArg[0] != '#')
 				 _throwError("Syntax Error: Too many arguments for root directive");
-			config._root = value.erase(value.size() - 1);
+			config._root = value;
 		}
 
 		template <typename T>
@@ -187,7 +191,5 @@ class ConfigParser
 				 _throwError("Syntax Error: Too many arguments for index");
 		}
 };
-
-
 
 #endif

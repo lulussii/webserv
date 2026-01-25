@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 15:38:20 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/24 16:27:50 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,11 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
+
+std::vector<ServerConfig> ConfigParser::getConfigs() const
+{
+    return this->_servers;
+}
 
 void	ConfigParser::parseListen(std::string &args, ServerConfig &server)
 {
@@ -146,16 +151,19 @@ void	ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 		{
 			if (loc._allowGet)
 				 _throwError("Config Error: Duplicate method GET");
+			loc._allowGet = true;
 		}
 		else if (value == "POST")
 		{
 			if (loc._allowPost)
 				 _throwError("Config Error: Duplicate method POST");
+			loc._allowPost = true;
 		}
 		else if (value == "DELETE")
 		{
 			if (loc._allowDelete)
 				 _throwError("Config Error: Duplicate method DELETE");
+			loc._allowDelete = true;
 		}
 		else
 			 _throwError("Config Error: Unknown method: " + value);
@@ -301,7 +309,10 @@ void	ConfigParser::parseServer(std::ifstream &file)
 
 			if (path.empty())
 				 _throwError("Syntax Error: Location path missing");
-				
+			
+			if (path[path.size() -1] == '{')
+				path = path.substr(0, path.size() - 1);
+
 			std::string brace;
 			if (ssLoc >> brace)
 			{
@@ -313,7 +324,7 @@ void	ConfigParser::parseServer(std::ifstream &file)
 				if (!hasOpeningBraceOnNextLine(file))
 					 _throwError("Error: Location block not opened with '{'");
 			}
-			parseLocation(file, currentServer, args);
+			parseLocation(file, currentServer, path);
 		}
 		else
 			 _throwError("Syntax Error: Unknown directive in server block: " + key);

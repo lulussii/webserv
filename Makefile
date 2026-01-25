@@ -11,6 +11,7 @@ SRC_DIR 	= src
 HEADER_DIR 	= include
 
 HEADER 		= $(HEADER_DIR)/Client.hpp			\
+			  $(HEADER_DIR)/Config.hpp			\
 			  $(HEADER_DIR)/Request.hpp			\
 			  $(HEADER_DIR)/Response.hpp		\
 			  $(HEADER_DIR)/Server.hpp			\

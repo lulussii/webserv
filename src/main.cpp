@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 15:38:41 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/24 15:11:23 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@
 
 int main(int argc, char **argv) 
 {
-	Server 			webServ(8080);
 	std::string 	config_file_path;
 	ConfigParser	parser;
 
@@ -47,8 +46,11 @@ int main(int argc, char **argv)
 	try 
 	{
 		parser.parse(config_file_path);
-		//webServ.setup();
-		//webServ.run();
+		std::vector<ServerConfig> configs = parser.getConfigs();
+		
+		Server 			webServ(configs);
+		webServ.setup();
+		webServ.run();
 	} catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		return 1;

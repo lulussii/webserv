@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 09:53:53 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 14:04:04 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/24 15:41:54 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 class ServerConfig
 {
 	friend class ConfigParser;
+	friend class Server;
 	
 	private:
 		int 						_port; 

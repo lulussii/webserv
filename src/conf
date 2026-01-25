@@ -8,14 +8,15 @@ server {
 
     location /upload 
 	{
-        allow_methods POST GET;
+        allow_methods GET;
         index index.html;
         autoindex on;
         upload_store /home/lserodon/test/www/html;
     }
 
-    location / {
-        allow_methods POST GET;
+    location / 
+	{
+        allow_methods GET;
         index index.html;
         autoindex on;
         upload_store /home/lserodon/test/www/html;

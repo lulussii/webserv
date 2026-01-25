@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/15 14:00:28 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/24 16:09:21 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Client
 {
 	public:
 		int			fd;
+		int			serverPort;
 		time_t		lastTime;
 
 		std::string	readBuffer;
@@ -45,7 +46,9 @@ class Client
 		bool		isReadyToWrite;
 
 		Client();
-		Client(int client_fd);
+		Client(int fd, int port);
+
+		int getServerPort() const;
 
 		long	getContentLength(const std::string &buffer);
 

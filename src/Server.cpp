@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/21 15:28:16 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/25 13:54:07 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,51 @@
 
 #define LISTEN_BACKLOG 5
 
+serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
+{
+    serverT mateConfig;
+
+	mateConfig.listen = myConfig._port;
+	mateConfig.root = myConfig._root;
+	mateConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
+    mateConfig.errorPage = myConfig._errorPages;
+
+	std::vector<LocationConfig> myLocs = myConfig._locations;
+
+	for (size_t i = 0; i < myLocs.size(); i++)
+	{
+		locationsT mateLoc;
+		LocationConfig &curr = myLocs[i];
+
+		mateLoc.path = curr._path;
+		if (!curr._index.empty())
+			mateLoc.index = curr._index[0];
+		else
+			mateLoc.index = "";
+		mateLoc.upload_dir = curr._uploadPath;
+		mateLoc.methods.clear();
+		if (curr._allowGet) mateLoc.methods.push_back("GET");
+		if (curr._allowPost) mateLoc.methods.push_back("POST");
+		if (curr._allowDelete) mateLoc.methods.push_back("DELETE");
+		if (curr._autoIndex == 1)
+			mateLoc.autoindex = "on";
+		else
+			mateLoc.autoindex = "off";
+
+		std::cout << "[DEBUG] Methods for path " << mateLoc.path << ": ";
+		for (size_t k = 0; k < mateLoc.methods.size(); k++)
+			std::cout << mateLoc.methods[k] << " ";
+		std::cout << std::endl;
+        mateConfig.locations[curr._path] = mateLoc;
+    }
+
+    return mateConfig;
+}
+
 /**
  * @brief Constructeur : Initialise le serveur et vide le tableau de pollfd.
  */
-Server::Server(int port) : _port(port), _serverFd(-1) 
+Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
 {
 	for (int i = 0; i <= MAX_CLIENTS; ++i)
 	{
@@ -100,7 +141,7 @@ int	Server::_createServerSocket(int port)
 		return (-1);
 	}
 
-	// nLe socket est prêt, on retourne son numéro au serveur
+	// Le socket est prêt, on retourne son numéro au serveur
 	return fd;
 }
 
@@ -125,33 +166,45 @@ int	Server::_acceptClient(int server_fd)
  */
 void Server::setup()
 {
-	// 1. Récupération du FD
-	// _createServersocker fait socket() + bind() + listen()
-	_serverFd = _createServerSocket(_port);
-	if (_serverFd == -1)
-		std::runtime_error("[ERROR] Failed to create server socket");
+	std::vector<int> openPorts;
+	int				fdsIndex = 0;
 
-	// 2. Configuration de POLL
-	// L'index 0 esr réservé au serveur
-	// Si POLLIN, c'est qu'il y  a une nouvelle connexion (et non pas des données à lire)
-	_fds[0].fd = _serverFd;
-	_fds[0].events = POLLIN; 
-	
-	_defaultConfig.root = "./www/";
-	_defaultConfig.listen = _port;
-	_defaultConfig.clientMaxBodySize = 1000000;
-	
-	locationsT locRoot;
-	locRoot.path = "/";
-	locRoot.index = "index.html";
-	locRoot.autoindex = "off";
-	locRoot.methods.push_back("GET");
-	locRoot.methods.push_back("POST");
+	for (size_t i = 0; i < _configs.size(); i++)
+	{
+		int	currentPort = _configs[i]._port;
+		bool	portExists = false;
 
-	_defaultConfig.locations["/"] = locRoot;
-	
-	std::cout << "[SUCCESS] Server started succesfully" << std::endl;
-	std::cout << "[INFO] Listening on port " << _port << std::endl;
+		for (size_t j = 0;j < openPorts.size(); j++)
+		{
+			if (openPorts[j] == currentPort)
+			{
+				portExists = true;
+				break;
+			}
+		}
+		if (portExists)
+			continue;
+		int fd = _createServerSocket(currentPort);
+		if (fd == -1)
+		{
+			std::cerr << "[ERROR] Failed to create socket for port" << currentPort << std::endl;
+			continue;
+		}
+
+		_fds[fdsIndex].fd = fd;
+		_fds[fdsIndex].events = POLLIN;
+		_fds[fdsIndex].revents = 0;
+		_serverSockets[fd] = currentPort;
+		openPorts.push_back(currentPort);
+		fdsIndex++;
+
+		std::cout << "[INFO] Listening on port" << currentPort << std::endl;
+	}
+
+	_nbListeningSockets = fdsIndex;
+
+	std::cout << "[SUCCESS] Server setup complete. Listening on " 
+	<< _nbListeningSockets << " ports." << std::endl;
 }
 
 /**
@@ -174,7 +227,7 @@ void	Server::run()
 		// L'index 0 de _fds correspond au serveur
 		// Si poll a mis le flag POLLIN -> quelqu'un veut entrer, on crée un nouveau client.
 		if (_fds[0].revents & POLLIN)
-			_acceptNewConnection();
+			_acceptNewConnection(_fds[0].fd);
 
 		// 3. Vérification des clients déjà là
 		// On parcourt toute la liste des places possibles pour les clients.
@@ -210,70 +263,79 @@ void	Server::run()
 	}
 }
 
-/**
- * @brief Accepte un nouveau client et lui cherche une place dans le tableau _fds.
- */
-void	Server::_acceptNewConnection()
+void Server::_acceptNewConnection(int serverFd)
 {
-	// 1. Accepter  l'appel
-	// Récupération du fd du nouveau client.
-	// A partir de maintenant, on parlera à ce client via 'client_fd', pas via '_serverFd'.
-	int	client_fd = _acceptClient(_serverFd);
-	if (client_fd != -1)
-	{
-		// 2. Mode non-bloquant (Sécurité)
-		// Comme pour le serveur, on veut que ce client ne bloque jamais tout le programme?
-		// Si on essaie de lire et qu'il n'a rien envoyé, on passe.
-		if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
-		{
-			std::cerr << "[Error] Failed to set non-blocking mode on cient FD" << std::endl;
-			close (client_fd);
-			return ;
-		}
+	struct sockaddr_in  clientAddr;
+	socklen_t           clientLen = sizeof(clientAddr);
 
-		// 3. Trouver une place libre (Gestion des slots)
-		// On parcourt _fds pour trouver une case vide.
-		for (int i = 1; i <= MAX_CLIENTS; i++)
-		{
-			if (_fds[i].fd == -1) // Un slot libre est trouvé
-			{
-				// A. Inscription dans le tableau de surveillance 
-				_fds[i].fd = client_fd;
-				_fds[i].events = POLLIN;
-				
-				// B. Création de l'objet "Client"
-				_clients[client_fd] = Client(client_fd);
-				std::cout << "[CONNEXION] New connection established (FD: " << client_fd << ")" << std::endl;
-				return;
-			}
-		}
-
-		// 4. Plus de place (serveur plein)
-		std::cerr << "[Error] Max clients reached. Connection rejected on FD " << client_fd << std::endl; 
-		close(client_fd);
+	int clientFd = accept(serverFd, (struct sockaddr *)&clientAddr, &clientLen);
+    
+	if (clientFd < 0) {
+		std::cerr << "[ERROR] Accept failed" << std::endl;
+		return;
 	}
+
+	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1) 
+	{
+		std::cerr << "[ERROR] Failed to set non-blocking mode on client FD" << std::endl;
+		close(clientFd);
+		return;
+	}
+
+    for (int i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (_fds[i].fd == -1)
+		{
+			_fds[i].fd = clientFd;
+			_fds[i].events = POLLIN;
+			_fds[i].revents = 0;
+
+            int portConnecte = _serverSockets[serverFd];
+			
+            _clients[clientFd] = Client(clientFd, portConnecte);
+
+			std::cout << "[CONNEXION] New client connected on port " << portConnecte << " (FD: " << clientFd << ")" << std::endl;
+			return;
+		}
+	}
+
+	std::cerr << "[ERROR] Server full. Connection rejected." << std::endl;
+	close(clientFd);
 }
 
-/**
- * @brief Dispatch l'activité d'un client vers la lecture ou l'écriture.
- */
-void	Server::_handleClientActivity(int i)
+void Server::_handleClientActivity(int i)
 {
-	int	fd = _fds[i].fd;
-	Client	&client = _clients[fd];
+	int fd = _fds[i].fd;
+	if (_clients.find(fd) == _clients.end())
+		return;
+    
+	Client &client = _clients[fd];
+	int clientPort = client.getServerPort();
+	
+	ServerConfig &currentConfig = _configs[0]; 
 
-	try {
-		// 1. Gestion de lecture (Entrée)
-		// Si revents contient POLLIN -> le client a envoyé un message
+	for (size_t j = 0; j < _configs.size(); j++)
+	{
+		if (_configs[j]._port == clientPort)
+		{
+			currentConfig = _configs[j];
+			break;
+		}
+	}
+	
+	try 
+	{
 		if (_fds[i].revents & POLLIN)
-			client.handleRead(_defaultConfig);
-		// 2. Gestion de l'écriture (Sortie)
-		// Envoi des données seulement si 2 conditions sont réunies : 
-		// A. Le réseau est libre pour accepter des données (POLLOUT).
-		// B. Le client a une réponse prête à être envoyée
+		{
+			serverT mateConf = _convertToMateConfig(currentConfig);
+			client.handleRead(mateConf);
+		}
+
 		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite)
+		{
 			client.handleWrite();
-		// 3. Préparation du prochain tour (Mise à jour des flags)
+		}
+
 		if (client.isReadyToWrite)
 			_fds[i].events = POLLIN | POLLOUT;
 		else
@@ -281,7 +343,7 @@ void	Server::_handleClientActivity(int i)
 	}
 	catch (std::exception &e)
 	{
-		std::cout << "[INFO] " << e.what() << "(FD: " << fd << ")" << std::endl;
+		std::cerr << "[INFO] Client error: " << e.what() << " (FD: " << fd << ")" << std::endl;
 		_closeConnection(i);
 	}
 }
