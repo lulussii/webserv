@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 12:44:00 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:52:37 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,17 +145,24 @@ int requestMain(request &request, parsingT &p)
     //| GET |
     // ------
     
-    // Simple GET
+    // GET /upload
     // p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-    // Simple GET 2
+    // GET /
     // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-    // GET inexistant 404
-    // p.line = "GET /unfichier_inexistant.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // GET error 404
+    //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET access 403 (must chang config file to index.html to chmod 000 secret.html)
-    // p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // GET aerror 403 : repo secret (chmod 000)
+    //p.line = "GET /secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // GET error 403 : file secret (chmod 000)
+    //p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // GET error 403 : url outside root
+    p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
 
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -166,35 +173,29 @@ int requestMain(request &request, parsingT &p)
     //| POST |
     // ------
     
-    // POST with body /home/mlaussel/test/www/html/tmp/uploads
-    // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
+    // POST
+    //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
-    // POST simple test
+    // POST
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
+    // POST error 400 (no content length so bad request)
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
 
-    // POST access 403 chmod 400 tmp/uploads
-    p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
-
+    // POST access 403 chmod 000 tmp/uploads
+    //p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
 
     // POST error 413, put an Content-Length more than 100000000
 
     // POST CHUNKED
-    // p.line =
-    // "POST /upload HTTP/1.1\r\n"
-    // "Host: localhost\r\n"
-    // "Transfer-Encoding: chunked\r\n"
-    // "Content-Type: text/plain\r\n"
-    // "\r\n"
-    // "5\r\n"
-    // "Hello\r\n"
-    // "6\r\n"
-    // " World\r\n"
-    // "0\r\n"
-    // "\r\n";
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n5\r\nHello\r\n6\r\nWorld\r\n0\r\n\r\n";
 
-    // POST MULTIPART
+    // POST CHUNKED error 400 : chunk size not good FRENCH J'AI BESOIN DE LE GERER
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nZZZ\r\nHello\r\n0\r\n\r\n";
+
+    // POST BOUNDARY
     // p.line =
     // "POST /upload HTTP/1.1\r\n"
     // "Host: localhost\r\n"
@@ -208,24 +209,33 @@ int requestMain(request &request, parsingT &p)
     // "Hello World\r\n"
     // "------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
-    // POST multipart complex
+    // POST BOUNDARY COMPLEX
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
-    
+    // POST BOUNDARY error 400 : no boundary present FRENCH J'AI BESOIN DE LE GERER
+    // p.line = "POST /upload HTTP/1.1\r\n"
+    //      "Host: localhost\r\n"
+    //      "Content-Type: multipart/form-data\r\n"
+    //      "Content-Length: 20\r\n"
+    //      "\r\n"
+    //      "Hello World";
+
 
     // --------
     //| DELETE |
     // --------
     
     // DELETE simple
-    // p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\n"
-    //          "Host: localhost\r\n"
-    //          "\r\n";
+    // p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    // DELETE error 404
+    //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    
+    // DELETE error 403 : delete repo
+    //p.line = "DELETE /upload/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 405 in conf must delete DELETE in / location
-    // p.line = "DELETE / HTTP/1.1\r\n"
-    //          "Host: localhost\r\n"
-    //          "\r\n";
+    // p.line = "DELETE / HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 
 

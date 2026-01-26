@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 13:09:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:39:38 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,29 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
 }
 
 /**
- * @brief `check if the file exist and if it's a file or something else`
+ * @brief `check if the file or the repo exist`
+ * 
+ * step 1 : check if the file or the repo exist, if not, error 404
+ * 
+ * step 2 : if file or repo exist, need to know if it's a file or a repository
+ * 
+ * step 3 : S_ISDIR check if it's a classic file (index.html, image.pmg etc...) 
+ * --> so it's not a repo (response.infos.repository = false)
+ * 
+ * step 4 : S_ISDIR check if it's a repo 
+ * --> yes (response.infos.repository = true;)
+ * --> no (error404)
+ * 
+ * step 5 : case it's a repo, we check if autoindex is activate (on)
+ * --> yes : 
+ *      1) we open the repo (DIR *dir = opendir(response.path.c_str());)
+ *      2) generate html page for autoindex
+ *      3) loop : we read each repo name with (repo = readdir(dir))
+ *      4) repo->d_name it's entry name
+ *      5) ignorate courent repo and parents repo
+ *      6) add end of body html
+ *      7) calculate body size, add content type and code success 200
+ *      8) close repo
  *
  */
 void existFile(responseT &response, serverT &serverConfig, request &request)
@@ -119,15 +141,10 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
         errorCode(response, serverConfig, 404);
     else
     {
-        response.infos.fileExist = true;
         if (S_ISREG(test.st_mode))
-        {
-            response.infos.file = true;
             response.infos.repository = false;
-        }
         else
         {
-            response.infos.file = false;
             if (S_ISDIR(test.st_mode))
             {
                 response.infos.repository = true;
@@ -136,22 +153,28 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
                         errorCode(response, serverConfig, 404);
+                        
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
+                    
                     while ((repo = readdir(dir)) != NULL)
                     {
                         std::string filename = repo->d_name;
                         if (filename != "." && filename != "..")
                             response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
                     }
+                    
                     response.body += "\r\n</ul></body></html>";
+                    
                     response.contentLen = response.body.size();
                     response.contentType = "text/html";
-                    response.code = 200;
+                    response.code = 200; //maybe delete because init to 200
                     closedir(dir);
                 }
             }
+            else 
+                errorCode(response, serverConfig, 404);
         }
     }
 }
@@ -196,7 +219,6 @@ int readFile(responseT &response)
         len = read(fd, buffer, sizeof(buffer));
         if (len < 0)
         {
-            // std::cout << "Error : can't read file\n";
             close(fd);
             return (1);
         }

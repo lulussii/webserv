@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/21 16:25:54 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 13:42:24 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void responseMain(request &request, responseT &response)
     if (response.code == 204)
         response.response += " No Content\r\n";
         
-    if (request._method == "DELETE")
+    if (request._method == "DELETE" || response.code == 413)
         response.response += "Content-Length: 0";
     else
         response.response += "Content-Length: " + contentL.str();

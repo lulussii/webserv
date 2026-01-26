@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 13:09:29 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:28:21 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,6 @@ typedef struct infos
     bool error;
     bool get;
     bool loc;
-    bool fileExist;
-    bool file;
     bool repository;
 } infosT;
 
