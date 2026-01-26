@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 12:58:21 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 15:07:48 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ bool isMultipart(request &request)
  *
  * step 2 : extract what is after =
  */
-void extractBundary(request &request)
+int extractBundary(request &request)
 {
     std::string s = "boundary=";
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
@@ -52,11 +52,18 @@ void extractBundary(request &request)
     if (it != request.headers.end())
     {
         size_t pos = it->second.find("boundary=");
+        std::cout << pos;
+        if (pos == std::string::npos)
+            return (400);
         std::string tmp = it->second.substr(pos + s.size());
         request.boundary = tmp;
+        return (0);
     }
     else
-        request.boundary = "boundary";
+    {
+        return (400);
+    }
+        // request.boundary = "boundary";
 }
 
 /**

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 14:53:03 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 15:00:28 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ int requestMain(request &request, parsingT &p)
     //p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET /
-    p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    //p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET error 404
     //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -212,12 +212,12 @@ int requestMain(request &request, parsingT &p)
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
     // POST BOUNDARY error 400 : no boundary present FRENCH J'AI BESOIN DE LE GERER
-    // p.line = "POST /upload HTTP/1.1\r\n"
-    //      "Host: localhost\r\n"
-    //      "Content-Type: multipart/form-data\r\n"
-    //      "Content-Length: 20\r\n"
-    //      "\r\n"
-    //      "Hello World";
+    p.line = "POST /upload HTTP/1.1\r\n"
+         "Host: localhost\r\n"
+         "Content-Type: multipart/form-data\r\n"
+         "Content-Length: 20\r\n"
+         "\r\n"
+         "Hello World";
 
 
     // --------

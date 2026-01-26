@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 14:49:51 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 15:09:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -357,9 +357,20 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
     }
 
     // step : multipart/form-data
-    if (isMultipart(request) == true)
+    bool boolValue = isMultipart(request);
+    if (boolValue == false)
     {
-        extractBundary(request);
+        errorCode(response, serverConfig, 400);
+        return ;
+    }
+    if (boolValue == true)
+    {
+        int errroValue = extractBundary(request);
+        if (errroValue == 400)
+        {
+            errorCode(response, serverConfig, 400);
+            return ;
+        }
         if (checkRepo(response, serverConfig) != 0)
             return ;
         splitPart(request, response, serverConfig);
