@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 08:20:37 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:06:37 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,7 @@ int openConf()
     int fd;
     fd = open("./conf", O_RDONLY);
     if (fd < 0)
-    {
-        std::cout << "Error : cannot open file\n";
-        return (-1);
-    }
+        return (500);
     return (fd);
 }
 
@@ -48,10 +45,7 @@ int readConf(int fd, std::string &conf)
         char buffer[1024];
         len = read(fd, buffer, sizeof(buffer));
         if (len < 0)
-        {
-            std::cout << "Error : can't read file\n";
-            return (1);
-        }
+            return (500);
         conf.append(buffer, len);
     }
     return (0);
@@ -254,10 +248,10 @@ int configMain(serverT &serverConfig, utilsConfigT &utils)
 {
     // step 1 : open conf file
     int fd = openConf();
-    if (fd == -1)
+    if (fd == 1)
     {
         close(fd);
-        return (1);
+        return (500);
     }
 
     // step 2 : read conf file
@@ -265,7 +259,7 @@ int configMain(serverT &serverConfig, utilsConfigT &utils)
     if (readConf(fd, conf) == 1)
     {
         close(fd);
-        return (1);
+        return (500);
     }
 
     // step 3 : trim to ignore space tabs ; etc

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 10:14:50 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:04:47 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,20 +214,14 @@ int createAndWriteFile(responseT &response)
         response.code = 201;
         fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (fd < 0)
-        {
-            std::cout << "Error : cannot open file\n";
-            return (1);
-        }
+            return (500);
     }
     else
     {
         response.code = 200;
         fd = open(response.post.path.c_str(), O_TRUNC | O_WRONLY, 0644);
         if (fd < 0)
-        {
-            std::cout << "Error : cannot open file\n";
-            return (1);
-        }
+            return (403);
     }
 
     write(fd, response.body.c_str(), response.body.size());
@@ -320,34 +314,34 @@ void prepareResponse(responseT &response, request request)
  *
  * @return 1 if problem, else 0
  */
-int postMain(request &request, responseT &response, serverT &serverConfig)
+void postMain(request &request, responseT &response, serverT &serverConfig)
 {
 
     // step 1 : find the good location
     if (foundLocationPost(request, serverConfig, response) == false)
     {
-        std::cout << "Error: no location found\n";
-        return (1);
+        errorCode(response, serverConfig, 404);
+        return ;
     }
 
     // step 2 : check if method is in server
     if (checkIsPost(request, response) == false)
     {
         errorCode(response, serverConfig, 405);
-        return (0);
+        return ;
     }
     // step 3 : check client_max_body_size
     if (clientMaxBodySize(serverConfig, request, response) == false)
     {
         errorCode(response, serverConfig, 413);
-        return (0);
+        return ;
     }
 
     // step 4 : check if body exist
     if (bodyExist(request, response) == false)
     {
         errorCode(response, serverConfig, 400);
-        return (0);
+        return ;
     }
 
     // step : chuncked
@@ -361,10 +355,9 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     {
         extractBundary(request);
         if (checkRepo(response, serverConfig) != 0)
-            return (0);
-        if (splitPart(request, response, serverConfig) != 0)
-            return (0);
-        return (0); // to delete
+            return ;
+        splitPart(request, response, serverConfig);
+        return ;
     }
 
     // step 5 : create name file
@@ -374,11 +367,19 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
     checkRepo(response, serverConfig);
 
     // step 7 : create and write on file
-    if (createAndWriteFile(response) == 1)
-        return (1);
+    int errorValue = createAndWriteFile(response);
+    if (errorValue == 500 || errorValue == 403)
+    {  
+        if (errorValue == 500)
+            errorCode(response, serverConfig, 500);
+        else if (errorValue == 403)
+            errorCode(response, serverConfig, 403);
+         return ;
+    }
+       
 
     // step 8 : prepare response
     prepareResponse(response, request);
 
-    return (0);
+    return ;
 }

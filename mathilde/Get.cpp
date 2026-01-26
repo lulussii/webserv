@@ -6,17 +6,18 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 08:30:58 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:09:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
 #include "Error.hpp"
-#include <unistd.h>   //stat() access()
-#include <sys/stat.h> //struct stat
-#include <fcntl.h>    //open
-#include <unistd.h>   //read
+#include <unistd.h>     //stat() access()
+#include <sys/stat.h>   //struct stat
+#include <fcntl.h>      //open
+#include <unistd.h>     //read
 #include <dirent.h>
+#include <errno.h>      //errno
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -163,11 +164,7 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
 void accessFile(responseT &response, serverT &serverConfig)
 {
     if (access(response.path.c_str(), R_OK) == -1)
-    {
         errorCode(response, serverConfig, 403);
-    }
-    else
-        response.infos.read = true;
 }
 
 /**
@@ -185,8 +182,10 @@ int readFile(responseT &response)
     fd = open(response.path.c_str(), O_RDONLY);
     if (fd < 0)
     {
-        std::cout << "Error : cannot open file\n";
-        return (1);
+        if (errno == ENOENT)
+            return (404);
+        else 
+            return (403);
     }
 
     // step 2 : read
@@ -197,7 +196,7 @@ int readFile(responseT &response)
         len = read(fd, buffer, sizeof(buffer));
         if (len < 0)
         {
-            std::cout << "Error : can't read file\n";
+            // std::cout << "Error : can't read file\n";
             close(fd);
             return (1);
         }
@@ -310,8 +309,8 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)
     {
-        if (readFile(response) == 1)
-            return (1);
+        int errorValue = readFile(response);
+            return (errorValue);
     }
 
     // step 7 : search content type of the file

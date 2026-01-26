@@ -6,13 +6,9 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 09:43:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:10:49 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include <iostream> //cout
-#include <unistd.h> //read
-#include <fcntl.h>  //open
 
 #include "Init.hpp"
 #include "Request.hpp"
@@ -21,6 +17,7 @@
 #include "Get.hpp"
 #include "Post.hpp"
 #include "Delete.hpp"
+#include "Error.hpp"
 
 void debug1(request &request)
 {
@@ -167,31 +164,42 @@ int main(void)
 
     // step 2 : config file
     
-    if (configMain(serverConfig, utils) == 1)
+    if (configMain(serverConfig, utils) == 500)
+    {
+        errorCode(response, serverConfig, 500);
         return (1);
+    }
     // debug2(serverConfig, utils);
 
    
     // step 3 : method GET
-    if (request._method == "GET")
+    if (request._method == "GET" && response.code == 200)
     {
-        if (getMain(request, response, serverConfig) == 1)
+        int errorValue = getMain(request, response, serverConfig);
+        if (errorValue == 1)
             return (1);
+        else if (errorValue == 404)
+        {
+            errorCode(response, serverConfig, 404);
+        }
+        else if (errorValue == 403)
+        {
+            errorCode(response, serverConfig, 403);
+        }
         // debug3(response, 1);
     }
     
 
     // step 4 : method POST
-    if (request._method == "POST")
+    if (request._method == "POST" && response.code == 200)
     {
-        if (postMain(request, response, serverConfig) == 1)
-            return (1);
+        postMain(request, response, serverConfig);
         // debug4(response, 1);
     }
 
     
     // step 5 : method DELETE
-    if (request._method == "DELETE")
+    if (request._method == "DELETE" && response.code == 200)
     {
         if (deleteMain(request, response, serverConfig) == 1)
             return (1);

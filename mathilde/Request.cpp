@@ -6,13 +6,12 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 10:15:18 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 12:44:00 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream> //cout
 #include <unistd.h> //read
-#include <fcntl.h>  //open
 #include "Request.hpp"
 
 /**
@@ -142,7 +141,10 @@ static void postBody(parsingT &p, request &request)
  */
 int requestMain(request &request, parsingT &p)
 {
-
+    // -----
+    //| GET |
+    // ------
+    
     // Simple GET
     // p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
@@ -158,6 +160,12 @@ int requestMain(request &request, parsingT &p)
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
+
+
+    // ------
+    //| POST |
+    // ------
+    
     // POST with body /home/mlaussel/test/www/html/tmp/uploads
     // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
@@ -167,22 +175,52 @@ int requestMain(request &request, parsingT &p)
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
 
     // POST access 403 chmod 400 tmp/uploads
+    p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
+
 
     // POST error 413, put an Content-Length more than 100000000
 
-    // POST chunked
-    // p.line = "POST /upload HTTP/1.1\r\n Host: localhost\r\n Transfer-Encoding: chunked\r\n\r\n11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n";
+    // POST CHUNKED
+    // p.line =
+    // "POST /upload HTTP/1.1\r\n"
+    // "Host: localhost\r\n"
+    // "Transfer-Encoding: chunked\r\n"
+    // "Content-Type: text/plain\r\n"
+    // "\r\n"
+    // "5\r\n"
+    // "Hello\r\n"
+    // "6\r\n"
+    // " World\r\n"
+    // "0\r\n"
+    // "\r\n";
 
-    // POST multipart simple
-    //  p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary42\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary42--\r\n";
+    // POST MULTIPART
+    // p.line =
+    // "POST /upload HTTP/1.1\r\n"
+    // "Host: localhost\r\n"
+    // "Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n"
+    // "Content-Length: 138\r\n"
+    // "\r\n"
+    // "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n"
+    // "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
+    // "Content-Type: text/plain\r\n"
+    // "\r\n"
+    // "Hello World\r\n"
+    // "------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
     // POST multipart complex
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
+    
+
+    // --------
+    //| DELETE |
+    // --------
+    
     // DELETE simple
-    p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\n"
-             "Host: localhost\r\n"
-             "\r\n";
+    // p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\n"
+    //          "Host: localhost\r\n"
+    //          "\r\n";
 
     // DELETE error 405 in conf must delete DELETE in / location
     // p.line = "DELETE / HTTP/1.1\r\n"
