@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 13:39:38 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:11:45 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,11 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
             if (S_ISDIR(test.st_mode))
             {
                 response.infos.repository = true;
+                if (access(response.path.c_str(), R_OK) == -1)
+                {
+                    errorCode(response, serverConfig, 403);
+                    return;
+                }
                 if (response.location.autoindex == "on")
                 {
                     DIR *dir = opendir(response.path.c_str());
@@ -186,8 +191,9 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig)
 {
+    
     if (access(response.path.c_str(), R_OK) == -1)
-        errorCode(response, serverConfig, 403);
+            errorCode(response, serverConfig, 403);
 }
 
 /**

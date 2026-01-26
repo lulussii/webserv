@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 13:52:37 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:11:31 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,15 +154,14 @@ int requestMain(request &request, parsingT &p)
     // GET error 404
     //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET aerror 403 : repo secret (chmod 000)
+    // GET aerror 403 : repo secret (chmod 000) + in config location /secret
     //p.line = "GET /secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : file secret (chmod 000)
-    //p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET error 403 : url outside root
-    p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
+    // GET error 403 or 404: url outside root
+    //p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET autoindex : location /test { autoindex on; methods GET;
     // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -231,7 +230,7 @@ int requestMain(request &request, parsingT &p)
     // DELETE error 404
     //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
     
-    // DELETE error 403 : delete repo
+    // DELETE error 403 or 404 : delete repo
     //p.line = "DELETE /upload/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 405 in conf must delete DELETE in / location
