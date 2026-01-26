@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Multipart.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 16:37:32 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 08:19:14 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <fcntl.h>    //open
 #include <unistd.h>   //read
 #include <sstream> //streamstring
+#include <ctime> //time_t
 
 /**
  * @brief `Check if is multipart/form-data`
@@ -115,7 +116,8 @@ int splitPart(request &request, responseT &response, serverT &serverConfig)
         tmp = tmp.substr(end);
 
         std::stringstream ss;
-        ss << response.location.upload_dir << "/" << m.filename << "_" << std::time(nullptr);
+        time_t now;
+        ss << response.location.upload_dir << "/" << m.filename << "_" << std::time(&now);
         response.post.path = ss.str();
 
         createAndWriteMultipartFile(response, m);

@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 09:46:11 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 09:45:38 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,11 +98,9 @@ bool checkIsDelete(request &request, responseT &response)
  */
 void pathBuildDelete(responseT &response, serverT &serverConfig, request &request)
 {
-    if (request._url == "/")
-        response.path = serverConfig.root + response.location.index;
-    else
-        // response.path = serverConfig.root + response.location.index;
-        response.path = serverConfig.root + request._url;
+    (void)serverConfig;
+    if (response.location.upload_dir != "")
+        response.path = response.location.upload_dir + request._url;
 }
 
 /**
@@ -157,7 +155,7 @@ int deleteMain(request &request, responseT &response, serverT &serverConfig)
     if (checkIsDelete(request, response) == false)
     {
          errorCode(response, serverConfig, 405);
-        return (1);
+        return (0);
     }
 
     // step 3 : build file path

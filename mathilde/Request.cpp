@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/21 16:28:43 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 09:47:50 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ int requestMain(request &request, parsingT &p)
 {
 
     // Simple GET
-    // p.line = "GET /index.html HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    // p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // Simple GET 2
     // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
@@ -168,6 +168,8 @@ int requestMain(request &request, parsingT &p)
 
     // POST access 403 chmod 400 tmp/uploads
 
+    // POST error 413, put an Content-Length more than 100000000
+
     // POST chunked
     // p.line = "POST /upload HTTP/1.1\r\n Host: localhost\r\n Transfer-Encoding: chunked\r\n\r\n11\r\nHello World\r\n5\r\n12345\r\n0\r\n\r\n";
 
@@ -175,11 +177,30 @@ int requestMain(request &request, parsingT &p)
     //  p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=boundary42\r\nContent-Length: 144\r\n\r\n--boundary42\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello Webserv!\n--boundary42--\r\n";
 
     // POST multipart complex
-    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
     // DELETE
     // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
+    // DELETE simple
+    p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\n"
+             "Host: localhost\r\n"
+             "\r\n";
+
+    // DELETE error 405 in conf must delete DELETE in / location
+    // p.line = "DELETE / HTTP/1.1\r\n"
+    //          "Host: localhost\r\n"
+    //          "\r\n";
+
+
+
+
+
+
+
+
+
+    
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
         return (1);

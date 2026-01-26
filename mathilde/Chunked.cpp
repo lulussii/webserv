@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Chunked.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:01:32 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:01:57 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 08:44:26 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Chunked.hpp"
+#include <stdlib.h> //atoi delete
+
 /**
  * @brief `Check if is Chunked`
  *

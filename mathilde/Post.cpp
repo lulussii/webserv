@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 16:40:23 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 08:52:34 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,24 @@ bool checkIsPost(request &request, responseT &response)
 /**
  * @brief `check if the content lenght < clientMaxBodySize, if it's not to big`
  *
+ * step 1 : check if already a content lenght
+ * 
+ * step 2 : else take content lenght from body 
+ * 
  * @return true if ok, else false
  */
-bool clientMaxBodySize(serverT &serverConfig, request &request)
+bool clientMaxBodySize(serverT &serverConfig, request &request, responseT &response)
 {
-
+    std::map<std::string, std::string>::iterator it = request.headers.find("Content-Length");
+    if (it != request.headers.end())
+    {
+        response.contentLen = atoi(it->second.c_str());
+        if (response.contentLen <= static_cast<size_t>(serverConfig.clientMaxBodySize))
+            return (true);
+        else
+            return (false);
+    }
+    
     if (request.contentLenght <= static_cast<size_t>(serverConfig.clientMaxBodySize))
         return (true);
     return (false);
@@ -242,7 +255,14 @@ int createAndWriteFile(responseT &response)
  */
 void prepareResponse(responseT &response, request request)
 {
-    (void)request;
+    //check if already a content type
+    std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
+    if (it != request.headers.end())
+    {
+        response.contentType = it->second;
+        return;
+    }
+    
     size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
@@ -313,7 +333,7 @@ int postMain(request &request, responseT &response, serverT &serverConfig)
         return (0);
     }
     // step 3 : check client_max_body_size
-    if (clientMaxBodySize(serverConfig, request) == false)
+    if (clientMaxBodySize(serverConfig, request, response) == false)
     {
         errorCode(response, serverConfig, 413);
         return (0);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/20 11:19:17 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 08:30:58 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,7 +294,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     if (checkIsGet(request, response) == false)
     {
         errorCode(response, serverConfig, 405);
-        return (1);
+        return (0);
     }
 
     // step 3 : build file path
