@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 09:45:38 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:39:46 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,14 +147,14 @@ int deleteMain(request &request, responseT &response, serverT &serverConfig)
     // step 1 : find the good location
     if (foundLocationDelete(request, serverConfig, response) == false)
     {
-        std::cout << "Error: no location found\n";
+        std::cout << "Error: no location found\n"; //need to chang
         return (1);
     }
 
     // step 2 : check if method is in server
     if (checkIsDelete(request, response) == false)
     {
-         errorCode(response, serverConfig, 405);
+        errorCode(response, serverConfig, 405);
         return (0);
     }
 
@@ -164,6 +164,6 @@ int deleteMain(request &request, responseT &response, serverT &serverConfig)
     //step 4 : check if the file exist and if we can access before delete
     existFileDelete(response, serverConfig);
 
-   return (0);
+    return (0);
 
 }

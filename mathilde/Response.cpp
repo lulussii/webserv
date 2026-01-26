@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 13:42:24 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:48:06 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,5 @@ void responseMain(request &request, responseT &response)
     response.response += "\r\n";
 
     // body
-    if (request._method == "GET")
-        response.response += response.body;
+    response.response += response.body;
 }

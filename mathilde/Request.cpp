@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 14:11:31 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:53:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,10 +146,10 @@ int requestMain(request &request, parsingT &p)
     // ------
     
     // GET /upload
-    // p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    //p.line = "GET /upload HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET /
-    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET error 404
     //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -158,7 +158,7 @@ int requestMain(request &request, parsingT &p)
     //p.line = "GET /secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : file secret (chmod 000)
-    p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    //p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 or 404: url outside root
     //p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -176,14 +176,14 @@ int requestMain(request &request, parsingT &p)
     //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
     // POST
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // POST error 400 (no content length so bad request)
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
     
     // POST exist upload_dir /home/mlaussel/test/www/html/tmp/notexist
 
-    // POST access 403 chmod 000 tmp/uploads
+    //POST access 500 chmod 000 tmp/uploads
     //p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
 
     // POST error 413, put an Content-Length more than 100000000
@@ -225,7 +225,7 @@ int requestMain(request &request, parsingT &p)
     // --------
     
     // DELETE simple
-    // p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    //p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 404
     //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -234,7 +234,7 @@ int requestMain(request &request, parsingT &p)
     //p.line = "DELETE /upload/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 405 in conf must delete DELETE in / location
-    // p.line = "DELETE / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    //p.line = "DELETE / HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 
 

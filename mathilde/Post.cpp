@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 13:04:47 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:49:51 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,9 +234,11 @@ int createAndWriteFile(responseT &response)
 /**
  * @brief `prepare response`
  *
- * step 1 : content lenght
+ * step 1 : if not error, delete body
+ * 
+ * step 2 : content type already exist in header
  *
- * step 2 : content type
+ * step 3 : content type if not content type
  * .html/htm -> text/html
  *
  * .css -> text/css
@@ -249,10 +251,14 @@ int createAndWriteFile(responseT &response)
  *
  * .gif -> image/gif
  *
+ * 
  *
  */
 void prepareResponse(responseT &response, request request)
 {
+    if (response.infos.error == false)
+        response.body = "";
+
     //check if already a content type
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
     if (it != request.headers.end())
@@ -377,7 +383,6 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
          return ;
     }
        
-
     // step 8 : prepare response
     prepareResponse(response, request);
 
