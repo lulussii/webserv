@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 08:52:34 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 10:14:50 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,12 +143,16 @@ bool bodyExist(request &request, responseT &response)
  * @brief `create random file with path in location`
  *
  * stringstream use to convert an int into a string
+ * 
+ * add "/uploads/" to path because we wants to uploads inside this repo
+ * 
+ * add 
  */
 void createFileName(responseT &response)
 {
     std::stringstream count;
     count << response.post.count;
-    response.post.path = response.location.upload_dir + "/" + "upload_" + count.str();
+    response.post.path = response.location.upload_dir + "/uploads/" + "upload_" + count.str();
 }
 
 /**

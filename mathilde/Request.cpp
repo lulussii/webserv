@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 09:47:50 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 10:15:18 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,9 +178,6 @@ int requestMain(request &request, parsingT &p)
 
     // POST multipart complex
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
-
-    // DELETE
-    // p.line = "DELETE /files/test.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE simple
     p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\n"

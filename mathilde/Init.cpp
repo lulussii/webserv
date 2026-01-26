@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/20 12:29:28 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/26 10:14:36 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
