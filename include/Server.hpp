@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/24 16:06:49 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/26 10:33:26 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 class Server
 {
 	private: 
-		int						_port;
+		//int						_port;
 		int						_nbListeningSockets;
 		struct pollfd			_fds[MAX_CLIENTS + 1];
 		std::map<int, Client>	_clients;

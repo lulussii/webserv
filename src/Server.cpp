@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/25 13:54:07 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:33:58 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,10 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 
 	std::vector<LocationConfig> myLocs = myConfig._locations;
 
+	std::cout << myLocs.size() << std::endl;
 	for (size_t i = 0; i < myLocs.size(); i++)
 	{
+		std::cout << "i = " << i << std::endl;
 		locationsT mateLoc;
 		LocationConfig &curr = myLocs[i];
 
@@ -198,7 +200,7 @@ void Server::setup()
 		openPorts.push_back(currentPort);
 		fdsIndex++;
 
-		std::cout << "[INFO] Listening on port" << currentPort << std::endl;
+		std::cout << "[INFO] Listening on port " << currentPort << std::endl;
 	}
 
 	_nbListeningSockets = fdsIndex;
@@ -219,19 +221,23 @@ void	Server::run()
 		// Elle ne la main que dans 2 cas :
 		//	A. Il y a de l'activité (un client parle ou se connecte).
 		//	B. 1000ms se sont écoulées sans rien.
-		int ret = poll(_fds, MAX_CLIENTS + 1, 1000);
+		int ret = poll(_fds, MAX_CLIENTS + _nbListeningSockets, 1000);
 		if (ret < 0)
 			break;
 
 		// 2. Vérification de la porte d'entrée (slot 0)
 		// L'index 0 de _fds correspond au serveur
 		// Si poll a mis le flag POLLIN -> quelqu'un veut entrer, on crée un nouveau client.
-		if (_fds[0].revents & POLLIN)
-			_acceptNewConnection(_fds[0].fd);
+		for (int i = 0; i < _nbListeningSockets; i++)
+		{
+			if (_fds[i].revents & POLLIN)
+				_acceptNewConnection(_fds[i].fd);	
+		}
+		
 
 		// 3. Vérification des clients déjà là
 		// On parcourt toute la liste des places possibles pour les clients.
-		for (int i = 1; i <= MAX_CLIENTS; i++)
+		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
 		{
 			// Vérification des deux conditions pour agir : 
 			// 1. _fds[i].fd != -1  -> Est-ce qu'il y a vraiment un client à cette place ?
@@ -243,7 +249,7 @@ void	Server::run()
 
 		// 4. Gestion du temps
 		// On repasse sur tous les clients pour vérifier leur inactivité.
-		for (int i = 1; i <= MAX_CLIENTS; i++)
+		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
 		{
 			if (_fds[i].fd != -1)
 			{
@@ -252,7 +258,6 @@ void	Server::run()
 				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
 
 				// Si ça fait plus de 60 secondes qu'il est muet -> déconnexion
-				std::cout << "[DEBUG] Client " << _fds[i].fd << " inactive for " << diff << " seconds." << std::endl;
 				if (diff > 60)
 				{
 					std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
@@ -327,6 +332,7 @@ void Server::_handleClientActivity(int i)
 	{
 		if (_fds[i].revents & POLLIN)
 		{
+			std::cout << "APPEL DE LA CONVERSION" << std::endl;
 			serverT mateConf = _convertToMateConfig(currentConfig);
 			client.handleRead(mateConf);
 		}

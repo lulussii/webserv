@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/24 16:27:50 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:42:17 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	ConfigParser::parseListen(std::string &args, ServerConfig &server)
 	if (value.empty())
 		 _throwError("Syntax Error: Listen directive is empty");
 	if (value[value.size() - 1] != ';')
-		 _throwError("Syntax Error: Listen value must end with ';");
+		 _throwError("Syntax Error: Listen value must end with ';'");
 	std::string cleanValue = value.substr(0, value.size() - 1);
 
 	size_t pos = cleanValue.find(':');
@@ -331,6 +331,7 @@ void	ConfigParser::parseServer(std::ifstream &file)
 	}
 	 _throwError("Syntax Error: Server block not closed. Missing '}'");
 }
+
 /**
  * 	@brief Helper: Advances file cursos to locate the opening brace '{'.
  * 	Skips empty lines and comments.
