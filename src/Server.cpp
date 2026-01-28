@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/28 14:32:08 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/28 14:47:04 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,10 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 {
     serverT mateConfig;
 
-	mateConfig.listen = myConfig._listen._port;
+	if (!myConfig._listen.empty())
+		mateConfig.listen = myConfig._listen[0].port;
+	else
+		mateConfig.listen = 8080;
 	mateConfig.root = myConfig._root;
 	mateConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
     mateConfig.errorPage = myConfig._errorPages;
@@ -61,9 +64,6 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 		else
 			mateLoc.autoindex = "off";
 
-		std::cout << "[DEBUG] Methods for path " << mateLoc.path << ": ";
-		for (size_t k = 0; k < mateLoc.methods.size(); k++)
-			std::cout << mateLoc.methods[k] << " ";
 		std::cout << std::endl;
         mateConfig.locations[curr._path] = mateLoc;
     }
@@ -163,12 +163,9 @@ int	Server::_acceptClient(int server_fd)
 	return (client_fd);
 }
 
-
 /**
  * @brief Point d'entrée pour démarrer le serveur.
  */
-
-/*
 void Server::setup()
 {
 	std::vector<int> openPorts;
@@ -176,7 +173,7 @@ void Server::setup()
 
 	for (size_t i = 0; i < _configs.size(); i++)
 	{
-		int	currentPort = _configs[i]._port;
+		int	currentPort = _configs[i]._listen[0].port;
 		bool	portExists = false;
 
 		for (size_t j = 0;j < openPorts.size(); j++)
@@ -210,7 +207,7 @@ void Server::setup()
 
 	std::cout << "[SUCCESS] Server setup complete. Listening on " 
 	<< _nbListeningSockets << " ports." << std::endl;
-} */
+}
 
 /**
  * @brief Boucle principale (Heartbeat). Utilise poll() pour surveiller les événements.
@@ -310,7 +307,7 @@ void Server::_acceptNewConnection(int serverFd)
 	std::cerr << "[ERROR] Server full. Connection rejected." << std::endl;
 	close(clientFd);
 }
-/* 
+
 void Server::_handleClientActivity(int i)
 {
 	int fd = _fds[i].fd;
@@ -324,7 +321,7 @@ void Server::_handleClientActivity(int i)
 
 	for (size_t j = 0; j < _configs.size(); j++)
 	{
-		if (_configs[j]._port == clientPort)
+		if (_configs[j]._listen[0].port == clientPort)
 		{
 			currentConfig = _configs[j];
 			break;
@@ -355,7 +352,7 @@ void Server::_handleClientActivity(int i)
 		std::cerr << "[INFO] Client error: " << e.what() << " (FD: " << fd << ")" << std::endl;
 		_closeConnection(i);
 	}
-} */
+}
 
 /**
  * @brief Nettoie proprement les ressources d'un client déconnecté.
