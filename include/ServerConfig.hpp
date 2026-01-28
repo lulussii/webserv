@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 09:53:53 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/26 14:42:52 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/27 15:49:09 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,15 +18,22 @@
 #include <vector>
 #include "LocationConfig.hpp"
 
+struct Listen
+{
+	std::string ip;
+	int			port;
+
+	Listen(std::string host, int port) : ip(host), port(port) {}
+};
+
 class ServerConfig
 {
 	friend class ConfigParser;
 	friend class Server;
 	
 	private:
-		int							_port; 
+		std::vector<Listen>			_listen;
 		int							_autoIndex;
-		std::string					_host; 
 		std::map<int, std::string>	_errorPages;
 		size_t						_clientMaxBodySize;
 		std::string					_root;

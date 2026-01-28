@@ -1,41 +1,18 @@
-server {
-    listen 8081;
-    root ./www;
+server  
+{
+	listen 8080;
+    root ./www ;
+	server_name name name2;
     error_page 404 /404.html;
     error_page 403 /403.html;
-    error_page 500 /50x.html;
-    client_max_body_size 1000000;
+    error_page 500 /500.html;
+    client_max_body_size 10000;
 
-    location /upload 
-	{
+    location /upload {
+        autoindex on;
+		return 300 /home/lserodon/test/www/html;
         allow_methods GET;
         index index.html;
-        autoindex on;
-        upload_store /home/lserodon/test/www/html;
-    }
-
-    location / 
-	{
-        allow_methods GET;
-        index index.html;
-        autoindex on;
-        upload_store /home/lserodon/test/www/html;
-    }
-}
-
-server {
-    listen 8080;
-    root ./www;
-    error_page 404 /404.html;
-    error_page 403 /403.html;
-    error_page 500 /50x.html;
-    client_max_body_size 1000000;
-
-    location /upload 
-	{
-        allow_methods GET;
-        index index.html;
-        autoindex on;
         upload_store /home/lserodon/test/www/html;
     }
 

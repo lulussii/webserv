@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/25 13:45:29 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/28 10:55:07 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@ class ConfigParser
 		}
 		
 		bool	hasOpeningBraceOnNextLine(std::ifstream &file);
+		void	_checkAndStripSemicolon(std::string &value, std::stringstream &ss);
+		int		_parsePort(const std::string &str);
+		bool	_isValidIP(const std::string &ip);
 
 	public: 
 
@@ -56,11 +59,15 @@ class ConfigParser
 		void	parseMethods(std::string &args, LocationConfig &loc);
 		void	parseReturn(std::string &args, LocationConfig &loc);
 		void	parseUpload(std::string &args, LocationConfig &loc);
-
+		void	parseBodySize(std::string &args, ServerConfig &server);
 
 		template <typename T>
 		void	parseRoot(std::string &args, T &config)
 		{
+
+			if (config._root != "")
+				_throwError("Config Error: Duplicate root directive");
+
 			std::stringstream	ss(args);
 			std::string			value;
 
@@ -68,11 +75,9 @@ class ConfigParser
 
 			if (value.empty())
 				 _throwError("Syntax Error: Root directive is empty");
-			if (value[value.size() - 1] != ';')
-				 _throwError("Syntax Error: Root path must end with ';'");
-        	value.erase(value.size() - 1);
-			if (value[value.size() - 1] != '/')
-				value += "/";
+			_checkAndStripSemicolon(value, ss);
+			/* if (value[value.size() - 1] != '/')
+				value += "/"; */
 			if (config._root != "")
 				 _throwError("Config Error: Duplicate root directive");
 
@@ -80,54 +85,6 @@ class ConfigParser
 			if (ss >> extraArg && extraArg[0] != '#')
 				 _throwError("Syntax Error: Too many arguments for root directive");
 			config._root = value;
-		}
-
-		template <typename T>
-		void	parseBodySize(std::string &args, T &config)
-		{
-			if (config._clientMaxBodySize != 1000000)
-				 _throwError("Config Error: Duplicate client_max_body_size directive");
-
-			std::stringstream	ss(args);
-			std::string			value;
-
-			ss >> value;
-
-			if (value.empty())
-				 _throwError("Syntax Error: Body size value must end with ';'");
-
-			value.erase(value.size() - 1);
-			
-			if (value.empty())
-				 _throwError("Syntax Error: Body size directive is empty");
-			
-			char unit = value[value.size() - 1];
-			size_t	multiplier = 1;
-
-			if (unit == 'K' || unit == 'k')
-			{
-				multiplier = 1024;
-				value.erase(value.size() - 1);
-			}
-			else if (unit == 'M' || unit == 'm')
-			{
-				multiplier = 1024 * 1024;
-				value.erase(value.size() - 1);
-			}
-			else if (unit == 'G' || unit == 'g')
-			{
-				multiplier = 1024 * 1024 * 1024;
-				value.erase(value.size() - 1);
-			}
-			else if (!std::isdigit(unit))
-				 _throwError("Syntax Error: Invalid unit (use k, m, g)");
-
-			size_t valueInt = std::atoi(value.c_str());
-			config._clientMaxBodySize = valueInt * multiplier;
-
-			std::string extra;
-			if (ss >> extra && extra[0] != '#')
-				 _throwError("Syntax Error: Too many arguments for client_max_body_size");
 		}
 
 		template <typename T>
@@ -143,9 +100,8 @@ class ConfigParser
 
 			if (value.empty())
 				 _throwError("Syntax Error: Autoindex directive is empty");
-			if (value[value.size() - 1] != ';')
-				 _throwError("Syntax Error: Autoindex directive must end with ';'");
-			value.erase(value.size() - 1);
+		
+			_checkAndStripSemicolon(value, ss);
 			
 			if (value == "on")
 				config._autoIndex = 1;
@@ -174,10 +130,18 @@ class ConfigParser
 				if (value[0] == '#')
 					break;
 					
+				if (value == ";")
+				{
+					foundSemicolon = true;
+					break;
+				}
 				if (value[value.size() - 1] == ';')
 				{
-					config._index.push_back(value.erase(value.size() - 1));
+					value.erase(value.size() - 1);
 					foundSemicolon = true;
+					
+					if (!value.empty())
+						config._index.push_back(value);
 					break;
 				}
 				else

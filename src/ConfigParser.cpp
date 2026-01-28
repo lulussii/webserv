@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/26 14:42:17 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/28 10:50:58 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,88 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 #include <fstream>
+#include <string>
 #include <sstream>
+#include <iostream>
 #include <cstdlib>
+#include <climits>
 
 std::vector<ServerConfig> ConfigParser::getConfigs() const
 {
     return this->_servers;
 }
 
+void	ConfigParser::_checkAndStripSemicolon(std::string &value, std::stringstream &ss)
+{
+	if (!value.empty() && value[value.size() - 1] == ';')
+	{
+		value.resize(value.size() - 1);
+		return;
+	}
+
+	std::string nextToken;
+	if (!(ss >> nextToken) || nextToken != ";")
+		_throwError("Syntax Error: Missing or misplaced ';'");
+}
+
+bool	ConfigParser::_isValidIP(const std::string &ip)
+{
+	int dots = 0;
+	for (size_t i = 0; i < ip.size(); i++)
+	{
+		if (ip[i] == '.')
+			dots++;
+	}
+	if (dots != 3)
+		return (false);
+
+	std::stringstream ss(ip);
+	std::string str;
+	int	count = 0;
+
+	while (std::getline(ss, str, '.'))
+	{
+		if (str.empty())
+			return (false);
+
+		for (size_t i = 0; i < str.size(); i++)
+		{
+			if (!std::isdigit(str[i]))
+				return (false);
+		}
+		if (str.size() > 3)
+			return (false);
+
+		int num = std::atoi(str.c_str());
+		if (num < 0 || num > 255)
+			return (false);
+		count++;
+	}
+	if (count != 4 || ip[ip.size() - 1] == '.')
+		return (false);
+	return (true);
+}
+
+int		ConfigParser::_parsePort(const std::string &str)
+{
+	if (str.empty())
+		_throwError("Syntax Error: Port is missing");
+
+	for (size_t i = 0; i < str.size(); i++)
+	{
+		if (!std::isdigit(str[i]))
+			_throwError("Syntax Error: Port '" + str + "' contains non-digit characters");
+	}
+	
+	long	port = std::atol(str.c_str());
+	if (port < 1 || port > 65535)
+		_throwError("Config Error: Port '" + str + "' is out of range [1-65535]");
+	
+	return (static_cast<int>(port));
+}
+
 void	ConfigParser::parseListen(std::string &args, ServerConfig &server)
 {
-	if (server._port != 0)
-			 _throwError("Config Error: Duplicate listen directive");
-		
 	std::stringstream	ss(args);
 	std::string			value;
 
@@ -34,22 +103,35 @@ void	ConfigParser::parseListen(std::string &args, ServerConfig &server)
 
 	if (value.empty())
 		 _throwError("Syntax Error: Listen directive is empty");
-	if (value[value.size() - 1] != ';')
-		 _throwError("Syntax Error: Listen value must end with ';'");
-	std::string cleanValue = value.substr(0, value.size() - 1);
-
-	size_t pos = cleanValue.find(':');
+	_checkAndStripSemicolon(value, ss);
+	
+	if (value.empty())
+		 _throwError("Syntax Error: Listen value is missing before ';'");
+	std::string host = "0.0.0.0";
+	int 		port = 8080;
+		 
+	size_t pos = value.find(':');
 	if (pos == std::string::npos)
-		server._port = std::atoi(cleanValue.c_str());
+		port = _parsePort(value);
 	else
 	{
-		std::string host = cleanValue.substr(0, pos);
-		std::string port = cleanValue.substr(pos + 1);
+		host = value.substr(0, pos);
+		std::string portStr = value.substr(pos + 1);
 		
-		server._host = host;
-		server._port = std::atoi(port.c_str());
+		if (!_isValidIP(host))
+			_throwError("Config Errror: Invalid IP adress format '" + host + "'");
+
+		port = _parsePort(portStr);
 	}
 	
+	for (size_t i = 0; i < server._listen.size(); i++)
+	{
+		if (server._listen[i].ip == host && server._listen[i].port == port)
+			_throwError("Config Error: Duplicate listen " + host + ":" + value);
+	}
+
+	server._listen.push_back(Listen(host, port));
+
 	std::string	extra;
 	if (ss >> extra && extra[0] != '#')
 		 _throwError("Syntax Error: Too many arguments for listen");
@@ -57,9 +139,6 @@ void	ConfigParser::parseListen(std::string &args, ServerConfig &server)
 
 void	ConfigParser::parseServerName(std::string &args, ServerConfig &server)
 {
-	if (!server._serverNames.empty())
-		 _throwError("Config Error: Duplicate server_name directive");
-		
 	std::stringstream	ss(args);
 	std::string			value;
 	bool				foundSemicolon = false;
@@ -71,7 +150,9 @@ void	ConfigParser::parseServerName(std::string &args, ServerConfig &server)
 			
 		if (value[value.size() - 1] == ';')
 		{
-			server._serverNames.push_back(value.erase(value.size() - 1));
+			value.erase(value.size() - 1);
+			if (!value.empty())
+				server._serverNames.push_back(value.erase(value.size() - 1));
 			foundSemicolon = true;
 			break;
 		}
@@ -79,11 +160,71 @@ void	ConfigParser::parseServerName(std::string &args, ServerConfig &server)
 			server._serverNames.push_back(value);
 	}
 	if (foundSemicolon == false)
-		 _throwError("Syntax Error: server_name value must end with ';");
+		 _throwError("Syntax Error: server_name value must end with ';'");
 		
 	std::string extra;
 	if (ss >> extra && extra[0] != '#')
 		 _throwError("Syntax Error: Too many arguments for server_names");
+}
+
+void	ConfigParser::parseBodySize(std::string &args, ServerConfig &server)
+{
+	if (server._clientMaxBodySize != 1000000)
+		_throwError("Config Error: Duplicate client_max_body_size directive");
+
+	std::stringstream	ss(args);
+	std::string			value;
+
+	ss >> value;
+
+	if (value.empty())
+		_throwError("Syntax Error: Body size value must end with ';'");
+
+	_checkAndStripSemicolon(value, ss);
+		
+	if (value.empty())
+		_throwError("Syntax Error: Body size directive is empty");
+			
+	char unit = value[value.size() - 1];
+	size_t	multiplier = 1;
+
+	if (unit == 'K' || unit == 'k')
+	{
+		multiplier = 1024;
+		value.erase(value.size() - 1);
+	}
+	else if (unit == 'M' || unit == 'm')
+	{
+		multiplier = 1024 * 1024;
+		value.erase(value.size() - 1);
+	}
+	else if (unit == 'G' || unit == 'g')
+	{
+		multiplier = 1024 * 1024 * 1024;
+		value.erase(value.size() - 1);
+	}
+	else if (!std::isdigit(unit))
+		 _throwError("Syntax Error: Invalid unit (use k, m, g)");
+
+	unsigned long result = 0;
+	for (size_t i = 0; i < value.size(); i++)
+	{
+		if (!std::isdigit(value[i]))
+			_throwError("Syntax Error: Invalid character in size: " + value);
+		int digit = value[i] - '0';
+		if (result > (ULONG_MAX - digit) / 10)
+			_throwError("Config Error: client_max_body_size is too large (overflow)");
+		
+		result = result * 10 + digit;
+	}
+	if (multiplier > 1 && result > ULONG_MAX / multiplier)
+		_throwError("Config Error: client_max_body_size is too large (overflow)");
+		
+	server._clientMaxBodySize = (multiplier * result);
+	
+	std::string extra;
+	if (ss >> extra && extra[0] != '#')
+		 _throwError("Syntax Error: Too many arguments for client_max_body_size");
 }
 
 void	ConfigParser::parseErrorPage(std::string &args, ServerConfig &server)
@@ -140,11 +281,16 @@ void	ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 			break;
 		
 		bool isLast = false;
-		if (value[value.size() - 1] == ';')
+		if (value == ";")
+		{
+			foundSemicolon = true;
+			break;
+		}
+		else if (value[value.size() - 1] ==  ';')
 		{
 			value.erase(value.size() - 1);
-			isLast = true;
 			foundSemicolon = true;
+			isLast = true;
 		}
 		
 		if (value == "GET")
@@ -189,12 +335,16 @@ void	ConfigParser::parseReturn(std::string &args, LocationConfig &loc)
 	if (url.empty())
 		 _throwError("Syntax Error: return directive needs a URL");
 
-	if (url[url.size() - 1] != ';')
-		 _throwError("Syntax Error: return directive must end with ';'");
-	url.erase(url.size() - 1); 
-
+	_checkAndStripSemicolon(url, ss);
+	
 	loc._returnCode = std::atoi(code.c_str());
 	loc._returnPath = url;
+
+	for (size_t i = 0; i < code.size(); i++)
+	{
+		if (!std::isdigit(code[i]))
+			_throwError("Syntax Error: return directive '" + code + "' contains non-digit characters");
+	}
 
 	if (loc._returnCode < 300 || loc._returnCode > 399)
 		 _throwError("Config Error: return code must be a 3xx status");
@@ -209,9 +359,7 @@ void ConfigParser::parseUpload(std::string &args, LocationConfig &loc)
 	if (value.empty())
 		 _throwError("Syntax Error: upload_store directive is empty");
     
-	if (value[value.size() - 1] != ';')
-		 _throwError("Syntax Error: upload_store must end with ';'");
-	value.erase(value.size() - 1);
+	_checkAndStripSemicolon(value, ss);
 
 	loc._uploadPath = value;
 }
@@ -244,8 +392,6 @@ void	ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std:
 
 		if (key == "root")
 			parseRoot(args, loc);
-		else if (key == "client_max_body_size")
-			parseBodySize(args, loc);
 		else if (key == "autoindex")
 			parseAutoIndex(args, loc);
 		else if (key == "index")
@@ -372,7 +518,7 @@ void ConfigParser::parse(std::string path)
 	std::ifstream config(path.c_str());
 
 	if (!config)
-		std::runtime_error("Unable to open file");
+		throw std::runtime_error("Unable to open file");
 	
 	std::string line;
 	while (std::getline(config, line))

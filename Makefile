@@ -23,7 +23,6 @@ HEADER 		= $(HEADER_DIR)/Client.hpp			\
 SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/Request.cpp			\
 			  $(SRC_DIR)/Response.cpp 			\
-			  $(SRC_DIR)/Server.cpp 			\
 			  $(SRC_DIR)/Config.cpp 			\
 			  $(SRC_DIR)/Error.cpp 				\
 			  $(SRC_DIR)/Get.cpp 				\
