@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 10:25:24 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:26:05 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,14 @@ void errorCode(responseT &response, serverT &serverConfig, int code)
 {
     response.code = code;
     response.infos.error = true;
-    response.contentType += "text/html";
+    response.contentType = "text/plain";
     
     std::map<int, std::string>::iterator it = serverConfig.errorPage.find(response.code);
 
     if (it != serverConfig.errorPage.end())
     {
         response.path = serverConfig.root + it->second;
+        response.contentType = "text/html";
 
         if (readFile(response) == 0 && !response.body.empty())
         {

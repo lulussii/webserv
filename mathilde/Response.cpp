@@ -6,11 +6,12 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 11:09:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 14:48:06 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "Request.hpp"
 #include <sstream> //std::stringstream
 
 /**
@@ -55,7 +56,7 @@ void responseMain(request &request, responseT &response)
     if (response.code == 204)
         response.response += " No Content\r\n";
         
-    if (request._method == "DELETE")
+    if (request._method == "DELETE" || response.code == 413)
         response.response += "Content-Length: 0";
     else
         response.response += "Content-Length: " + contentL.str();
@@ -68,6 +69,5 @@ void responseMain(request &request, responseT &response)
     response.response += "\r\n";
 
     // body
-    if (request._method == "GET" || request._method == "POST")
-        response.response += response.body;
+    response.response += response.body;
 }

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/24 16:09:21 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/28 15:03:37 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,10 @@ class Client
 
 		std::string	readBuffer;
 		std::string	writeBuffer;
+		std::string response;
 		
 		request		req;
-		response 	res;
+		struct response 	res;
 		
 		long		contentLength;
 		bool		headersReceived;

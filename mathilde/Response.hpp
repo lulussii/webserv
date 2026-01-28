@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 15:02:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/26 13:28:21 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,15 @@
 
 #include <iostream>
 #include "Config.hpp"
-#include "Request.hpp"
+class request;
+
 
 typedef struct infos
 {
     bool error;
     bool get;
     bool loc;
-    bool fileExist;
-    bool file;
     bool repository;
-    bool read;
 } infosT;
 
 typedef struct post

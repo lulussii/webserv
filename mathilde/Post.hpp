@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Error.hpp                                          :+:      :+:    :+:   */
+/*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/11 15:04:14 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 09:44:19 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/01/12 13:28:43 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/26 13:04:33 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ERROR_HPP
-#define ERROR_HPP
+#ifndef POST_HPP
+#define POST_HPP
 
-#include "Response.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "Config.hpp"
 
-void errorCode(responseT &response, serverT &serverConfig, int code);
+void postMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

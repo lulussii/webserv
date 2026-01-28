@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/28 14:47:04 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/28 15:11:33 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #include "Config.hpp"
 #include "Get.hpp"
 #include "Post.hpp"
+#include "Delete.hpp"
 
 #define LISTEN_BACKLOG 5
 
@@ -76,18 +77,18 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
  */
 Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
 {
-	for (int i = 0; i <= MAX_CLIENTS; ++i)
-	{
-		_fds[i].fd = -1;			// -1 signifie que le slot est libre
-		_fds[i].events = POLLIN;	// Par défaut, on écoute (lecture)
-	}
+    for (int i = 0; i <= MAX_CLIENTS; ++i)
+    {
+        _fds[i].fd = -1;         // -1 signifie que le slot est libre
+        _fds[i].events = POLLIN; // Par défaut, on écoute (lecture)
+    }
 }
 
 /**
  * @brief Crée et configure le socket principal du serveur (Socket, Bind, Listen).
  * @return Le descripteur de fichier (FD) du serveur ou -1 en cas d'erreur.
  */
-int	Server::_createServerSocket(int port)
+int Server::_createServerSocket(int port)
 {
 	// 1. Création du socket
 	// AF_INET 		: Utilisation de l'IPv4 (Internet Protocol v4)
@@ -150,7 +151,7 @@ int	Server::_createServerSocket(int port)
 /**
  * @brief Wrapper pour la fonction système accept().
  */
-int	Server::_acceptClient(int server_fd)
+int Server::_acceptClient(int server_fd)
 {
 	// 1. "Carte d'identité" du client.
 	// Contient l'IP du client et son port source 
@@ -212,7 +213,7 @@ void Server::setup()
 /**
  * @brief Boucle principale (Heartbeat). Utilise poll() pour surveiller les événements.
  */
-void	Server::run()
+void Server::run()
 {
 	while(true)
 	{
@@ -357,7 +358,7 @@ void Server::_handleClientActivity(int i)
 /**
  * @brief Nettoie proprement les ressources d'un client déconnecté.
  */
-void Server::_closeConnection(int i) 
+void Server::_closeConnection(int i)
 {
 	std::cout << "[DISCONNECTION] Client disconnected (FD: " << _fds[i].fd << ")" << std::endl;
 	close(_fds[i].fd);				// Ferme le socket
@@ -370,7 +371,7 @@ void Server::_closeConnection(int i)
  * Modifie le masque d'événements pour surveiller POLLOUT.
  * Appelé une fois que la réponse HTTP est prête à être envoyée.
  */
-void	Server::_enableWriting(int i)
+void Server::_enableWriting(int i)
 {
 	_fds[i].events = POLLIN | POLLOUT;
 }
@@ -380,7 +381,7 @@ void	Server::_enableWriting(int i)
  * Réinitialise le masque sur POLLIN uniquement.
  * Évite l'attente active (busy-waiting) une fois l'envoi terminé.
  */
-void	Server::_disableWriting(int i)
+void Server::_disableWriting(int i)
 {
-	_fds[i].events = POLLIN;
+    _fds[i].events = POLLIN;
 }

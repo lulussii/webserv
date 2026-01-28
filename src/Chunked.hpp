@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Error.hpp                                          :+:      :+:    :+:   */
+/*   Chunked.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/11 15:04:14 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/19 09:44:19 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/21 15:03:22 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ERROR_HPP
-#define ERROR_HPP
+#ifndef CHUNKED_HPP
+#define CHUNKED_HPP
 
-#include "Response.hpp"
 #include "Request.hpp"
-#include "Config.hpp"
+#include "Response.hpp"
 
-void errorCode(responseT &response, serverT &serverConfig, int code);
+bool isChunked(request &request);
+void chunkedParsing(request &request, responseT &response);
 
 #endif

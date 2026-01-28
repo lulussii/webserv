@@ -3,21 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2026/01/28 15:09:30 by lserodon         ###   ########.fr       */
+/*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/26 14:23:58 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "Get.hpp"
 #include "Error.hpp"
-#include <unistd.h>   //stat() access()
-#include <sys/stat.h> //struct stat
-#include <fcntl.h>    //open
-#include <unistd.h>   //read
+#include <unistd.h>     //stat() access()
+#include <sys/stat.h>   //struct stat
+#include <fcntl.h>      //open
+#include <unistd.h>     //read
 #include <dirent.h>
+#include <errno.h>      //errno
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -50,19 +50,10 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
     size_t bestLen = 0;
     bool found = false;
 
-    // --- DEBUG START ---
-    std::cout << "\n[DEBUG] Searching location for URL: [" << request._url << "]" << std::endl;
-    std::cout << "[DEBUG] Number of locations in config: " << serverConfig.locations.size() << std::endl;
-    // --- DEBUG END ---
-
     for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
          it != serverConfig.locations.end(); ++it)
     {
         const std::string &locPath = it->first;
-        
-        // --- DEBUG LOOP ---
-        std::cout << "   -> Testing against location: [" << locPath << "]" << std::endl;
-        // ------------------
 
         // URL must be at least as long as location path
         if (request._url.size() < locPath.size())
@@ -78,7 +69,6 @@ int foundLocation(request &request, serverT &serverConfig, responseT &response)
                 response.location = it->second;
                 response.infos.loc = true;
                 found = true;
-                std::cout << "   -> MATCH FOUND! (New best match)" << std::endl;
             }
         }
     }
@@ -114,21 +104,34 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
     if (request._url == "/")
         response.path = serverConfig.root + response.location.index;
     else
-	{
         // response.path = serverConfig.root + response.location.index;
         response.path = serverConfig.root + request._url;
-
-	}
-		
-	std::cout << "--- DEBUG PATH ---" << std::endl;
-    std::cout << "Root config: " << serverConfig.root << std::endl;
-    std::cout << "Request URL: " << request._url << std::endl;
-    std::cout << ">> FINAL PATH GENERATED: [" << response.path << "]" << std::endl; // ou response.fullPath ?
-    std::cout << "------------------" << std::endl;
 }
 
 /**
- * @brief `check if the file exist and if it's a file or something else`
+ * @brief `check if the file or the repo exist`
+ * 
+ * step 1 : check if the file or the repo exist, if not, error 404
+ * 
+ * step 2 : if file or repo exist, need to know if it's a file or a repository
+ * 
+ * step 3 : S_ISDIR check if it's a classic file (index.html, image.pmg etc...) 
+ * --> so it's not a repo (response.infos.repository = false)
+ * 
+ * step 4 : S_ISDIR check if it's a repo 
+ * --> yes (response.infos.repository = true;)
+ * --> no (error404)
+ * 
+ * step 5 : case it's a repo, we check if autoindex is activate (on)
+ * --> yes : 
+ *      1) we open the repo (DIR *dir = opendir(response.path.c_str());)
+ *      2) generate html page for autoindex
+ *      3) loop : we read each repo name with (repo = readdir(dir))
+ *      4) repo->d_name it's entry name
+ *      5) ignorate courent repo and parents repo
+ *      6) add end of body html
+ *      7) calculate body size, add content type and code success 200
+ *      8) close repo
  *
  */
 void existFile(responseT &response, serverT &serverConfig, request &request)
@@ -138,39 +141,45 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
         errorCode(response, serverConfig, 404);
     else
     {
-        response.infos.fileExist = true;
         if (S_ISREG(test.st_mode))
-        {
-            response.infos.file = true;
             response.infos.repository = false;
-        }
         else
         {
-            response.infos.file = false;
             if (S_ISDIR(test.st_mode))
             {
                 response.infos.repository = true;
+                if (access(response.path.c_str(), R_OK) == -1)
+                {
+                    errorCode(response, serverConfig, 403);
+                    return;
+                }
                 if (response.location.autoindex == "on")
                 {
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
                         errorCode(response, serverConfig, 404);
+                        
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
+                    
                     while ((repo = readdir(dir)) != NULL)
                     {
                         std::string filename = repo->d_name;
                         if (filename != "." && filename != "..")
                             response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
                     }
+                    
                     response.body += "\r\n</ul></body></html>";
+                    
                     response.contentLen = response.body.size();
                     response.contentType = "text/html";
-                    response.code = 200;
+                    response.code = 200; //maybe delete because init to 200
                     closedir(dir);
                 }
             }
+            else 
+                errorCode(response, serverConfig, 404);
         }
     }
 }
@@ -182,12 +191,9 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig)
 {
+    
     if (access(response.path.c_str(), R_OK) == -1)
-    {
-        errorCode(response, serverConfig, 403);
-    }
-    else
-        response.infos.read = true;
+            errorCode(response, serverConfig, 403);
 }
 
 /**
@@ -205,8 +211,10 @@ int readFile(responseT &response)
     fd = open(response.path.c_str(), O_RDONLY);
     if (fd < 0)
     {
-        std::cout << "Error : cannot open file\n";
-        return (1);
+        if (errno == ENOENT)
+            return (404);
+        else 
+            return (403);
     }
 
     // step 2 : read
@@ -217,7 +225,6 @@ int readFile(responseT &response)
         len = read(fd, buffer, sizeof(buffer));
         if (len < 0)
         {
-            std::cout << "Error : can't read file\n";
             close(fd);
             return (1);
         }
@@ -314,7 +321,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     if (checkIsGet(request, response) == false)
     {
         errorCode(response, serverConfig, 405);
-        return (1);
+        return (0);
     }
 
     // step 3 : build file path
@@ -330,8 +337,8 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)
     {
-        if (readFile(response) == 1)
-            return (1);
+        int errorValue = readFile(response);
+            return (errorValue);
     }
 
     // step 7 : search content type of the file
