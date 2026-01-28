@@ -15,14 +15,14 @@ typedef struct locationsConfigS
 
 } locationsT;
 
-typedef struct serverConfigS
+struct serverT
 {
     int listen;
     std::string root;
     std::map<int, std::string> errorPage;
     int clientMaxBodySize;
     std::map<std::string, locationsT> locations;
-} serverT;
+};
 
 typedef struct utilsConfigS
 {

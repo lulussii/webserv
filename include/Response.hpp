@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 15:02:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/28 15:38:08 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <iostream>
 #include "Config.hpp"
 #include "Request.hpp"
+
+class request;
 
 typedef struct infos
 {
@@ -34,7 +36,7 @@ typedef struct post
     std::string path;
 } postT;
 
-typedef struct response
+struct responseT
 {
     std::string response;
 
@@ -49,7 +51,7 @@ typedef struct response
     infosT infos;
     postT post;
     std::string filename;
-} responseT;
+};
 
 void responseMain(request &request, responseT &response);
 
