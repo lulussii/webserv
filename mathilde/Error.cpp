@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 14:26:05 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/28 11:29:09 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@
  * 
  * step  5 : read file to add the body html
  * 
+ * step 6 : if the error page is not allowed, so body empty and content len = 0;
+ * 
  */
 void errorCode(responseT &response, serverT &serverConfig, int code)
 {
@@ -52,4 +54,5 @@ void errorCode(responseT &response, serverT &serverConfig, int code)
         }
     }
     response.body = "";
+    response.contentLen = 0;
 }

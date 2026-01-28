@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 15:00:28 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/28 11:31:20 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,29 +195,13 @@ int requestMain(request &request, parsingT &p)
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nZZZ\r\nHello\r\n0\r\n\r\n";
 
     // POST BOUNDARY
-    // p.line =
-    // "POST /upload HTTP/1.1\r\n"
-    // "Host: localhost\r\n"
-    // "Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\n"
-    // "Content-Length: 138\r\n"
-    // "\r\n"
-    // "------WebKitFormBoundary7MA4YWxkTrZu0gW\r\n"
-    // "Content-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\n"
-    // "Content-Type: text/plain\r\n"
-    // "\r\n"
-    // "Hello World\r\n"
-    // "------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
+    p.line ="POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 138\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
     // POST BOUNDARY COMPLEX
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
 
-    // POST BOUNDARY error 400 : no boundary present FRENCH J'AI BESOIN DE LE GERER
-    p.line = "POST /upload HTTP/1.1\r\n"
-         "Host: localhost\r\n"
-         "Content-Type: multipart/form-data\r\n"
-         "Content-Length: 20\r\n"
-         "\r\n"
-         "Hello World";
+    // POST BOUNDARY error 400
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data\r\nContent-Length: 20\r\n\r\nHello World";
 
 
     // --------
