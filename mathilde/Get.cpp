@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 14:23:58 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 08:53:55 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,8 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
     else
         // response.path = serverConfig.root + response.location.index;
         response.path = serverConfig.root + request._url;
+
+    
 }
 
 /**
@@ -136,6 +138,7 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
  */
 void existFile(responseT &response, serverT &serverConfig, request &request)
 {
+     std::cout << response.path;
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
         errorCode(response, serverConfig, 404);
