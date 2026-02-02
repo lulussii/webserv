@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 10:40:47 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 13:47:44 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -395,7 +395,7 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
             errorCode(response, serverConfig, 403);
          return ;
     }
-       
+
     // step 8 : prepare response
     prepareResponse(response, request);
 
