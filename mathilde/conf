@@ -6,7 +6,7 @@ server {
     error_page 500 /html/500.html;
     client_max_body_size 1000000;
 
-    location /upload {
+    location /tmp/upload {
         methods GET POST DELETE;
         index html/index.html;
         autoindex on;

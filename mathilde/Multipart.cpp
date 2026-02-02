@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 15:07:48 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:10:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,10 @@ bool isMultipart(request &request)
 
     if (it != request.headers.end())
     {
-        if (it->second.find("multipart/form-data;") != std::string::npos)
+        if (it->second.find("multipart/form-data") != std::string::npos)
+        {
             return (true);
+        }
     }
     return (false);
 }
@@ -52,7 +54,6 @@ int extractBundary(request &request)
     if (it != request.headers.end())
     {
         size_t pos = it->second.find("boundary=");
-        std::cout << pos;
         if (pos == std::string::npos)
             return (400);
         std::string tmp = it->second.substr(pos + s.size());
