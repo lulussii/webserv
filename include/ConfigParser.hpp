@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/29 09:48:20 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/02 15:43:57 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,8 @@ class ConfigParser
 			if (value.empty())
 				 _throwError("Syntax Error: Root directive is empty");
 			_checkAndStripSemicolon(value, ss);
-			/* if (value[value.size() - 1] != '/')
-				value += "/"; */
+			/*if (value[value.size() - 1] != '/')
+				value += "/";*/
 			if (config._root != "")
 				 _throwError("Config Error: Duplicate root directive");
 
