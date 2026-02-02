@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/28 15:11:33 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/29 09:18:23 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,8 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 
 	std::vector<LocationConfig> myLocs = myConfig._locations;
 
-	std::cout << myLocs.size() << std::endl;
 	for (size_t i = 0; i < myLocs.size(); i++)
 	{
-		std::cout << "i = " << i << std::endl;
 		locationsT mateLoc;
 		LocationConfig &curr = myLocs[i];
 
@@ -64,8 +62,7 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 			mateLoc.autoindex = "on";
 		else
 			mateLoc.autoindex = "off";
-
-		std::cout << std::endl;
+			
         mateConfig.locations[curr._path] = mateLoc;
     }
 
@@ -333,7 +330,6 @@ void Server::_handleClientActivity(int i)
 	{
 		if (_fds[i].revents & POLLIN)
 		{
-			std::cout << "APPEL DE LA CONVERSION" << std::endl;
 			serverT mateConf = _convertToMateConfig(currentConfig);
 			client.handleRead(mateConf);
 		}

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/25 13:46:40 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/29 10:57:33 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,10 @@
 #include "Response.hpp"
 #include "Init.hpp"
 #include <sys/types.h>
+#include "Error.hpp"
 #include <sys/socket.h>
+#include "Delete.hpp"
+#include "Post.hpp"
 
 /* ----- CONSTRUCTORS ----- */
 
@@ -113,36 +116,43 @@ void	Client::processRequest(serverT &serverConfig)
 {
 	std::cout << "[INFO] Request complete. Processing..." << std::endl;
 
-	// 1. Préparation pour le parsing
 	parsingT	p;
 	p.line = readBuffer;
 
 	this->req = request();
+	this->res = responseT();
 
 	initMain(this->req, this->res, serverConfig);
-	// 2. Parsing 
-	requestMain(this->req, p);
 	
-	// 3. Génération de la réponse
-	if (this->req._method == "GET")
+	if (requestMain(this->req, p) == 1)
 	{
-		getMain(this->req, this->res, serverConfig);
-		// Patch de sécurité - A CHANGER -
-		if (this->res.contentType.empty() || this->res.contentType == "application/octet-stream")
-			this->res.contentType = "text/html";
+		std::cerr << "[ERROR] Parsing failed -> 400  Bad Request" << std::endl;
+		errorCode(this->res, serverConfig, 400);
 	}
+	else
+	{
+		if (this->req._method == "GET")
+			getMain(this->req, this->res, serverConfig);
+		else if (this->req._method == "POST")
+			postMain(this->req, this->res, serverConfig);
+		else if (this->req._method == "DELETE")
+		{
+			if (deleteMain(this->req, this->res, serverConfig) == 1  && this->res.code == 200)
+				errorCode(this->res, serverConfig, 500);
+		}
+		else
+		{
+			std::cerr << "[ERROR] Unknown method : " << this->req._method << std::endl;
+			errorCode(this->res, serverConfig, 501);
+		}
+	}
+	
 
-	// 4. Construction de la réponse HTTP finale (String)
 	responseMain(this->req, this->res);
-
-	// 5. Transfert vers le buffer d'envoi
 	writeBuffer = this->res.response;
-
-	// 6. Signalement au serveur 
 	isReadyToWrite = true;
 
-	std::cout << "[INFO] Response generted. Size " << writeBuffer.size() << " bytes." << std::endl;
-	
+	std::cout << "[INFO] Response generated. Size " << writeBuffer.size() << " bytes." << std::endl;
 }
 
 /**

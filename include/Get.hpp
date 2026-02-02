@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:43 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/12 14:58:32 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/01/29 10:50:41 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

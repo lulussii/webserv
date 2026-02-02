@@ -6,10 +6,9 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2026/01/28 15:09:30 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/29 10:51:04 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "Get.hpp"
 #include "Error.hpp"

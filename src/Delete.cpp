@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/19 09:46:11 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/01/29 10:05:59 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,11 +111,18 @@ void pathBuildDelete(responseT &response, serverT &serverConfig, request &reques
  */
 void existFileDelete(responseT &response, serverT &serverConfig)
 {
+	std::string pathToDelete = response.path.c_str();
+
+		std::cout << "--- DEBUG DELETE ---" << std::endl;
+		std::cout << "TENTATIVE DE SUPPRESSION SUR : [" << pathToDelete << "]" << std::endl;
+		std::cout << "--------------------" << std::endl;
     struct stat test;
     if (stat(response.path.c_str(), &test) == -1)
         errorCode(response, serverConfig, 404);
     else
     {
+		// Dans deleteMain
+		
         if (access(response.path.c_str(), R_OK) == -1)
         {
             errorCode(response, serverConfig, 403);

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/28 14:45:40 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/01/29 10:32:01 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	if (argc == 1)
 	{
 		std::cout << "No argument provided. Using default config" << std::endl;
-		config_file_path = "src/conf";
+		config_file_path = "config/default.conf";
 	}
 	else if (argc == 2)
 		config_file_path = argv[1];

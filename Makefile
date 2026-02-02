@@ -42,7 +42,7 @@ SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/LocationConfig.cpp		\
 			  $(SRC_DIR)/Client.cpp
 
-OBJ_DIR 	= objs
+OBJ_DIR 	= .objs
 OBJ 		= $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # ************************************************************************** #
