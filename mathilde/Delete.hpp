@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Chunked.hpp                                        :+:      :+:    :+:   */
+/*   Delete.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:53:32 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/01/13 12:06:02 by mlaussel          #+#    #+#             */
+/*   Updated: 2026/01/13 12:08:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHUNKED_HPP
-#define CHUNKED_HPP
+#ifndef DELETE_HPP
+#define DELETE_HPP
 
 #include "Request.hpp"
+#include "Config.hpp"
 #include "Response.hpp"
 
-bool isChunked(request &request);
-int chunkedParsing(request &request, responseT &response);
+int deleteMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

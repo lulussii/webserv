@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/29 09:18:23 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/02 15:26:16 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
 		mateConfig.listen = myConfig._listen[0].port;
 	else
 		mateConfig.listen = 8080;
+	
 	mateConfig.root = myConfig._root;
 	mateConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
     mateConfig.errorPage = myConfig._errorPages;

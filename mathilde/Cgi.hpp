@@ -1,22 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Chunked.hpp                                        :+:      :+:    :+:   */
+/*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:53:32 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
+/*   Updated: 2026/02/02 12:38:05 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHUNKED_HPP
-#define CHUNKED_HPP
+#ifndef CGI_HPP
+#define CGI_HPP
 
 #include "Request.hpp"
-#include "Response.hpp"
+#include "Config.hpp"
 
-bool isChunked(request &request);
-int chunkedParsing(request &request, responseT &response);
+class cgi
+{
+    public :
+        std::string method;
+        std::string queryString;
+        std::string contentLenght;
+        std::string contentType;
+        std::string scriptPath;
+        std::string serverName;
+        std::string serverPort;    
+};
 
 #endif

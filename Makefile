@@ -40,6 +40,8 @@ SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/ServerConfig.cpp		\
 			  $(SRC_DIR)/ConfigParser.cpp		\
 			  $(SRC_DIR)/LocationConfig.cpp		\
+			  $(SRC_DIR)/Chunked.cpp			\
+			  $(SRC_DIR)/Multipart.cpp		\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= .objs

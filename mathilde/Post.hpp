@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Chunked.hpp                                        :+:      :+:    :+:   */
+/*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:53:32 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/01/12 13:28:43 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/26 13:04:33 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHUNKED_HPP
-#define CHUNKED_HPP
+#ifndef POST_HPP
+#define POST_HPP
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Config.hpp"
 
-bool isChunked(request &request);
-int chunkedParsing(request &request, responseT &response);
+void postMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif

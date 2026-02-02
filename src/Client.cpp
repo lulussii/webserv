@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/29 10:57:33 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/02 15:27:10 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,33 @@
 #include <sys/socket.h>
 #include "Delete.hpp"
 #include "Post.hpp"
+
+
+
+
+
+void debug3(responseT &response, int i)
+{
+    std::cout << "\n--- [GET] ---\n";
+    if (i == 1)
+    {
+        std::cout << "location : [" << response.location.path << "]" << std::endl;
+        for (size_t i = 0; i < response.location.methods.size(); ++i)
+            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
+        std::cout << std::endl;
+        if (!response.location.index.empty())
+            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
+
+        if (!response.location.autoindex.empty())
+            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
+
+        if (!response.location.upload_dir.empty())
+            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
+    }
+    std::cout << "file path : [" << response.path << "]\n";
+}
+
+
 
 /* ----- CONSTRUCTORS ----- */
 
@@ -147,8 +174,9 @@ void	Client::processRequest(serverT &serverConfig)
 		}
 	}
 	
-
+	debug3(res, 1);
 	responseMain(this->req, this->res);
+
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
 

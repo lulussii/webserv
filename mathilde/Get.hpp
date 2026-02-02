@@ -1,22 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Chunked.hpp                                        :+:      :+:    :+:   */
+/*   Get.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:53:32 by mlaussel         ###   ########.fr       */
+/*   Created: 2026/01/06 15:38:43 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/01/12 14:58:32 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CHUNKED_HPP
-#define CHUNKED_HPP
+#ifndef GET_HPP
+#define GET_HPP
 
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Config.hpp"
 
-bool isChunked(request &request);
-int chunkedParsing(request &request, responseT &response);
+int getMain(request &request, responseT &response, serverT &serverConfig);
+int readFile(responseT &response);
 
 #endif
