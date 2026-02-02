@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Chunked.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:00:55 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:03:22 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/02 10:39:58 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,6 @@
 #include "Response.hpp"
 
 bool isChunked(request &request);
-void chunkedParsing(request &request, responseT &response);
+int chunkedParsing(request &request, responseT &response);
 
 #endif

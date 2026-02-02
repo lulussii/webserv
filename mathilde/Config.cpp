@@ -6,14 +6,14 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 13:06:37 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:23:30 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include <fcntl.h>  //open
 #include <unistd.h> //read
-#include <cstdlib>  // atoi don't know if I can use it
+#include <cstdlib>  // atoi
 #include <sstream> //streamstring
 
 /**

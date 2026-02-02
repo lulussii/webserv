@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 13:28:35 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:13:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void initResponse(responseT &response)
     response.infos.loc = false;
     response.infos.repository = false;
 
-    response.post.count = 0;
     response.post.path = "";
 
     response.location.path = "";

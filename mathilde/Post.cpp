@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 09:53:59 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:40:47 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@
 #include <unistd.h>   //read
 #include <dirent.h>
 #include <sstream>  //std::stringstream
-#include <stdlib.h> //atoi to delete ????
+#include <stdlib.h> //atoi
+#include <ctime>        //time_t
 
 /**
  * @brief `Find the best matching location for the requested URL.`
@@ -150,9 +151,11 @@ bool bodyExist(request &request, responseT &response)
  */
 void createFileName(responseT &response)
 {
-    std::stringstream count;
-    count << response.post.count;
-    response.post.path = response.location.upload_dir + "/uploads/" + "upload_" + count.str();
+    std::stringstream ss;
+    time_t now;
+    ss << response.location.upload_dir << "/uploads/" << "upload_" << std::time(&now);
+    response.post.path = ss.str();
+    //response.post.path = response.location.upload_dir + "/uploads/" + "upload_";
 }
 
 /**
@@ -353,16 +356,15 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
     // step : chuncked
     if (isChunked(request) == true)
     {
-        chunkedParsing(request, response);
+        if (chunkedParsing(request, response) == 400)
+        {
+            errorCode(response, serverConfig, 400);
+            return ;
+        }
     }
 
     // step : multipart/form-data
     bool boolValue = isMultipart(request);
-    // if (boolValue == false)
-    // {
-    //     errorCode(response, serverConfig, 400);
-    //     return ;
-    // }
     if (boolValue == true)
     {
         int errroValue = extractBundary(request);

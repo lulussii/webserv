@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 13:28:21 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:12:57 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ typedef struct infos
 
 typedef struct post
 {
-    int count;
     std::string path;
 } postT;
 
