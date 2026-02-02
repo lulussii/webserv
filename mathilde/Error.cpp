@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 08:53:51 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 09:02:24 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void errorCode(responseT &response, serverT &serverConfig, int code)
 
     if (it != serverConfig.errorPage.end())
     {
-        response.path = serverConfig.root + "/html" + it->second;
+        response.path = serverConfig.root + it->second;
         response.contentType = "text/html";
 
         if (readFile(response) == 0 && !response.body.empty())

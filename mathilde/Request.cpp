@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/02 08:55:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 09:13:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,17 +154,17 @@ int requestMain(request &request, parsingT &p)
     // GET error 404
     //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
-    // GET aerror 403 : repo secret (chmod 000) + in config location /secret
-    //p.line = "GET /secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // GET error 403 : repo secret (chmod 000) + in config location /secret
+    //p.line = "GET /html/secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : file secret (chmod 000)
-    //p.line = "GET /secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    //p.line = "GET /html/secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 or 404: url outside root
     //p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET autoindex : location /test { autoindex on; methods GET;
-    //p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
 
 
