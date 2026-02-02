@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 15:27:10 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 17:14:50 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,60 +21,34 @@
 #include "Delete.hpp"
 #include "Post.hpp"
 
-
-
-
-
-void debug3(responseT &response, int i)
-{
-    std::cout << "\n--- [GET] ---\n";
-    if (i == 1)
-    {
-        std::cout << "location : [" << response.location.path << "]" << std::endl;
-        for (size_t i = 0; i < response.location.methods.size(); ++i)
-            std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-        std::cout << std::endl;
-        if (!response.location.index.empty())
-            std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-        if (!response.location.autoindex.empty())
-            std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-        if (!response.location.upload_dir.empty())
-            std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-    }
-    std::cout << "file path : [" << response.path << "]\n";
-}
-
-
-
 /* ----- CONSTRUCTORS ----- */
 
-Client::Client() 
-	:	fd(-1),
-		serverPort(-1),
-		lastTime(time(NULL)),
-		contentLength(0),
-		headersReceived(false),
-		requestComplete(false),
-		isReadyToWrite(false)
-{}
+Client::Client()
+	: fd(-1),
+	  serverPort(-1),
+	  lastTime(time(NULL)),
+	  contentLength(0),
+	  headersReceived(false),
+	  requestComplete(false),
+	  isReadyToWrite(false)
+{
+}
 
-Client::Client(int fd, int port) 
-	:	fd(fd),
-		serverPort(port),
-		lastTime(time(NULL)),
-		contentLength(0),
-		headersReceived(false),
-		requestComplete(false),
-		isReadyToWrite(false)
+Client::Client(int fd, int port)
+	: fd(fd),
+	  serverPort(port),
+	  lastTime(time(NULL)),
+	  contentLength(0),
+	  headersReceived(false),
+	  requestComplete(false),
+	  isReadyToWrite(false)
 {
 	reset();
 }
 
-int Client::getServerPort() const 
+int Client::getServerPort() const
 {
-    return this->serverPort;
+	return this->serverPort;
 }
 
 /**
@@ -83,34 +57,34 @@ int Client::getServerPort() const
  * @param buffer tout ce qui est reçu pour l'instant
  * @return la taille du body, 0 si pas trouvé ou pas de body (get).
  */
-long	Client::getContentLength(const std::string &buffer)
+long Client::getContentLength(const std::string &buffer)
 {
 	// 1. Recherche de la clé standard HTTP.
 	// Si pas trouvé (ex: GET classique sans body), retourne 0.
-	size_t	pos = buffer.find("Content-Length: ");
+	size_t pos = buffer.find("Content-Length: ");
 	if (pos == std::string::npos)
 		return (0);
 
 	// 2. Placement juste après "Content-Length: "
-	size_t	start = pos + 16;
-	
+	size_t start = pos + 16;
+
 	// 3. Recherhce de la fin de la ligne (\r\n) pour isoler le nombre
-	size_t	end = buffer.find("\r\n", start);
+	size_t end = buffer.find("\r\n", start);
 	if (end == std::string::npos)
 		return (0);
 
 	// 4. Découpe de la string et conversion en long
 	std::string numStr = buffer.substr(start, end - start);
 
-	return (std::atol(numStr.c_str()));	
+	return (std::atol(numStr.c_str()));
 }
 
 /**
- * @brief Remet le client à zéro pour traiter une nouvelle requête sur la même connexion. 
+ * @brief Remet le client à zéro pour traiter une nouvelle requête sur la même connexion.
  */
 void Client::reset()
 {
-	// 1. Reset des buffers 
+	// 1. Reset des buffers
 	readBuffer.clear();
 	writeBuffer.clear();
 
@@ -127,30 +101,30 @@ void Client::reset()
 	this->req = request();
 
 	// Nettoyage manuel de la structure de réponse
-	this->res.code = 0;  
+	this->res.code = 0;
 	this->res.contentLen = 0;
 	this->res.body.clear();
 	this->res.response.clear();
 	this->res.path.clear();
-	this->res.contentType = "text/html"; //valeur par défaut
+	this->res.contentType = "text/html"; // valeur par défaut
 
 	// Reset des booléens internes
-    this->res.infos.error = false;
-    this->res.infos.fileExist = false;
+	this->res.infos.error = false;
+	this->res.infos.fileExist = false;
 }
 
-void	Client::processRequest(serverT &serverConfig)
+void Client::processRequest(serverT &serverConfig)
 {
 	std::cout << "[INFO] Request complete. Processing..." << std::endl;
 
-	parsingT	p;
+	parsingT p;
 	p.line = readBuffer;
 
 	this->req = request();
 	this->res = responseT();
 
 	initMain(this->req, this->res, serverConfig);
-	
+
 	if (requestMain(this->req, p) == 1)
 	{
 		std::cerr << "[ERROR] Parsing failed -> 400  Bad Request" << std::endl;
@@ -164,7 +138,7 @@ void	Client::processRequest(serverT &serverConfig)
 			postMain(this->req, this->res, serverConfig);
 		else if (this->req._method == "DELETE")
 		{
-			if (deleteMain(this->req, this->res, serverConfig) == 1  && this->res.code == 200)
+			if (deleteMain(this->req, this->res, serverConfig) == 1 && this->res.code == 200)
 				errorCode(this->res, serverConfig, 500);
 		}
 		else
@@ -173,9 +147,11 @@ void	Client::processRequest(serverT &serverConfig)
 			errorCode(this->res, serverConfig, 501);
 		}
 	}
-	
-	debug3(res, 1);
+
 	responseMain(this->req, this->res);
+
+	std::cout << "\n\nREPONSE\n"
+			  << res.response;
 
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
@@ -185,14 +161,14 @@ void	Client::processRequest(serverT &serverConfig)
 
 /**
  * @brief Lit les données entrantes (paquets TCP), les accumule dans le buffer de lecture,
- * et vérifie si la requête HTTP et entièrement reçue (Headers + Body) avant de lancer le traitement. 
+ * et vérifie si la requête HTTP et entièrement reçue (Headers + Body) avant de lancer le traitement.
  */
-void	Client::handleRead(serverT &serverConfig)
+void Client::handleRead(serverT &serverConfig)
 {
 
 	// 1. Lecture du socket
-	char	tmpBuffer[4096];
-	int		bytesRead = recv(fd, tmpBuffer, 4096, 0);
+	char tmpBuffer[4096];
+	int bytesRead = recv(fd, tmpBuffer, 4096, 0);
 	if (bytesRead < 0)
 		return;
 
@@ -208,7 +184,7 @@ void	Client::handleRead(serverT &serverConfig)
 	// Rien ne se passe tant que les en-têtes ne sont pas reçues (\r\n\r\n).
 	if (!headersReceived)
 	{
-		size_t	headerEnd = readBuffer.find("\r\n\r\n");
+		size_t headerEnd = readBuffer.find("\r\n\r\n");
 		if (headerEnd != std::string::npos)
 		{
 			headersReceived = true;
@@ -219,8 +195,8 @@ void	Client::handleRead(serverT &serverConfig)
 	// 4. Vérification
 	if (headersReceived)
 	{
-		size_t	headerEnd = readBuffer.find("\r\n\r\n");
-		size_t	totalExpecteLength = headerEnd + 4 + contentLength;
+		size_t headerEnd = readBuffer.find("\r\n\r\n");
+		size_t totalExpecteLength = headerEnd + 4 + contentLength;
 
 		if (readBuffer.size() >= totalExpecteLength)
 		{
@@ -230,25 +206,25 @@ void	Client::handleRead(serverT &serverConfig)
 	}
 }
 
-void	Client::handleWrite()
+void Client::handleWrite()
 {
 	if (writeBuffer.empty())
-		return ;
+		return;
 
 	// 1. Envoi
 	// Tentative d'envoi du buffer
 	// bytesSent contiendra le nombre d'octets réellement acceptés par le réseau.
-	int	bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), 0);
+	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), 0);
 	if (bytesSent > 0)
 	{
 		// 2. Nettoyage partiel
-		// Si il y a 1000 octets et que 500 sont envoyés, 
+		// Si il y a 1000 octets et que 500 sont envoyés,
 		// on supprime les 500 premiers et on garde le reste pour le prochain tour.
 		writeBuffer.erase(0, bytesSent);
 		lastTime = time(NULL);
 	}
 	else if (bytesSent == -1)
-		return ;
+		return;
 
 	if (writeBuffer.empty())
 	{

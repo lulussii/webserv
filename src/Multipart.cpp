@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Multipart.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 10:10:19 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 17:15:00 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,9 @@ void splitPart(request &request, responseT &response, serverT &serverConfig)
         int errorValue = createAndWriteMultipartFile(response, m);
         {
             if (errorValue == 500)
+            {
                 errorCode(response, serverConfig, 500);
+            }
             else if (errorValue == 403)
                 errorCode(response, serverConfig, 403);
         }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 13:47:44 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 17:25:34 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,7 +153,7 @@ void createFileName(responseT &response)
 {
     std::stringstream ss;
     time_t now;
-    ss << response.location.upload_dir << "/uploads/" << "upload_" << std::time(&now);
+    ss << response.location.upload_dir << "/upload/" << "upload_" << std::time(&now);
     response.post.path = ss.str();
     //response.post.path = response.location.upload_dir + "/uploads/" + "upload_";
 }
