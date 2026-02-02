@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/26 14:48:06 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 10:48:36 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,9 @@ void responseMain(request &request, responseT &response)
         response.response += "Content-Length: " + contentL.str();
     response.response += "\r\n";
 
+    if (response.contentType.empty())
+        response.contentType = "text/plain";
+        
     response.response += "Content-Type: " + response.contentType;
     response.response += "\r\n";
 

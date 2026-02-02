@@ -14,7 +14,7 @@ server {
     }
 
     location / {
-        methods GET POST ;
+        methods GET POST DELETE ;
         index html/index.html;
         autoindex on;
         upload_dir /home/mlaussel/webserv/mathilde/server_files/tmp;
