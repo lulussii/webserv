@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 10:10:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/02 12:08:15 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Config.hpp"
+#include "Cgi.hpp"
 #include "Get.hpp"
 #include "Post.hpp"
 #include "Delete.hpp"
@@ -160,7 +161,7 @@ int main(void)
 
     if (requestMain(request, p) == 1)
         return (1);
-    // debug1(request);
+    debug1(request);
 
     // step 2 : config file
     
@@ -172,6 +173,14 @@ int main(void)
     // debug2(serverConfig, utils);
 
    
+
+
+    // step : CGI
+    
+    
+
+
+    
     // step 3 : method GET
     if (request._method == "GET" && response.code == 200)
     {
