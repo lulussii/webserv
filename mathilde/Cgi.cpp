@@ -6,16 +6,17 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 16:39:51 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 18:50:45 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Cgi.hpp"
 #include "Multipart.hpp"
 #include "Error.hpp"
-#include <unistd.h>   //stat() access()
+#include <unistd.h>   //stat() access() pipe() fork()
 #include <sys/stat.h> //struct stat
-#include <sstream> //std::stringstream
+#include <sstream>    //std::stringstream
+#include <vector>
 
 /**
  * @brief `check if cgi exist and allowed`
@@ -120,7 +121,6 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     it = request.headers.find("Host");
     if (it != request.headers.end())
         cgi.serverName = it->second;
-        
 
     std::stringstream convert;
     convert << serverConfig.listen;
@@ -130,16 +130,105 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
 
     cgi.serverProtocol = request._version;
 
-    std::cout << "CGI METHOD : " << cgi.method << std::endl;
-    std::cout << "CGI QURRY : " << cgi.queryString << std::endl;
-    std::cout << "CGI CONTENT LENGHT : " << cgi.contentLenght << std::endl;
-    std::cout << "CGI CONTENT TYPE : " << cgi.contentType << std::endl;
-    std::cout << "CGI SCRIPT PATH : " << cgi.scriptPath << std::endl;
-    std::cout << "CGI BINARY PATH : " << cgi.binaryPath << std::endl;
-    std::cout << "CGI SERVER NAME : " << cgi.serverName << std::endl;
-    std::cout << "CGI SERVER PORT : " << cgi.serverPort << std::endl;
-    std::cout << "CGI GATE WAY : " << cgi.gatewayInterface << std::endl;
-    std::cout << "CGI SERVER PROTOCOL : " << cgi.serverProtocol << std::endl;
+    if (m.content.empty())
+        cgi.body = response.body;
+    else
+        cgi.body = m.content;
+
+    // std::cout << "CGI METHOD : " << cgi.method << std::endl;
+    // std::cout << "CGI QURRY : " << cgi.queryString << std::endl;
+    // std::cout << "CGI CONTENT LENGHT : " << cgi.contentLenght << std::endl;
+    // std::cout << "CGI CONTENT TYPE : " << cgi.contentType << std::endl;
+    // std::cout << "CGI SCRIPT PATH : " << cgi.scriptPath << std::endl;
+    // std::cout << "CGI BINARY PATH : " << cgi.binaryPath << std::endl;
+    // std::cout << "CGI SERVER NAME : " << cgi.serverName << std::endl;
+    // std::cout << "CGI SERVER PORT : " << cgi.serverPort << std::endl;
+    // std::cout << "CGI GATE WAY : " << cgi.gatewayInterface << std::endl;
+    // std::cout << "CGI SERVER PROTOCOL : " << cgi.serverProtocol << std::endl;
+    // std::cout << "BODY : " << cgi.body << std::endl;
+}
+
+/**
+ * @brief `create pipe`
+ *
+ * step 1 : creat two pipe
+ *
+ * step 2 : fork and check pid
+ */
+int cgiPipe(cgi &cgi)
+{
+    int body[2];
+    int response[2];
+
+    if (pipe(body) == -1 || pipe(response) == -1)
+        return (500);
+
+    pid_t pid = fork();
+
+    if (pid < 0)
+    {
+        close(body[0]);
+        close(body[1]);
+        close(response[0]);
+        close(response[1]);
+        return (500);
+    }
+
+    else if (pid == 0)
+    {
+        close(body[1]);     // don't write
+        close(response[0]); // dont read
+
+        dup2(body[0], STDIN_FILENO);      // read stdin from body
+        dup2(response[1], STDOUT_FILENO); // write on stdout to body
+
+        close(body[0]);
+        close(response[1]);
+
+        char *args[] = {(char *)"cat", NULL};
+
+        std::vector<std::string> env;
+        env.push_back("REQUEST_METHOD=" + cgi.method);
+        env.push_back("SCRIPT_FILENAME=" + cgi.scriptPath);
+        env.push_back("QUERY_STRING=" + cgi.queryString);
+        env.push_back("CONTENT_TYPE=" + cgi.contentType);
+        env.push_back("CONTENT_LENGTH=" + cgi.contentLenght);
+        env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+        env.push_back("SERVER_PROTOCOL=" + cgi.serverProtocol);
+        env.push_back("SERVER_NAME=" + cgi.serverName);
+        env.push_back("SERVER_PORT=" + cgi.serverPort);
+
+        std::vector<char *> envp;
+        for (size_t i = 0; i < env.size(); i++)
+            envp.push_back(const_cast<char *>(env[i].c_str()));
+        envp.push_back(NULL);
+
+        execve(cgi.binaryPath.c_str(), args, envp.data());
+
+        return (500);
+        // check if exceve fail
+    }
+
+    else if (pid > 0)
+    {
+        close(body[0]);     // don't read
+        close(response[1]); // don't write
+
+        write(body[1], cgi.body.c_str(), cgi.body.size());
+        close(body[1]); // EOF
+
+        char buffer[1024];
+        size_t n;
+        while ((n = read(response[0], buffer, sizeof(buffer))) > 0)
+            std::cout.write(buffer, n); // show exit CGI
+
+        close(response[0]);
+
+        int status;
+        waitpid(pid, &status, 0);
+    }
+
+    return (0);
 }
 
 int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)

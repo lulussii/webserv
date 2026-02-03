@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 16:30:16 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 18:51:10 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,7 +240,7 @@ void prepareResponse(responseT &response, request request)
 void postMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
 {
     Multipart m;
-    
+
     if (clientMaxBodySize(serverConfig, request, response) == false)
     {
         errorCode(response, serverConfig, 413);
@@ -279,6 +279,8 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
     if (response.cgi == true)
     {
         handleCgi(request, cgi, serverConfig, response, m);
+        if (cgiPipe(cgi) == 500)
+            errorCode(response, serverConfig, 500);
     }
 
     createFileName(response);
