@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:52:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 08:52:41 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 10:00:28 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Config.hpp"
+#include "Cgi.hpp"
 
-void initMain(request &request, responseT &response, serverT &serverConfig);
+void initMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi);
 
 #endif

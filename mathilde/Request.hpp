@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:07:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 10:55:14 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct parsingS
     std::string line;
 } parsingT;
 
-int requestMain(request &request, parsingT &p);
+int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response);
 std::string trim(const std::string &str);
 
 #endif

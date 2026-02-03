@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/02 10:13:03 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 10:04:25 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Config.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Cgi.hpp"
 
 void initResponse(responseT &response)
 {
@@ -55,9 +56,20 @@ void initConfig(serverT &serverConfigS)
     serverConfigS.clientMaxBodySize = 0;
 }
 
-void initMain(request &request, responseT &response, serverT &serverConfig)
+void initCgi(cgi &cgi)
+{
+    cgi.contentLenght = "";
+    cgi.contentType = "";
+    cgi.method = "";
+    cgi.queryString = "";
+    cgi.scriptPath = "";
+    cgi.serverName = "";
+    cgi.serverPort = "";
+}
+void initMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
 {
     initRequest(request);
     initConfig(serverConfig);
     initResponse(response);
+    initCgi(cgi);
 }

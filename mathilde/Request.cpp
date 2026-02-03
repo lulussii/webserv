@@ -3,16 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/02 13:45:14 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 11:20:17 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <iostream> //cout
 #include <unistd.h> //read
 #include "Request.hpp"
+#include "Config.hpp"
+#include "Error.hpp"
+#include "Response.hpp"
+#include "Cgi.hpp"
 
 /**
  * @brief `firstline extract and parsing`
@@ -129,6 +132,83 @@ static void postBody(parsingT &p, request &request)
 }
 
 /**
+ * @brief `Find the best matching location for the requested URL.`
+ *
+ * This function iterates over all configured locations of the server and
+ * tries to find which location matches the request URL.
+ *
+ * A location matches if the request URL starts with the location path.
+ * If multiple locations match, the most specific one is selected,
+ * meaning the location with the longest path.
+ *
+ * Example:
+ *  - URL: /upload/file.txt
+ *  - Matching locations: "/" and "/upload"
+ *  - Selected location: "/upload" (longest match)
+ *
+ * If a matching location is found, a pointer to this location is stored
+ * in the response structure and a flag is set to indicate success.
+ *
+ * This function only determines the correct location.
+ *
+ * @param request The parsed HTTP request containing the requested URL.
+ * @param serverConfig The server configuration holding all locations.
+ * @param response The response structure where the matched location is stored.
+ *
+ * @return true if a matching location is found, false otherwise.
+ */
+int foundLocation(request &request, serverT &serverConfig, responseT &response)
+{
+    size_t bestLen = 0;
+    bool found = false;
+
+    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
+         it != serverConfig.locations.end(); ++it)
+    {
+        const std::string &locPath = it->first;
+
+        // URL must be at least as long as location path
+        if (request._url.size() < locPath.size())
+            continue;
+
+        // Check if URL starts with location path
+        if (request._url.compare(0, locPath.size(), locPath) == 0)
+        {
+            // Keep the most specific (longest) match
+            if (locPath.size() > bestLen)
+            {
+                bestLen = locPath.size();
+                response.location = it->second;
+                response.infos.loc = true;
+                found = true;
+            }
+        }
+    }
+    return (found);
+}
+
+
+/**
+ * @brief `check if the method in the request is in the location we found`
+ *
+ * loop on method from location to compare if method is ok
+ *
+ * @return true if found, else false
+ */
+bool checkIs(request &request, responseT &response)
+{
+    for (size_t i = 0; i < response.location.methods.size(); ++i)
+    {
+        if (response.location.methods[i] == request._method)
+        {
+            response.infos.get = true;
+            return (true);
+        }
+    }
+    return (false);
+}
+
+/**
  * @brief `main of the parsing`
  *
  * step 1 : firstline extract and parsing
@@ -136,10 +216,16 @@ static void postBody(parsingT &p, request &request)
  * step 2 : headers parsing
  *
  * step 3 : if POST method, read body
+ * 
+ * step 4 : find the good location
+ * 
+ * step 5 : search if it's a CGI
+ * 
+ * step 6 : search if the method is allowed in location
  *
  * @return 1 if problem, else 0
  */
-int requestMain(request &request, parsingT &p)
+int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response)
 {
     // -----
     //| GET |
@@ -151,6 +237,14 @@ int requestMain(request &request, parsingT &p)
     // GET /
     //p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
+
+    
+    // GET /test.cgi
+    // p.line = "GET /test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    
+    
+    
+    
     // GET error 404
     //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
@@ -176,7 +270,7 @@ int requestMain(request &request, parsingT &p)
     //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
     // POST
-    p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // POST error 400 (no content length so bad request)
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -207,7 +301,7 @@ int requestMain(request &request, parsingT &p)
     // --------
     
     // DELETE simple
-    //p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 404
     //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -232,5 +326,26 @@ int requestMain(request &request, parsingT &p)
     if (request._method == "POST")
         postBody(p, request);
 
+    if (configMain(serverConfig, utils) == 500)
+    {
+        errorCode(response, serverConfig, 500);
+        return (1);
+    }
+
+    if (foundLocation(request, serverConfig, response) == false)
+    {
+        errorCode(response, serverConfig, 404);;
+        return (1);
+    }
+    
+    // step : CGI
+    cgiMain(request, cgi, serverConfig);
+
+    if (checkIs(request, response) == false)
+    {
+        errorCode(response, serverConfig, 405);
+        return (0);
+    }
+    
     return (0);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:59:56 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 11:19:03 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,34 +153,17 @@ int main(void)
     serverT serverConfig;
     request request;
     parsingT p;
-    
+    cgi cgi;
+
     // step 0 : init
-    initMain(request, response, serverConfig);
-    
+    initMain(request, response, serverConfig, cgi);
+
     // step 1 : request parsing
 
-    if (requestMain(request, p) == 1)
+    if (requestMain(request, p, serverConfig, utils, response) == 1)
         return (1);
     // debug1(request);
 
-    // step 2 : config file
-    
-    if (configMain(serverConfig, utils) == 500)
-    {
-        errorCode(response, serverConfig, 500);
-        return (1);
-    }
-    debug2(serverConfig, utils);
-
-   
-
-
-    // step : CGI
-    
-    
-
-
-    
     // step 3 : method GET
     if (request._method == "GET" && response.code == 200)
     {
@@ -197,7 +180,6 @@ int main(void)
         }
         // debug3(response, 1);
     }
-    
 
     // step 4 : method POST
     if (request._method == "POST" && response.code == 200)
@@ -206,7 +188,6 @@ int main(void)
         // debug4(response, 1);
     }
 
-    
     // step 5 : method DELETE
     if (request._method == "DELETE" && response.code == 200)
     {
@@ -214,10 +195,10 @@ int main(void)
             return (1);
         // debug5(response, 1);
     }
-    
+
     // step  6 : response
     responseMain(request, response);
     debug6(response);
-    
+
     return (0);
 }

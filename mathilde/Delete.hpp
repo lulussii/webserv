@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 12:06:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/13 12:08:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 11:21:33 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,6 @@
 #include "Config.hpp"
 #include "Response.hpp"
 
-int deleteMain(request &request, responseT &response, serverT &serverConfig);
+void deleteMain(request &request, responseT &response, serverT &serverConfig);
 
 #endif
