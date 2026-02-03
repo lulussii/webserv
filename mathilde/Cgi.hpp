@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 09:57:07 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 16:25:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,20 @@
 
 class cgi
 {
-    public :
-        std::string method;
-        std::string queryString;
-        std::string contentLenght;
-        std::string contentType;
-        std::string scriptPath;
-        std::string serverName;
-        std::string serverPort;    
+public:
+    std::string method;
+    std::string queryString;
+    std::string contentLenght;
+    std::string contentType;
+    std::string scriptPath;
+    std::string binaryPath;
+    std::string serverName;
+    std::string serverPort;
+    std::string gatewayInterface;
+    std::string serverProtocol;
 };
 
-int cgiMain(request &request, cgi &cgi, serverT &serverConfig);
+int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
+void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m);
 
 #endif

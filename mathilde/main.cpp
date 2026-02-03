@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 11:34:38 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 16:32:25 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,12 @@ void debug2(serverT &serverConfig, utilsConfigT &utils)
 
         if (!location.upload_dir.empty())
             std::cout << "  Upload dir: [" << location.upload_dir << "]" << std::endl;
+
+        if (!location.cgiExtension.empty())
+            std::cout << "  cgiExtension: [" << location.cgiExtension << "]" << std::endl;
+
+        if (!location.cgiBinary.empty())
+            std::cout << "  cgiBinary: [" << location.cgiBinary << "]" << std::endl;
     }
 }
 
@@ -162,6 +168,8 @@ int main(void)
     requestMain(request, p, serverConfig, utils, response, cgi);
     // debug1(request);
 
+    // debug2(serverConfig, utils);
+    
     // step 3 : method GET
     if (request._method == "GET" && response.code == 200)
     {
@@ -182,7 +190,7 @@ int main(void)
     // step 4 : method POST
     if (request._method == "POST" && response.code == 200)
     {
-        postMain(request, response, serverConfig);
+        postMain(request, response, serverConfig, cgi);
         // debug4(response, 1);
     }
 
@@ -195,7 +203,7 @@ int main(void)
 
     // step  6 : response
     responseMain(request, response);
-    debug6(response);
+    // debug6(response);
 
     return (0);
 }

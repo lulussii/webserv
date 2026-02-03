@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 10:04:25 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 15:48:12 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ void initResponse(responseT &response)
     response.contentLen = 0;
     response.contentType = "";
     response.body = "";
+    response.cgi = false;
 
     response.path = "";
     response.repo = "";
@@ -63,6 +64,7 @@ void initCgi(cgi &cgi)
     cgi.method = "";
     cgi.queryString = "";
     cgi.scriptPath = "";
+    cgi.binaryPath = "";
     cgi.serverName = "";
     cgi.serverPort = "";
 }

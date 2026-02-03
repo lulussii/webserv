@@ -18,6 +18,7 @@ server {
         index html/index.html;
         autoindex on;
         upload_dir /Users/mathildelaussel/webserv/mathilde/server_files/tmp;
+        cgi .php /usr/bin/php-cgi;
     }
 
     location /secret {

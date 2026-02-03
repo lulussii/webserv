@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 11:34:54 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 16:29:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,28 @@
 #include "Error.hpp"
 #include "Response.hpp"
 #include "Cgi.hpp"
+
+void debug(responseT &response)
+{
+    std::cout << "location : [" << response.location.path << "]" << std::endl;
+    for (size_t i = 0; i < response.location.methods.size(); ++i)
+        std::cout << "  Methods: [" << response.location.methods[i] << "] ";
+    std::cout << std::endl;
+    if (!response.location.index.empty())
+        std::cout << "  Index: [" << response.location.index << "]" << std::endl;
+
+    if (!response.location.autoindex.empty())
+        std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
+
+    if (!response.location.upload_dir.empty())
+        std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
+
+    if (!response.location.cgiExtension.empty())
+        std::cout << "  cgiExtension: [" << response.location.cgiExtension << "]" << std::endl;
+
+    if (!response.location.cgiBinary.empty())
+        std::cout << "  cgiBinary: [" << response.location.cgiBinary << "]" << std::endl;
+}
 
 /**
  * @brief `firstline extract and parsing`
@@ -240,8 +262,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
 
     
     // GET /test.cgi
-    p.line = "GET /test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-    
+    // p.line = "GET /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
     
     
     
@@ -270,8 +291,12 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     //p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
 
     // POST
-    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
+
+    p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+
+    
     // POST error 400 (no content length so bad request)
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
@@ -314,7 +339,6 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
 
 
 
-
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
     {
@@ -332,7 +356,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     if (configMain(serverConfig, utils) == 500)
     {
         errorCode(response, serverConfig, 500);
-        return (1);
+        return ;
     }
 
     if (foundLocation(request, serverConfig, response) == false)
@@ -342,7 +366,8 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     }
     
     // step : CGI
-    cgiMain(request, cgi, serverConfig);
+    cgiMain(request, cgi, serverConfig, response);
+    // debug(response);
 
     if (checkIs(request, response) == false)
     {

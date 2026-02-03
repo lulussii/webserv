@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Multipart.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/26 15:01:15 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 16:03:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ public:
 
 bool isMultipart(request &request);
 int extractBundary(request &request);
-void splitPart(request &reques, responseT &response, serverT &serverConfig);
+void splitPart(request &request, responseT &response, serverT &serverConfig, Multipart &m);
 void extractName(Multipart &m);
 int extractFileName(Multipart &m);
 void extractContentType(Multipart &m);

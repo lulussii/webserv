@@ -12,7 +12,8 @@ typedef struct locationsConfigS
     std::string index;
     std::string autoindex;
     std::string upload_dir;
-
+    std::string cgiExtension;
+    std::string cgiBinary;
 } locationsT;
 
 typedef struct serverConfigS

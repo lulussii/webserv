@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 10:23:30 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 14:53:06 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <fcntl.h>  //open
 #include <unistd.h> //read
 #include <cstdlib>  // atoi
-#include <sstream> //streamstring
+#include <sstream>  //streamstring
 
 /**
  * @brief `open config file`
@@ -225,6 +225,8 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
         serverConfig.locations[path].index = "/" + addLocation(utils, "index");
     serverConfig.locations[path].autoindex = addLocation(utils, "autoindex");
     serverConfig.locations[path].upload_dir = addLocation(utils, "upload_dir");
+    serverConfig.locations[path].cgiExtension = ".php";          // force le test
+    serverConfig.locations[path].cgiBinary = "/Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi"; // force le test
 }
 
 /**

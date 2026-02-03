@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 11:23:46 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 16:30:16 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Chunked.hpp"
 #include "Multipart.hpp"
 #include "Error.hpp"
+#include "Cgi.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <fcntl.h>    //open
@@ -23,14 +24,13 @@
 #include <stdlib.h> //atoi
 #include <ctime>    //time_t
 
-
 /**
  * @brief `check if the content lenght < clientMaxBodySize, if it's not to big`
  *
  * step 1 : check if already a content lenght
- * 
- * step 2 : else take content lenght from body 
- * 
+ *
+ * step 2 : else take content lenght from body
+ *
  * @return true if ok, else false
  */
 bool clientMaxBodySize(serverT &serverConfig, request &request, responseT &response)
@@ -44,7 +44,7 @@ bool clientMaxBodySize(serverT &serverConfig, request &request, responseT &respo
         else
             return (false);
     }
-    
+
     if (request.contentLenght <= static_cast<size_t>(serverConfig.clientMaxBodySize))
         return (true);
     return (false);
@@ -69,10 +69,10 @@ bool bodyExist(request &request, responseT &response)
  * @brief `create random file with path in location`
  *
  * stringstream use to convert an int into a string
- * 
+ *
  * add "/uploads/" to path because we wants to uploads inside this repo
- * 
- * add 
+ *
+ * add
  */
 void createFileName(responseT &response)
 {
@@ -162,7 +162,7 @@ int createAndWriteFile(responseT &response)
  * @brief `prepare response`
  *
  * step 1 : if not error, delete body
- * 
+ *
  * step 2 : if content type already exist in header
  *
  * step 3 : content type if not content type
@@ -189,7 +189,7 @@ void prepareResponse(responseT &response, request request)
         response.contentType = it->second;
         return;
     }
-    
+
     size_t dot = response.location.index.rfind(".");
     if (dot == std::string::npos)
     {
@@ -237,18 +237,20 @@ void prepareResponse(responseT &response, request request)
  * step 6 : prepare response
  *
  */
-void postMain(request &request, responseT &response, serverT &serverConfig)
+void postMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
 {
+    Multipart m;
+    
     if (clientMaxBodySize(serverConfig, request, response) == false)
     {
         errorCode(response, serverConfig, 413);
-        return ;
+        return;
     }
 
     if (bodyExist(request, response) == false)
     {
         errorCode(response, serverConfig, 400);
-        return ;
+        return;
     }
 
     if (isChunked(request) == true)
@@ -256,23 +258,27 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
         if (chunkedParsing(request, response) == 400)
         {
             errorCode(response, serverConfig, 400);
-            return ;
+            return;
         }
     }
 
-    bool boolValue = isMultipart(request);
-    if (boolValue == true)
+    if (isMultipart(request) == true)
     {
         int errroValue = extractBundary(request);
         if (errroValue == 400)
         {
             errorCode(response, serverConfig, 400);
-            return ;
+            return;
         }
         if (checkRepo(response, serverConfig) != 0)
-            return ;
-        splitPart(request, response, serverConfig);
-        return ;
+            return;
+        splitPart(request, response, serverConfig, m);
+        return;
+    }
+
+    if (response.cgi == true)
+    {
+        handleCgi(request, cgi, serverConfig, response, m);
     }
 
     createFileName(response);
@@ -281,15 +287,15 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
 
     int errorValue = createAndWriteFile(response);
     if (errorValue == 500 || errorValue == 403)
-    {  
+    {
         if (errorValue == 500)
             errorCode(response, serverConfig, 500);
         else if (errorValue == 403)
             errorCode(response, serverConfig, 403);
-         return ;
+        return;
     }
 
     prepareResponse(response, request);
 
-    return ;
+    return;
 }
