@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 11:20:17 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 11:34:54 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,7 @@ bool checkIs(request &request, responseT &response)
  *
  * @return 1 if problem, else 0
  */
-int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response)
+void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response, cgi &cgi)
 {
     // -----
     //| GET |
@@ -240,13 +240,13 @@ int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfi
 
     
     // GET /test.cgi
-    // p.line = "GET /test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    p.line = "GET /test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
     
     
     
     
     // GET error 404
-    //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : repo secret (chmod 000) + in config location /secret
     //p.line = "GET /html/secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -301,7 +301,7 @@ int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfi
     // --------
     
     // DELETE simple
-    p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    //p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // DELETE error 404
     //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -317,7 +317,10 @@ int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfi
 
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
-        return (1);
+    {
+       errorCode(response, serverConfig, 404);
+       return ;
+    }
 
     // step 2 : headers parsing
     headers(p, request);
@@ -334,8 +337,8 @@ int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfi
 
     if (foundLocation(request, serverConfig, response) == false)
     {
-        errorCode(response, serverConfig, 404);;
-        return (1);
+        errorCode(response, serverConfig, 404);
+        return ;
     }
     
     // step : CGI
@@ -344,8 +347,6 @@ int requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfi
     if (checkIs(request, response) == false)
     {
         errorCode(response, serverConfig, 405);
-        return (0);
+        return ;
     }
-    
-    return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 11:19:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 11:34:38 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,9 +159,7 @@ int main(void)
     initMain(request, response, serverConfig, cgi);
 
     // step 1 : request parsing
-
-    if (requestMain(request, p, serverConfig, utils, response) == 1)
-        return (1);
+    requestMain(request, p, serverConfig, utils, response, cgi);
     // debug1(request);
 
     // step 3 : method GET
@@ -191,8 +189,7 @@ int main(void)
     // step 5 : method DELETE
     if (request._method == "DELETE" && response.code == 200)
     {
-        if (deleteMain(request, response, serverConfig) == 1)
-            return (1);
+        deleteMain(request, response, serverConfig);
         // debug5(response, 1);
     }
 
