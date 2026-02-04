@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 15:43:57 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/04 11:52:00 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,12 @@ class ConfigParser
 		void	parseListen(std::string &args, ServerConfig &server);
 		void	parseServerName(std::string &args, ServerConfig &server);
 		void	parseErrorPage(std::string &args, ServerConfig &server);
+		void	parseBodySize(std::string &args, ServerConfig &server);
 		void	parseMethods(std::string &args, LocationConfig &loc);
 		void	parseReturn(std::string &args, LocationConfig &loc);
 		void	parseUpload(std::string &args, LocationConfig &loc);
-		void	parseBodySize(std::string &args, ServerConfig &server);
+		void	parseCgi(std::string &args, LocationConfig &loc);
+
 
 		template <typename T>
 		void	parseRoot(std::string &args, T &config)

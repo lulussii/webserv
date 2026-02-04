@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/20 14:15:25 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/24 15:58:38 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/04 12:21:25 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <cstddef>
 
 class LocationConfig
@@ -23,11 +24,12 @@ class LocationConfig
 	friend class Server;
 
 	private:
-		std::string					_path;
-		std::string					_root;
-		std::vector<std::string>	_index;
-		int							_autoIndex;
-		size_t						_clientMaxBodySize;
+		std::string							_path;
+		std::string							_root;
+		std::vector<std::string>			_index;
+		int									_autoIndex;
+		size_t								_clientMaxBodySize;
+		std::map<std::string, std::string>	_cgiPaths;
 
 		bool		_allowGet;
 		bool		_allowPost;

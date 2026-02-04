@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 17:05:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 12:21:10 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "ServerConfig.hpp"
 #include <fstream>
 #include <string>
+#include <unistd.h>
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
@@ -364,6 +365,26 @@ void ConfigParser::parseUpload(std::string &args, LocationConfig &loc)
 	loc._uploadPath = value;
 }
 
+void	ConfigParser::parseCgi(std::string &args, LocationConfig &loc)
+{
+	std::string	path;
+	std::string	extension;
+	std::stringstream	ss(args);
+
+	if (!(ss >> extension >> path))
+		_throwError("Config Error: cgi_setup requires exactly 2 arguments (extension and path)");
+
+	_checkAndStripSemicolon(path, ss);
+
+	if (extension. empty() || extension[0] != '.')
+		_throwError("Config Error: cgi extension must start with a dot");
+	
+	if (access(path.c_str(), X_OK) == -1)
+		_throwError("Config Error: cgi binary not found or not executable");
+	
+	loc._cgiPaths[extension] = path;
+}
+
 void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std::string &path)
 {
 	LocationConfig loc;
@@ -396,12 +417,14 @@ void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std:
 			parseAutoIndex(args, loc);
 		else if (key == "index")
 			parseIndex(args, loc);
-		else if (key == "allow_methods")
+		else if (key == "methods")
 			parseMethods(args, loc);
 		else if (key == "return")
 			parseReturn(args, loc);
 		else if (key == "upload_dir")
 			parseUpload(args, loc);
+		else if (key == "cgi_setup")
+			parseCgi(args, loc);
 		else
 			_throwError("Unknown directive in location: " + key);
 	}

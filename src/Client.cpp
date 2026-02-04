@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 17:14:50 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 15:28:39 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,11 +140,6 @@ void Client::processRequest(serverT &serverConfig)
 		{
 			if (deleteMain(this->req, this->res, serverConfig) == 1 && this->res.code == 200)
 				errorCode(this->res, serverConfig, 500);
-		}
-		else
-		{
-			std::cerr << "[ERROR] Unknown method : " << this->req._method << std::endl;
-			errorCode(this->res, serverConfig, 501);
 		}
 	}
 
