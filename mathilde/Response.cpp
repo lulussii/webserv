@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/04 17:27:18 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:35:26 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ void responseMain(request &request, responseT &response)
     std::map<int, std::string>::iterator it = response.errorTxt.find(response.code);
     if (it != response.errorTxt.end())
         response.response += " " + it->second;
+    response.response += "\r\n";
     // if (response.code == 200)
     //     response.response += " OK\r\n";
     // if (response.code == 404)

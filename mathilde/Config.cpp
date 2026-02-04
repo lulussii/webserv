@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 15:47:48 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 14:53:06 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 18:19:59 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,8 +225,11 @@ void locationsPars(utilsConfigT &utils, serverT &serverConfig)
         serverConfig.locations[path].index = "/" + addLocation(utils, "index");
     serverConfig.locations[path].autoindex = addLocation(utils, "autoindex");
     serverConfig.locations[path].upload_dir = addLocation(utils, "upload_dir");
+    // serverConfig.locations[path].cgiExtension = ".php";          // force le test
+    // serverConfig.locations[path].cgiBinary = "/Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi"; // force le test
     serverConfig.locations[path].cgiExtension = ".php";          // force le test
-    serverConfig.locations[path].cgiBinary = "/Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi"; // force le test
+    serverConfig.locations[path].cgiBinary = "/usr/local/bin/php-cgi"; // force le test
+    /usr/local/bin/php-cgi
 }
 
 /**

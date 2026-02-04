@@ -6,12 +6,13 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 11:26:16 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:40:56 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
 #include "Error.hpp"
+#include "Cgi.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <fcntl.h>    //open
@@ -229,10 +230,21 @@ void contentType(responseT &response)
  *
  * @return 1 if problem, else 0
  */
-int getMain(request &request, responseT &response, serverT &serverConfig)
+int getMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
 {
     pathBuild(response, serverConfig, request);
 
+    if (response.cgi == true)
+    {
+        Multipart m;
+        handleCgi(request, cgi, serverConfig, response, m);
+        if (cgiPipe(cgi, response) == 500)
+            errorCode(response, serverConfig, 500);
+        parsStdout(cgi);
+        buildCgiResponse(cgi, response);
+        return (0);
+    }
+    
     existFile(response, serverConfig, request);
 
     if (response.infos.error == false && response.infos.repository == false)

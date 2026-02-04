@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:14:41 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/04 16:28:26 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:41:47 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ int main(void)
     // step 3 : method GET
     if (request._method == "GET" && response.code == 200)
     {
-        int errorValue = getMain(request, response, serverConfig);
+        int errorValue = getMain(request, response, serverConfig, cgi);
         if (errorValue == 1)
             return (1);
         else if (errorValue == 404)
@@ -203,8 +203,10 @@ int main(void)
 
     // step  6 : response
     if (response.cgi == false)
+    {
         responseMain(request, response);
-    // debug6(response);
+        debug6(response);
+    }
 
     return (0);
 }
