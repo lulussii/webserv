@@ -10,38 +10,41 @@ CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -std=c++11 -Iinclude -g -MMD -MP
 SRC_DIR 	= src
 HEADER_DIR 	= include
 
-HEADER 		= $(HEADER_DIR)/Chunked.hpp			\
-			  $(HEADER_DIR)/Client.hpp			\
-			  $(HEADER_DIR)/Config.hpp			\
-			  $(HEADER_DIR)/ConfigParser.hpp	\
-			  $(HEADER_DIR)/Delete.hpp			\
-			  $(HEADER_DIR)/Error.hpp			\
-			  $(HEADER_DIR)/Get.hpp				\
-			  $(HEADER_DIR)/Init.hpp			\
-			  $(HEADER_DIR)/LocationConfig.hpp	\
-			  $(HEADER_DIR)/Multipart.hpp		\
-			  $(HEADER_DIR)/Post.hpp			\
-			  $(HEADER_DIR)/Request.hpp			\
-			  $(HEADER_DIR)/Response.hpp		\
-			  $(HEADER_DIR)/Server.hpp			\
+HEADER 		= $(HEADER_DIR)/Chunked.hpp							\
+			  $(HEADER_DIR)/Client.hpp							\
+			  $(HEADER_DIR)/Config.hpp							\
+			  $(HEADER_DIR)/ConfigParser.hpp					\
+			  $(HEADER_DIR)/Delete.hpp							\
+			  $(HEADER_DIR)/Error.hpp							\
+			  $(HEADER_DIR)/Get.hpp								\
+			  $(HEADER_DIR)/Init.hpp							\
+			  $(HEADER_DIR)/LocationConfig.hpp					\
+			  $(HEADER_DIR)/Multipart.hpp						\
+			  $(HEADER_DIR)/Post.hpp							\
+			  $(HEADER_DIR)/Request.hpp							\
+			  $(HEADER_DIR)/Response.hpp						\
+			  $(HEADER_DIR)/Server.hpp							\
 			  $(HEADER_DIR)/ServerConfig.hpp	
 
 
-SRC 		= $(SRC_DIR)/main.cpp 				\
-			  $(SRC_DIR)/Request.cpp			\
-			  $(SRC_DIR)/Response.cpp 			\
-			  $(SRC_DIR)/Config.cpp 			\
-			  $(SRC_DIR)/Server.cpp 			\
-			  $(SRC_DIR)/Error.cpp 				\
-			  $(SRC_DIR)/Get.cpp 				\
-			  $(SRC_DIR)/Post.cpp 				\
-			  $(SRC_DIR)/Delete.cpp 			\
-			  $(SRC_DIR)/Init.cpp 				\
-			  $(SRC_DIR)/ServerConfig.cpp		\
-			  $(SRC_DIR)/ConfigParser.cpp		\
-			  $(SRC_DIR)/LocationConfig.cpp		\
-			  $(SRC_DIR)/Chunked.cpp			\
-			  $(SRC_DIR)/Multipart.cpp		\
+SRC 		= $(SRC_DIR)/main.cpp 								\
+			  $(SRC_DIR)/Request.cpp							\
+			  $(SRC_DIR)/Response.cpp 							\
+			  $(SRC_DIR)/Config.cpp 							\
+			  $(SRC_DIR)/Server.cpp 							\
+			  $(SRC_DIR)/Error.cpp 								\
+			  $(SRC_DIR)/Get.cpp 								\
+			  $(SRC_DIR)/Post.cpp 								\
+			  $(SRC_DIR)/Delete.cpp 							\
+			  $(SRC_DIR)/Init.cpp 								\
+			  $(SRC_DIR)/ConfigParser/ServerConfig.cpp			\
+			  $(SRC_DIR)/ConfigParser/ConfigParser.cpp			\
+			  $(SRC_DIR)/ConfigParser/ConfigParserServer.cpp	\
+			  $(SRC_DIR)/ConfigParser/ConfigParserUtils.cpp		\
+			  $(SRC_DIR)/ConfigParserLocation.cpp				\
+			  $(SRC_DIR)/LocationConfig.cpp						\
+			  $(SRC_DIR)/Chunked.cpp							\
+			  $(SRC_DIR)/Multipart.cpp							\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= .objs
@@ -81,7 +84,7 @@ endef
 # ************************************************************************** #
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(dir $@)
 	$(call progress_bar)
 	@$(CC) $(CFLAGS) -c $< -o $@
 

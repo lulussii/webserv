@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 15:26:16 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/04 15:10:34 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,45 +29,48 @@
 
 #define LISTEN_BACKLOG 5
 
-serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
+serverT Server::_convertConfig(const ServerConfig &myConfig)
 {
-    serverT mateConfig;
+    serverT newConfig;
 
 	if (!myConfig._listen.empty())
-		mateConfig.listen = myConfig._listen[0].port;
+		newConfig.listen = myConfig._listen[0].port;
 	else
-		mateConfig.listen = 8080;
+		newConfig.listen = 8080;
 	
-	mateConfig.root = myConfig._root;
-	mateConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
-    mateConfig.errorPage = myConfig._errorPages;
+	newConfig.root = myConfig._root;
+	newConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
+    newConfig.errorPage = myConfig._errorPages;
 
 	std::vector<LocationConfig> myLocs = myConfig._locations;
 
 	for (size_t i = 0; i < myLocs.size(); i++)
 	{
-		locationsT mateLoc;
+		locationsT newLoc;
 		LocationConfig &curr = myLocs[i];
 
-		mateLoc.path = curr._path;
+		newLoc.path = curr._path;
 		if (!curr._index.empty())
-			mateLoc.index = curr._index[0];
+			newLoc.index = curr._index[0];
 		else
-			mateLoc.index = "";
-		mateLoc.upload_dir = curr._uploadPath;
-		mateLoc.methods.clear();
-		if (curr._allowGet) mateLoc.methods.push_back("GET");
-		if (curr._allowPost) mateLoc.methods.push_back("POST");
-		if (curr._allowDelete) mateLoc.methods.push_back("DELETE");
+			newLoc.index = "";
+		newLoc.upload_dir = curr._uploadPath;
+		newLoc.methods.clear();
+		if (curr._allowGet) 
+			newLoc.methods.push_back("GET");
+		if (curr._allowPost) 
+			newLoc.methods.push_back("POST");
+		if (curr._allowDelete) 
+			newLoc.methods.push_back("DELETE");
 		if (curr._autoIndex == 1)
-			mateLoc.autoindex = "on";
+			newLoc.autoindex = "on";
 		else
-			mateLoc.autoindex = "off";
+			newLoc.autoindex = "off";
 			
-        mateConfig.locations[curr._path] = mateLoc;
+        newConfig.locations[curr._path] = newLoc;
     }
 
-    return mateConfig;
+    return newConfig;
 }
 
 /**
@@ -215,51 +218,33 @@ void Server::run()
 {
 	while(true)
 	{
-		// 1. POLL
-		// La fonction poll met le programme en pause.
-		// Elle ne la main que dans 2 cas :
-		//	A. Il y a de l'activité (un client parle ou se connecte).
-		//	B. 1000ms se sont écoulées sans rien.
 		int ret = poll(_fds, MAX_CLIENTS + _nbListeningSockets, 1000);
 		if (ret < 0)
 			break;
-
-		// 2. Vérification de la porte d'entrée (slot 0)
-		// L'index 0 de _fds correspond au serveur
-		// Si poll a mis le flag POLLIN -> quelqu'un veut entrer, on crée un nouveau client.
+			
 		for (int i = 0; i < _nbListeningSockets; i++)
 		{
 			if (_fds[i].revents & POLLIN)
 				_acceptNewConnection(_fds[i].fd);	
 		}
-		
-
-		// 3. Vérification des clients déjà là
-		// On parcourt toute la liste des places possibles pour les clients.
+	
 		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
 		{
-			// Vérification des deux conditions pour agir : 
-			// 1. _fds[i].fd != -1  -> Est-ce qu'il y a vraiment un client à cette place ?
-			// 2. _fds[i].revents != 0 -> Est-ce qu'il s'est passé un truc (lecture/écriture) ?
-			// Si oui, traitement de la demande
 			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
 		}
-
-		// 4. Gestion du temps
-		// On repasse sur tous les clients pour vérifier leur inactivité.
+		
 		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
 		{
-			if (_fds[i].fd != -1)
+			if (_fds[i].fd >= 0)
 			{
-				// Calcul du temps qui s'est écoulé depuis la dernière action.
 				time_t	now = time(NULL);
 				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
 
-				// Si ça fait plus de 60 secondes qu'il est muet -> déconnexion
 				if (diff > 60)
 				{
-					std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
+					if (i < 0)
+						std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
 					_closeConnection(i);
 				}
 			}
@@ -331,7 +316,7 @@ void Server::_handleClientActivity(int i)
 	{
 		if (_fds[i].revents & POLLIN)
 		{
-			serverT mateConf = _convertToMateConfig(currentConfig);
+			serverT mateConf = _convertConfig(currentConfig);
 			client.handleRead(mateConf);
 		}
 

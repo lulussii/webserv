@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 15:28:40 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/04 14:37:32 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,8 +337,8 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)
     {
-        int errorValue = readFile(response);
-            return (errorValue);
+        if (readFile(response) == 1)
+            return (1);
     }
 
     // step 7 : search content type of the file

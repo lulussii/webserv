@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/03 15:28:39 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/04 15:29:51 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,21 +59,13 @@ int Client::getServerPort() const
  */
 long Client::getContentLength(const std::string &buffer)
 {
-	// 1. Recherche de la clé standard HTTP.
-	// Si pas trouvé (ex: GET classique sans body), retourne 0.
 	size_t pos = buffer.find("Content-Length: ");
 	if (pos == std::string::npos)
 		return (0);
-
-	// 2. Placement juste après "Content-Length: "
 	size_t start = pos + 16;
-
-	// 3. Recherhce de la fin de la ligne (\r\n) pour isoler le nombre
 	size_t end = buffer.find("\r\n", start);
 	if (end == std::string::npos)
 		return (0);
-
-	// 4. Découpe de la string et conversion en long
 	std::string numStr = buffer.substr(start, end - start);
 
 	return (std::atol(numStr.c_str()));
@@ -84,31 +76,25 @@ long Client::getContentLength(const std::string &buffer)
  */
 void Client::reset()
 {
-	// 1. Reset des buffers
 	readBuffer.clear();
 	writeBuffer.clear();
 
-	// 2. Reset des drapeaux d'état
 	headersReceived = false;
 	contentLength = 0;
 	requestComplete = false;
 	isReadyToWrite = false;
 
-	// 3. Reset du timer à 0
 	lastTime = time(NULL);
 
-	// Reset de la requête
 	this->req = request();
 
-	// Nettoyage manuel de la structure de réponse
 	this->res.code = 0;
 	this->res.contentLen = 0;
 	this->res.body.clear();
 	this->res.response.clear();
 	this->res.path.clear();
-	this->res.contentType = "text/html"; // valeur par défaut
+	this->res.contentType = "text/html";
 
-	// Reset des booléens internes
 	this->res.infos.error = false;
 	this->res.infos.fileExist = false;
 }
@@ -161,7 +147,6 @@ void Client::processRequest(serverT &serverConfig)
 void Client::handleRead(serverT &serverConfig)
 {
 
-	// 1. Lecture du socket
 	char tmpBuffer[4096];
 	int bytesRead = recv(fd, tmpBuffer, 4096, 0);
 	if (bytesRead < 0)
@@ -169,14 +154,10 @@ void Client::handleRead(serverT &serverConfig)
 
 	if (bytesRead == 0)
 		std::runtime_error("Client disconnected");
-
-	// 2. Accumulation
-	// Ajout du nouveau morceau à la suite de ce qu'il y a déjà.
+		
 	readBuffer.append(tmpBuffer, bytesRead);
 	lastTime = time(NULL);
-
-	// 3. Analyse du header
-	// Rien ne se passe tant que les en-têtes ne sont pas reçues (\r\n\r\n).
+	
 	if (!headersReceived)
 	{
 		size_t headerEnd = readBuffer.find("\r\n\r\n");
@@ -186,8 +167,6 @@ void Client::handleRead(serverT &serverConfig)
 			contentLength = getContentLength(readBuffer);
 		}
 	}
-
-	// 4. Vérification
 	if (headersReceived)
 	{
 		size_t headerEnd = readBuffer.find("\r\n\r\n");
@@ -206,15 +185,9 @@ void Client::handleWrite()
 	if (writeBuffer.empty())
 		return;
 
-	// 1. Envoi
-	// Tentative d'envoi du buffer
-	// bytesSent contiendra le nombre d'octets réellement acceptés par le réseau.
 	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), 0);
 	if (bytesSent > 0)
 	{
-		// 2. Nettoyage partiel
-		// Si il y a 1000 octets et que 500 sont envoyés,
-		// on supprime les 500 premiers et on garde le reste pour le prochain tour.
 		writeBuffer.erase(0, bytesSent);
 		lastTime = time(NULL);
 	}
