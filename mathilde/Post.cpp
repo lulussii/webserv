@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 18:51:10 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 16:29:57 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -279,8 +279,10 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
     if (response.cgi == true)
     {
         handleCgi(request, cgi, serverConfig, response, m);
-        if (cgiPipe(cgi) == 500)
+        if (cgiPipe(cgi, response) == 500)
             errorCode(response, serverConfig, 500);
+        parsStdout(cgi);
+        buildCgiResponse(cgi, response);
     }
 
     createFileName(response);

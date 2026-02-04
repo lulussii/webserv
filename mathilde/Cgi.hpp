@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 18:36:15 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:00:30 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,17 @@ public:
     std::string serverPort;
     std::string gatewayInterface;
     std::string serverProtocol;
+    std::string headers;
     std::string body;
+    std::string code;
+    std::string response;
+    std::map<std::string, std::string> errorTxt;
 };
 
 int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
 void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m);
-int cgiPipe(cgi &cgi);
+int cgiPipe(cgi &cgi, responseT &response);
+void parsStdout(cgi &cgi);
+void buildCgiResponse(cgi &cgi, responseT &response);
 
 #endif

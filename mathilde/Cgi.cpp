@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 18:50:45 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:11:03 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,10 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     else
         cgi.body = m.content;
 
+    std::stringstream code;
+    code << response.code;
+
+    cgi.code = code.str();
     // std::cout << "CGI METHOD : " << cgi.method << std::endl;
     // std::cout << "CGI QURRY : " << cgi.queryString << std::endl;
     // std::cout << "CGI CONTENT LENGHT : " << cgi.contentLenght << std::endl;
@@ -155,10 +159,12 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
  *
  * step 2 : fork and check pid
  */
-int cgiPipe(cgi &cgi)
+int cgiPipe(cgi &cgi, responseT &res)
 {
+    (void)res;
     int body[2];
     int response[2];
+    cgi.response.clear();
 
     if (pipe(body) == -1 || pipe(response) == -1)
         return (500);
@@ -179,13 +185,22 @@ int cgiPipe(cgi &cgi)
         close(body[1]);     // don't write
         close(response[0]); // dont read
 
-        dup2(body[0], STDIN_FILENO);      // read stdin from body
-        dup2(response[1], STDOUT_FILENO); // write on stdout to body
-
+        if (dup2(body[0], STDIN_FILENO) == -1) // read stdin from body
+        {
+            close(body[0]);
+            close(response[1]);
+            // return (500);
+        }
+        if (dup2(response[1], STDOUT_FILENO) == -1) // write on stdout to body
+        {
+            close(body[0]);
+            close(response[1]);
+            // return (500);
+        }
         close(body[0]);
         close(response[1]);
 
-        char *args[] = {(char *)"cat", NULL};
+        char *args[] = {const_cast<char *>(cgi.binaryPath.c_str()), const_cast<char *>(cgi.scriptPath.c_str()), NULL};
 
         std::vector<std::string> env;
         env.push_back("REQUEST_METHOD=" + cgi.method);
@@ -197,16 +212,25 @@ int cgiPipe(cgi &cgi)
         env.push_back("SERVER_PROTOCOL=" + cgi.serverProtocol);
         env.push_back("SERVER_NAME=" + cgi.serverName);
         env.push_back("SERVER_PORT=" + cgi.serverPort);
+        env.push_back("REDIRECT_STATUS=" + cgi.code);
 
         std::vector<char *> envp;
         for (size_t i = 0; i < env.size(); i++)
             envp.push_back(const_cast<char *>(env[i].c_str()));
         envp.push_back(NULL);
 
+        std::string dir = cgi.scriptPath; // go in repertory of script
+        size_t pos = dir.rfind("/");
+        dir = dir.substr(0, pos + 1);
+        if (chdir(dir.c_str()) == -1)
+        {
+            ;
+        }
+        // std::cout << dir << std::endl;
+
         execve(cgi.binaryPath.c_str(), args, envp.data());
 
-        return (500);
-        // check if exceve fail
+        // return (500);// check if exceve fail
     }
 
     else if (pid > 0)
@@ -218,9 +242,10 @@ int cgiPipe(cgi &cgi)
         close(body[1]); // EOF
 
         char buffer[1024];
-        size_t n;
+        ssize_t n;
         while ((n = read(response[0], buffer, sizeof(buffer))) > 0)
-            std::cout.write(buffer, n); // show exit CGI
+            cgi.response.append(buffer, n);
+        // std::cout.write(buffer, n); //  show exit CGI (test)
 
         close(response[0]);
 
@@ -229,6 +254,93 @@ int cgiPipe(cgi &cgi)
     }
 
     return (0);
+}
+
+/**
+ * @brief
+ *
+ * step 1 : split headers and body
+ *
+ * step 2 : pars in headers content type and status
+ */
+void parsStdout(cgi &cgi)
+{
+    int space = 4;
+    cgi.headers.clear();
+    cgi.body.clear();
+    size_t pos = cgi.response.find("\r\n\r\n");
+    if (pos == std::string::npos)
+    {
+        space = 2;
+        pos = cgi.response.find("\n\n");
+    }
+    if (pos != std::string::npos)
+    {
+        cgi.headers = cgi.response.substr(0, pos);
+        cgi.body = cgi.response.substr(pos + space);
+    }
+    else
+        cgi.body = cgi.response;
+    // std::cout << "[DEBUG HEADERS] : " << cgi.headers << std::endl;
+    // std::cout << "[DEBUG BODY] : " << cgi.body << std::endl;
+
+    pos = cgi.headers.find("Status:");
+    if (pos != std::string::npos)
+    {
+        std::string tmp = cgi.headers.substr(pos);
+        // size_t end = tmp.find("\r\n");
+        // if (end == std::string::npos)
+        //     end = tmp.find("\n");
+        cgi.code = tmp.substr(8, 3);
+    }
+    else
+        cgi.code = "200";
+
+    pos = cgi.headers.find("Content-Type:");
+    if (pos != std::string::npos)
+    {
+        std::string tmp = cgi.headers.substr(pos);
+        size_t end = tmp.find("\r\n");
+        if (end == std::string::npos)
+            end = tmp.find("\n");
+        cgi.contentType = tmp.substr(14, end - 14);
+    }
+    else
+        cgi.contentType = "text/plain";
+
+    // std::cout << "[DEBUG content] : [" << cgi.contentType << "]" << std::endl;
+    // std::cout << "[DEBUG status] : [" << cgi.code << "]" << std::endl;
+}
+
+void buildCgiResponse(cgi &cgi, responseT &response)
+{
+    response.response.clear();
+
+    response.response += cgi.serverProtocol + " " + cgi.code;
+    std::map<std::string, std::string>::iterator it = cgi.errorTxt.find(cgi.code);
+    if (it != cgi.errorTxt.end())
+        response.response += " " + it->second;
+
+    response.response += "\r\n";
+    if (cgi.method == "DELETE" || cgi.code == "413")
+        response.response += "Content-Length: 0";
+    else
+    {
+        std::stringstream length;
+        length << cgi.body.size();
+        response.response += "Content-Length: " + length.str();
+    }
+    response.response += "\r\n";
+
+    response.response += "Content-Type: " + cgi.contentType;
+    response.response += "\r\n";
+
+    // empty line
+    response.response += "\r\n";
+
+    response.response += cgi.body;
+
+    std::cout << "[DEBUG RESPONSE REQUEST AFTER CGI]\n\n" << response.response << std::endl;
 }
 
 int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)

@@ -1,6 +1,8 @@
 #!/bin/sh
 
+echo "Status: 200 OK"
 echo "Content-Type: text/plain"
+echo "Test : Test"
 echo ""
 echo "Hello from fake php-cgi!"
 echo ""

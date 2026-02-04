@@ -1,0 +1,9 @@
+Content-Type: text/plain
+
+Hello from fake php-cgi!
+
+REQUEST_METHOD=POST
+SCRIPT_FILENAME=/Users/mathildelaussel/webserv/mathilde/server_files/cgi/test.php
+QUERY_STRING=name=mlaussel
+CONTENT_LENGTH=13
+CONTENT_TYPE=text/plain

@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 15:47:56 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/04 17:24:29 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ typedef struct response
     postT post;
     std::string filename;
     bool cgi;
+
+    std::map<int, std::string> errorTxt;
 } responseT;
 
 void responseMain(request &request, responseT &response);
