@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/29 10:32:01 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/05 08:24:42 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <poll.h>
+#include <signal.h>
 #include <map>
 #include "Client.hpp"
 #include "Server.hpp"
@@ -30,6 +31,7 @@ int main(int argc, char **argv)
 	std::string 	config_file_path;
 	ConfigParser	parser;
 
+	signal(SIGINT, handle_sigint);
 	if (argc == 1)
 	{
 		std::cout << "No argument provided. Using default config" << std::endl;

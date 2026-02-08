@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/01/29 10:45:06 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/05 09:01:16 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Client
 		struct responseT	res;
 		
 		long		contentLength;
+		long		bodyStartIndex;
 		bool		headersReceived;
 		bool		requestComplete;
 		

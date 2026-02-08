@@ -37,11 +37,11 @@ SRC 		= $(SRC_DIR)/main.cpp 								\
 			  $(SRC_DIR)/Post.cpp 								\
 			  $(SRC_DIR)/Delete.cpp 							\
 			  $(SRC_DIR)/Init.cpp 								\
-			  $(SRC_DIR)/ConfigParser/ServerConfig.cpp			\
+			  $(SRC_DIR)/ServerConfig.cpp						\
 			  $(SRC_DIR)/ConfigParser/ConfigParser.cpp			\
 			  $(SRC_DIR)/ConfigParser/ConfigParserServer.cpp	\
 			  $(SRC_DIR)/ConfigParser/ConfigParserUtils.cpp		\
-			  $(SRC_DIR)/ConfigParserLocation.cpp				\
+			  $(SRC_DIR)/ConfigParser/ConfigParserLocation.cpp	\
 			  $(SRC_DIR)/LocationConfig.cpp						\
 			  $(SRC_DIR)/Chunked.cpp							\
 			  $(SRC_DIR)/Multipart.cpp							\

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:29:51 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/05 10:04:04 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,10 +130,6 @@ void Client::processRequest(serverT &serverConfig)
 	}
 
 	responseMain(this->req, this->res);
-
-	std::cout << "\n\nREPONSE\n"
-			  << res.response;
-
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
 
@@ -146,33 +142,33 @@ void Client::processRequest(serverT &serverConfig)
  */
 void Client::handleRead(serverT &serverConfig)
 {
-
 	char tmpBuffer[4096];
 	int bytesRead = recv(fd, tmpBuffer, 4096, 0);
-	if (bytesRead < 0)
-		return;
+	if (bytesRead <= 0)
+		throw std::runtime_error("Read error or client disconnected");
 
-	if (bytesRead == 0)
-		std::runtime_error("Client disconnected");
-		
 	readBuffer.append(tmpBuffer, bytesRead);
 	lastTime = time(NULL);
 	
 	if (!headersReceived)
 	{
+		if (readBuffer.size() > 8192)
+		{
+			std::cout << "[SECURITY] Headers too large (" << readBuffer.size() << "). Closing." << std::endl;
+			throw std::runtime_error("431 Request Header Fields Too Large");
+		}
 		size_t headerEnd = readBuffer.find("\r\n\r\n");
 		if (headerEnd != std::string::npos)
 		{
 			headersReceived = true;
 			contentLength = getContentLength(readBuffer);
+			bodyStartIndex = headerEnd + 4;
 		}
 	}
 	if (headersReceived)
 	{
-		size_t headerEnd = readBuffer.find("\r\n\r\n");
-		size_t totalExpecteLength = headerEnd + 4 + contentLength;
-
-		if (readBuffer.size() >= totalExpecteLength)
+		size_t currentBodySize = readBuffer.size() - bodyStartIndex;
+		if (currentBodySize >= (size_t)contentLength)
 		{
 			requestComplete = true;
 			processRequest(serverConfig);
@@ -185,14 +181,14 @@ void Client::handleWrite()
 	if (writeBuffer.empty())
 		return;
 
-	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), 0);
+	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), MSG_NOSIGNAL);
 	if (bytesSent > 0)
 	{
 		writeBuffer.erase(0, bytesSent);
 		lastTime = time(NULL);
 	}
 	else if (bytesSent == -1)
-		return;
+		throw std::runtime_error("Write error (Broken Pipe)");
 
 	if (writeBuffer.empty())
 	{

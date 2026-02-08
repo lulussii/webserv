@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:08:37 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/05 08:28:29 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 class Server
 {
 	private: 
-		//int						_port;
+
 		int						_nbListeningSockets;
 		struct pollfd			_fds[MAX_CLIENTS + 1];
 		std::map<int, Client>	_clients;
@@ -46,12 +46,12 @@ class Server
 
 	public:
 		Server(const std::vector<ServerConfig> &configs);
-		
+		~Server();
+
 		void setup();
 		void run();
-
-		
-
 };
+
+void handle_sigint(int sig);
 
 #endif

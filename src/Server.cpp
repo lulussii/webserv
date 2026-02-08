@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:10:34 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/05 10:10:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,39 @@
 #include "Delete.hpp"
 
 #define LISTEN_BACKLOG 5
+
+bool	server_run = true;
+
+void	handle_sigint(int sig)
+{
+	(void)sig;
+	server_run = false;
+}
+
+/**
+ * @brief Constructeur : Initialise le serveur et vide le tableau de pollfd.
+ */
+Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
+{
+	for (int i = 0; i <= MAX_CLIENTS; i++)
+	{
+		_fds[i].fd = -1;
+		_fds[i].events = POLLIN;
+		_fds[i].revents = 0;
+	}
+}
+
+Server::~Server()
+{
+	for (int i = 0; i < MAX_CLIENTS + _nbListeningSockets; i++)
+	{
+		if (_fds[i].fd >= 0)
+			close(_fds[i].fd);
+	}
+	_clients.clear();
+	std::cout << "[INFO] All resources cleared" << std::endl;
+}
+
 
 serverT Server::_convertConfig(const ServerConfig &myConfig)
 {
@@ -74,70 +107,33 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
 }
 
 /**
- * @brief Constructeur : Initialise le serveur et vide le tableau de pollfd.
- */
-Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
-{
-    for (int i = 0; i <= MAX_CLIENTS; ++i)
-    {
-        _fds[i].fd = -1;         // -1 signifie que le slot est libre
-        _fds[i].events = POLLIN; // Par défaut, on écoute (lecture)
-    }
-}
-
-/**
  * @brief Crée et configure le socket principal du serveur (Socket, Bind, Listen).
  * @return Le descripteur de fichier (FD) du serveur ou -1 en cas d'erreur.
  */
 int Server::_createServerSocket(int port)
 {
-	// 1. Création du socket
-	// AF_INET 		: Utilisation de l'IPv4 (Internet Protocol v4)
-	// SOCK_STREAM	: Utilisation du protocole TCP
-	// 0			: Protocole par défaut
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1) 
 		return (-1);
-
-	// 2. Mode non-bloquant
-	// Par défaut, un socket bloque le programme s'il n'y a rien à lire.
-	// C'est ce qui permet au server de gérer 1000 clients avec 1 seul thread.
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "Error : Failed to set non-blocking mode on server socket" << std::endl;
 		close (fd);
 		return (-1);
 	}
-	
-	// 3. Reuse adress
-	// Quand le serveur est coupé, le port reste en état de "TIME-WAIT" pendant quelques minutes.
-	// SO_REUSEADDR force la reprise du port 8080 immédiatement sans avoir*
-	// l'erreur "Adress already in use".
     int opt = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-	// 4. Préparation de l'adresse
-	// htons(Host TO Network Short) : Convertit le port dans le format compris par le réseau.
-	// INADRR_ANY : Ecoute sur toutes les interfaces (wifi, Ethernet, Localhost, etc)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
-
-	// 5. Bind (assignation)
-	// Réservation de l'adresse pour le socket
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 	{
 		std::cerr << "Error: Failed to bind to port " << port << std::endl;
 		close(fd);
 		return (-1);
 	}
-	
-	// 6. Listen
-	// Le socket passe en mode "passif".
-	// Il ne chechera pas à se connecter, il attendra les connexions.
-	// LISTEN_BACKLOG : taille de la file d'attente.
 	if (listen(fd, LISTEN_BACKLOG) == -1)
 	{
 		std::cerr << "Error: Failed to listen on socket" << std::endl;
@@ -145,7 +141,6 @@ int Server::_createServerSocket(int port)
 		return (-1);
 	}
 
-	// Le socket est prêt, on retourne son numéro au serveur
 	return fd;
 }
 
@@ -216,11 +211,16 @@ void Server::setup()
  */
 void Server::run()
 {
-	while(true)
+	const int	totalFds = MAX_CLIENTS + _nbListeningSockets;
+	while(server_run == true)
 	{
-		int ret = poll(_fds, MAX_CLIENTS + _nbListeningSockets, 1000);
+		int ret = poll(_fds, totalFds, 1000);
 		if (ret < 0)
+		{
+			if (server_run == false)
+				break;
 			break;
+		}
 			
 		for (int i = 0; i < _nbListeningSockets; i++)
 		{
@@ -228,28 +228,32 @@ void Server::run()
 				_acceptNewConnection(_fds[i].fd);	
 		}
 	
-		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
+		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
 			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
 		}
 		
-		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
+		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
-			if (_fds[i].fd >= 0)
+			int clientFd = _fds[i].fd;
+			if (clientFd >= 0)
 			{
-				time_t	now = time(NULL);
-				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
-
-				if (diff > 60)
+				if (_clients.find(clientFd) != _clients.end())
 				{
-					if (i < 0)
-						std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
-					_closeConnection(i);
+					time_t	now = time(NULL);
+					double diff = difftime(now, _clients[_fds[i].fd].lastTime);
+					if (diff > 60)
+					{
+						if (i < 0)
+							std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
+						_closeConnection(i);
+					}
 				}
 			}
 		}
 	}
+	std::cout << "\n[INFO] Server stopping gracefully..." << std::endl;
 }
 
 void Server::_acceptNewConnection(int serverFd)
