@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 10:46:26 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 12:52:41 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void initResponse(responseT &response)
     response.errorTxt[403] = "Forbidden";
     response.errorTxt[404] = "Not Found";
     response.errorTxt[405] = "Method Not Allowed";
-    response.errorTxt[413] = "Payload Too Large";
+    response.errorTxt[413] = "Content Too Large";
     response.errorTxt[500] = "Internal Server Error";
 }
 
@@ -82,7 +82,7 @@ void initCgi(cgi &cgi)
     cgi.errorTxt["403"] = "Forbidden";
     cgi.errorTxt["404"] = "Not Found";
     cgi.errorTxt["405"] = "Method Not Allowed";
-    cgi.errorTxt["413"] = "Payload Too Large";
+    cgi.errorTxt["413"] = "Content Too Large";
     cgi.errorTxt["500"] = "Internal Server Error";
 }
 
