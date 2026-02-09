@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 10:17:03 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:44:13 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,8 +234,6 @@ int cgiPipe(cgi &cgi, responseT &res)
         close(body[0]);     // don't read
         close(response[1]); // don't write
 
-        std::cout << cgi.body << std::endl;
-        
         write(body[1], cgi.body.c_str(), cgi.body.size()); //write the body from request (body chunked too)
         close(body[1]); // EOF
 

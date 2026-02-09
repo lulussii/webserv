@@ -13,13 +13,13 @@ typedef struct locationsConfigS
     std::string index;
     std::string autoindex;
     std::string upload_dir;
-    std::string cgiExtension; //ici
-    std::string cgiBinary; //ici
+    std::string cgiExtension;
+    std::string cgiBinary;
 } locationsT;
 
 typedef struct serverConfigS
 {
-    std::vector<Listen>	listens; //ici
+    std::vector<Listen>	listens;
     int listen; //METTRE VECTOR
     std::string root;
     std::map<int, std::string> errorPage;

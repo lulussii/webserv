@@ -6,8 +6,6 @@ echo "Test : Test"
 echo ""
 echo "Hello from fake php-cgi!"
 echo ""
-# $body = file_get_contents("php://input"); // ← lit "Hello World"
-# echo "Received body: " . $body . "\n";    // ← sortie stdout
 echo "REQUEST_METHOD=$REQUEST_METHOD"
 echo "SCRIPT_FILENAME=$SCRIPT_FILENAME"
 echo "QUERY_STRING=$QUERY_STRING"

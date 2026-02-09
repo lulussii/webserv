@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 13:17:13 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:43:41 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@
  */
 bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig)
 {
+    // std::cout << "EXTENSION : " << response.location.cgiExtension << std::endl;
+    // std::cout << "BINARY : " << response.location.cgiBinary << std::endl;
+    
     std::string url = request._url;
     if (response.location.cgiBinary.empty() || response.location.cgiExtension.empty())
         return (false);
@@ -123,8 +126,10 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
         cgi.serverName = it->second;
 
     std::stringstream convert;
-    convert << serverConfig.listen;
-    cgi.serverPort = convert.str();
+    //convert << serverConfig.listen;
+    //cgi.serverPort = convert.str();
+    (void)serverConfig;
+    cgi.serverPort = "8080"; //hard code to test;
 
     cgi.gatewayInterface = "CGI/1.1";
 
@@ -352,7 +357,7 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     // if (cgi.method == "POST")
         response.response += cgi.body;
 
-    std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
+    // std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
     // if (cgi.method == "GET")
     // {
     //     std::cout << "\n---DEBUG BODY NOT IN RESPONSE---\n\n";
