@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 14:44:13 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:54:01 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,11 +317,13 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     if (it != cgi.errorTxt.end())
         response.response += " " + it->second;
 
+    response.response += "\r\n";
+    response.response += "\r\n";
+    
     if (cgi.method == "DELETE" || cgi.method == "GET" || cgi.code == "413")
     {
         if (cgi.method == "DELETE" || cgi.code == "413")
         {
-            response.response += "\r\n";
             response.response += "Content-Length: 0";
         }
     }
