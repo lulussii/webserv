@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 10:17:03 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:49:43 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,9 +155,8 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
  *
  * step 2 : fork and check pid
  */
-int cgiPipe(cgi &cgi, responseT &res)
+int cgiPipe(cgi &cgi)
 {
-    (void)res;
     int body[2];
     int response[2];
     cgi.response.clear();

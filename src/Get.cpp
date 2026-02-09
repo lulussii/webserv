@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/09 10:47:45 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:50:41 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,7 +238,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
     {
         Multipart m;
         handleCgi(request, cgi, serverConfig, response, m);
-        if (cgiPipe(cgi, response) == 500)
+        if (cgiPipe(cgi) == 500)
             errorCode(response, serverConfig, 500);
         parsStdout(cgi);
         buildCgiResponse(cgi, response);
