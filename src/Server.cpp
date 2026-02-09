@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/05 10:10:36 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:16:32 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,10 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
     serverT newConfig;
 
 	if (!myConfig._listen.empty())
-		newConfig.listen = myConfig._listen[0].port;
-	else
+		newConfig.listens = myConfig._listen;
+/* 	else
 		newConfig.listen = 8080;
-	
+	 */
 	newConfig.root = myConfig._root;
 	newConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
     newConfig.errorPage = myConfig._errorPages;
@@ -99,7 +99,9 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
 			newLoc.autoindex = "on";
 		else
 			newLoc.autoindex = "off";
-			
+		
+		newLoc.cgiBinary = curr._cgiBinary;
+		newLoc.cgiExtension = curr._cgiExtension;
         newConfig.locations[curr._path] = newLoc;
     }
 

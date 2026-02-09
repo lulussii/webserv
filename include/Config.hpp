@@ -19,7 +19,7 @@ typedef struct locationsConfigS
 
 typedef struct serverConfigS
 {
-    std::vector<Listen>	listen; //ici
+    std::vector<Listen>	listens; //ici
     int listen; //METTRE VECTOR
     std::string root;
     std::map<int, std::string> errorPage;

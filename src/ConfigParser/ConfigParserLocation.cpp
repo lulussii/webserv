@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:23:21 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:24:26 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:15:44 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,8 @@ void	ConfigParser::parseCgi(std::string &args, LocationConfig &loc)
 	if (access(path.c_str(), X_OK) == -1)
 		_throwError("Config Error: cgi binary not found or not executable");
 	
-	loc._cgiPaths[extension] = path;
+	loc._cgiExtension = extension;
+	loc._cgiBinary = path;
 }
 
 void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std::string &path)

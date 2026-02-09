@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/20 14:15:25 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 12:21:25 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:14:57 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class LocationConfig
 		std::vector<std::string>			_index;
 		int									_autoIndex;
 		size_t								_clientMaxBodySize;
-		std::map<std::string, std::string>	_cgiPaths;
+		std::string							_cgiBinary;
+		std::string							_cgiExtension;
 
 		bool		_allowGet;
 		bool		_allowPost;
