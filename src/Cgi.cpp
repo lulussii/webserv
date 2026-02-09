@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 10:49:43 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 13:17:13 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,16 +66,24 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
 /**
  * @brief `check binary and extension`
  *
- * step 1 : check can execute binary (X_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi
- *
+ * step 1 : check can found script (F_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/test.php
+ * 
  * step 2 : check can read script (R_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/test.php
+ *
+ * step 3 : check can found binary (F_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi
+ * 
+ * step 2 : check can execute binary (X_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi
  */
 int accessCgi(cgi &cgi)
 {
-    if (access(cgi.scriptPath.c_str(), R_OK) == -1)
+    if (access(cgi.scriptPath.c_str(), F_OK) == -1)
         return (404);
+    if (access(cgi.scriptPath.c_str(), R_OK) == -1)
+        return (403);
     if (access(cgi.binaryPath.c_str(), X_OK) == -1)
         return (404);
+    if (access(cgi.binaryPath.c_str(), X_OK) == -1)
+        return (403);
     return (0);
 }
 
@@ -352,19 +360,23 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     // }
 }
 
-int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)
+void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)
 {
     if (isCgi(request, cgi, response, serverConfig) == false)
     {
-        std::cout << "FALSE " << std::endl;
-        return (0);
+        std::cout << "FALSE " << std::endl; //debug
+        return ;
     }
 
-    if (accessCgi(cgi) == 404)
+    int value = accessCgi(cgi);
+    if (value == 404)
     {
         errorCode(response, serverConfig, 404);
-        return (0);
+        return ;
     }
-
-    return (0);
+    if (value == 403)
+    {
+        errorCode(response, serverConfig, 403);
+        return ;
+    }
 }
