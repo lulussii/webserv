@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/09 10:50:41 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 12:10:31 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig)
 {
-
     if (access(response.path.c_str(), R_OK) == -1)
         errorCode(response, serverConfig, 403);
 }
@@ -250,10 +249,11 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
     if (response.infos.error == false && response.infos.repository == false)
         accessFile(response, serverConfig);
 
-    if (response.infos.error == false && response.infos.repository == false)
+    if (response.infos.error == false || response.infos.repository == false)
     {
         int errorValue = readFile(response);
-        return (errorValue);
+        if (errorValue != 0)
+            return (errorValue);
     }
 
     if (response.infos.repository == false)

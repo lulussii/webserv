@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/04 17:40:56 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/09 12:07:34 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,7 +253,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
     if (response.infos.error == false && response.infos.repository == false)
     {
         int errorValue = readFile(response);
-        return (errorValue);
+        // return (errorValue);
     }
 
     if (response.infos.repository == false)
