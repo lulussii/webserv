@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/04 17:11:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/09 08:48:04 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <unistd.h>   //stat() access() pipe() fork()
 #include <sys/stat.h> //struct stat
 #include <sstream>    //std::stringstream
+#include <sys/wait.h> //waitpid
 #include <vector>
 
 /**
