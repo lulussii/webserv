@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 14:54:01 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:59:20 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -369,3 +369,6 @@ int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &respon
 
     return (0);
 }
+
+
+

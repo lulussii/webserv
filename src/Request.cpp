@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 14:42:15 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 15:01:53 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,7 +332,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     // ------
 
     // POST CGI 
-    p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+    // p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
 
     // GET SIMPLE CGI
     // p.line = "GET /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
@@ -355,7 +355,11 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     // DELETE CGI error 405
     // p.line = "DELETE /test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
 
+    
+    //curl "http://localhost:8080/cgi/test.php?name=mlaussel"
 
+    
+    //curl -i -X POST 'http://localhost:8080/cgi/test.php?name=mlaussel' \ -H 'Content-Type: text/plain' \ -d 'Hello World!'
 
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
