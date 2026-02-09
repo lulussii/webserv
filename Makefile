@@ -14,6 +14,7 @@ HEADER 		= $(HEADER_DIR)/Chunked.hpp			\
 			  $(HEADER_DIR)/Client.hpp			\
 			  $(HEADER_DIR)/Config.hpp			\
 			  $(HEADER_DIR)/ConfigParser.hpp	\
+			  $(HEADER_DIR)/Cgi.hpp	\
 			  $(HEADER_DIR)/Delete.hpp			\
 			  $(HEADER_DIR)/Error.hpp			\
 			  $(HEADER_DIR)/Get.hpp				\
@@ -41,7 +42,8 @@ SRC 		= $(SRC_DIR)/main.cpp 				\
 			  $(SRC_DIR)/ConfigParser.cpp		\
 			  $(SRC_DIR)/LocationConfig.cpp		\
 			  $(SRC_DIR)/Chunked.cpp			\
-			  $(SRC_DIR)/Multipart.cpp		\
+			  $(SRC_DIR)/Multipart.cpp			\
+			  $(SRC_DIR)/Cgi.cpp			\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= .objs

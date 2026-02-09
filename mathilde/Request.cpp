@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 08:48:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:38:18 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,18 +254,11 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     // ------
     
     // GET /upload
-    //p.line = "GET /tmp/uploads HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    // p.line = "GET /tmp/uploads HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
     // GET /
-    //p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
+    p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
 
-
-    
-    // GET /test.cgi
-    // p.line = "GET /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-    
-    
-    
     // GET error 404
     // p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
@@ -292,12 +285,6 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
 
     // POST
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
-
-    
-
-    p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
-
-    
     
     // POST error 400 (no content length so bad request)
     //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -338,6 +325,35 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
 
     // DELETE error 405 in conf must delete DELETE in / location
     //p.line = "DELETE / HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    
+    // ------
+    //| CGI |
+    // ------
+
+    // POST CGI 
+    // p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
+
+    // GET SIMPLE CGI
+    // p.line = "GET /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
+
+    // GET CGI WITH QUERY
+    // p.line = "GET /cgi/test.php?name=clarke&city=polis HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
+
+    // POST SIMPLE CGI
+    // p.line = "POST /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""Content-Type: text/plain\r\n""Content-Length: 11\r\n""\r\n""Hello World";
+
+    // POST CGI with QUERY AND BODY 
+    // p.line = "POST /cgi/test.php?x=42 HTTP/1.1\r\n""Host: localhost\r\n""Content-Type: text/plain\r\n""Content-Length: 5\r\n""\r\n""Salut";
+
+    // POST CGI CHUNKED
+    // p.line = "POST /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""Transfer-Encoding: chunked\r\n""Content-Type: text/plain\r\n""\r\n""5\r\n""Hello\r\n""6\r\n"" World\r\n""0\r\n""\r\n";
+
+    // GET CGI BAD SCRIPT error 404
+    // p.line = "GET /doesnotexist.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
+
+    // DELETE CGI error 405
+    // p.line = "DELETE /test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
 
 
 

@@ -6,94 +6,19 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 15:28:40 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:47:45 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
 #include "Error.hpp"
-#include <unistd.h>     //stat() access()
-#include <sys/stat.h>   //struct stat
-#include <fcntl.h>      //open
-#include <unistd.h>     //read
+#include "Cgi.hpp"
+#include <unistd.h>   //stat() access()
+#include <sys/stat.h> //struct stat
+#include <fcntl.h>    //open
+#include <unistd.h>   //read
 #include <dirent.h>
-#include <errno.h>      //errno
-
-/**
- * @brief `Find the best matching location for the requested URL.`
- *
- * This function iterates over all configured locations of the server and
- * tries to find which location matches the request URL.
- *
- * A location matches if the request URL starts with the location path.
- * If multiple locations match, the most specific one is selected,
- * meaning the location with the longest path.
- *
- * Example:
- *  - URL: /upload/file.txt
- *  - Matching locations: "/" and "/upload"
- *  - Selected location: "/upload" (longest match)
- *
- * If a matching location is found, a pointer to this location is stored
- * in the response structure and a flag is set to indicate success.
- *
- * This function only determines the correct location.
- *
- * @param request The parsed HTTP request containing the requested URL.
- * @param serverConfig The server configuration holding all locations.
- * @param response The response structure where the matched location is stored.
- *
- * @return true if a matching location is found, false otherwise.
- */
-int foundLocation(request &request, serverT &serverConfig, responseT &response)
-{
-    size_t bestLen = 0;
-    bool found = false;
-
-    for (std::map<std::string, locationsT>::iterator it = serverConfig.locations.begin();
-         it != serverConfig.locations.end(); ++it)
-    {
-        const std::string &locPath = it->first;
-
-        // URL must be at least as long as location path
-        if (request._url.size() < locPath.size())
-            continue;
-
-        // Check if URL starts with location path
-        if (request._url.compare(0, locPath.size(), locPath) == 0)
-        {
-            // Keep the most specific (longest) match
-            if (locPath.size() > bestLen)
-            {
-                bestLen = locPath.size();
-                response.location = it->second;
-                response.infos.loc = true;
-                found = true;
-            }
-        }
-    }
-    return (found);
-}
-
-/**
- * @brief `check if the method in the request is in the location we found`
- *
- * loop on method from location to compare if method is ok
- *
- * @return true if found, else false
- */
-bool checkIsGet(request &request, responseT &response)
-{
-    for (size_t i = 0; i < response.location.methods.size(); ++i)
-    {
-        if (response.location.methods[i] == request._method)
-        {
-            response.infos.get = true;
-            return (true);
-        }
-    }
-    return (false);
-}
+#include <errno.h> //errno
 
 /**
  * @brief `build the file path`
@@ -102,28 +27,27 @@ bool checkIsGet(request &request, responseT &response)
 void pathBuild(responseT &response, serverT &serverConfig, request &request)
 {
     if (request._url == "/")
-        response.path = serverConfig.root + "/index.html";//response.location.index;
+        response.path = serverConfig.root + response.location.index;
     else
         response.path = serverConfig.root + request._url;
-
 }
 
 /**
  * @brief `check if the file or the repo exist`
- * 
+ *
  * step 1 : check if the file or the repo exist, if not, error 404
- * 
+ *
  * step 2 : if file or repo exist, need to know if it's a file or a repository
- * 
- * step 3 : S_ISDIR check if it's a classic file (index.html, image.pmg etc...) 
+ *
+ * step 3 : S_ISDIR check if it's a classic file (index.html, image.pmg etc...)
  * --> so it's not a repo (response.infos.repository = false)
- * 
- * step 4 : S_ISDIR check if it's a repo 
+ *
+ * step 4 : S_ISDIR check if it's a repo
  * --> yes (response.infos.repository = true;)
  * --> no (error404)
- * 
+ *
  * step 5 : case it's a repo, we check if autoindex is activate (on)
- * --> yes : 
+ * --> yes :
  *      1) we open the repo (DIR *dir = opendir(response.path.c_str());)
  *      2) generate html page for autoindex
  *      3) loop : we read each repo name with (repo = readdir(dir))
@@ -158,27 +82,27 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
                     DIR *dir = opendir(response.path.c_str());
                     if (dir == NULL)
                         errorCode(response, serverConfig, 404);
-                        
+
                     struct dirent *repo;
                     response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
                     response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
-                    
+
                     while ((repo = readdir(dir)) != NULL)
                     {
                         std::string filename = repo->d_name;
                         if (filename != "." && filename != "..")
                             response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
                     }
-                    
+
                     response.body += "\r\n</ul></body></html>";
-                    
+
                     response.contentLen = response.body.size();
                     response.contentType = "text/html";
-                    response.code = 200; //maybe delete because init to 200
+                    response.code = 200; // maybe delete because init to 200
                     closedir(dir);
                 }
             }
-            else 
+            else
                 errorCode(response, serverConfig, 404);
         }
     }
@@ -191,13 +115,21 @@ void existFile(responseT &response, serverT &serverConfig, request &request)
  */
 void accessFile(responseT &response, serverT &serverConfig)
 {
-    
+
     if (access(response.path.c_str(), R_OK) == -1)
-            errorCode(response, serverConfig, 403);
+        errorCode(response, serverConfig, 403);
 }
 
 /**
  * @brief `open and read file to found body and content lenght`
+ *
+ * step 1 : open
+ *
+ * step 2 : read
+ *
+ * step 3 : search-content len
+ *
+ * step 4 : close fd
  *
  * @return 1 if error else 0
  */
@@ -206,18 +138,16 @@ int readFile(responseT &response)
     response.body.clear();
     response.contentLen = 0;
 
-    // step 1 : open
     int fd;
     fd = open(response.path.c_str(), O_RDONLY);
     if (fd < 0)
     {
         if (errno == ENOENT)
             return (404);
-        else 
+        else
             return (403);
     }
 
-    // step 2 : read
     ssize_t len = 1;
     while (len > 0)
     {
@@ -231,10 +161,8 @@ int readFile(responseT &response)
         response.body.append(buffer, len);
     }
 
-    // step 3 : search-content len
     response.contentLen = response.body.size();
 
-    // step 4 : close
     close(fd);
     return (0);
 }
@@ -290,58 +218,44 @@ void contentType(responseT &response)
 /**
  * @brief `GET method main`
  *
- * step 0 : init
+ * step 1 : build file path
  *
- * step 1 : find the good location
+ * step 2 : check is the file exist
  *
- * step 2 : check if method is in server
+ * step 3 : access to the file
  *
- * step 3 : build file path
+ * step 4 : read file who exist and have access to build body
  *
- * step 4 : check is the file exist
- *
- * step 5 : access to the file
- *
- * step 6 : read file who exist and have access to build body
- *
- * step 7 : search content type of the file
+ * step 5 : search content type of the file
  *
  * @return 1 if problem, else 0
  */
-int getMain(request &request, responseT &response, serverT &serverConfig)
+int getMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
 {
-    // step 1 : find the good location
-    if (foundLocation(request, serverConfig, response) == false)
-    {
-        std::cout << "Error: no location found\n";
-        return (1);
-    }
-
-    // step 2 : check if method is in server
-    if (checkIsGet(request, response) == false)
-    {
-        errorCode(response, serverConfig, 405);
-        return (0);
-    }
-
-    // step 3 : build file path
     pathBuild(response, serverConfig, request);
 
-    // step 4 : check is the file exist
+    if (response.cgi == true)
+    {
+        Multipart m;
+        handleCgi(request, cgi, serverConfig, response, m);
+        if (cgiPipe(cgi, response) == 500)
+            errorCode(response, serverConfig, 500);
+        parsStdout(cgi);
+        buildCgiResponse(cgi, response);
+        return (0);
+    }
+    
     existFile(response, serverConfig, request);
 
-    // step 5 : access to the file
     if (response.infos.error == false && response.infos.repository == false)
         accessFile(response, serverConfig);
 
-    // step 6 : read file who exist and have access to build body
     if (response.infos.error == false && response.infos.repository == false)
     {
         int errorValue = readFile(response);
-            return (errorValue);
+        return (errorValue);
     }
 
-    // step 7 : search content type of the file
     if (response.infos.repository == false)
         contentType(response);
 

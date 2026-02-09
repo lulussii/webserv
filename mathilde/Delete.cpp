@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/03 11:21:55 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/09 09:21:39 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,13 @@ void existFileDelete(responseT &response, serverT &serverConfig)
  */
 void deleteMain(request &request, responseT &response, serverT &serverConfig)
 {
+    // step 0 
+     if (response.cgi == true)
+    {
+        errorCode(response, serverConfig, 405);
+        return;
+    }
+
     // step 1 : build file path
     pathBuildDelete(response, request);
 

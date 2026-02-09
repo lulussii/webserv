@@ -12,17 +12,18 @@ typedef struct locationsConfigS
     std::string index;
     std::string autoindex;
     std::string upload_dir;
-
+    std::string cgiExtension;
+    std::string cgiBinary;
 } locationsT;
 
-struct serverT
+typedef struct serverConfigS
 {
     int listen;
     std::string root;
     std::map<int, std::string> errorPage;
     int clientMaxBodySize;
     std::map<std::string, locationsT> locations;
-};
+} serverT;
 
 typedef struct utilsConfigS
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:28:43 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 14:52:33 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/03 16:04:38 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,6 @@
 #include "Response.hpp"
 #include "Config.hpp"
 
-void postMain(request &request, responseT &response, serverT &serverConfig);
+void postMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi);
 
 #endif

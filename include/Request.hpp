@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/21 15:07:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 11:34:02 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <map>
 #include <vector>
 #include "Multipart.hpp"
+
+class cgi;
 
 class request
 {
@@ -36,7 +38,7 @@ typedef struct parsingS
     std::string line;
 } parsingT;
 
-int requestMain(request &request, parsingT &p);
+void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response, cgi &cgi);
 std::string trim(const std::string &str);
 
 #endif

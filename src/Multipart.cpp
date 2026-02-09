@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 17:15:00 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/03 16:03:05 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ int extractBundary(request &request)
  *
  * step 7 : create path with file name
  */
-void splitPart(request &request, responseT &response, serverT &serverConfig)
+void splitPart(request &request, responseT &response, serverT &serverConfig, Multipart &m)
 {
     std::string tmp = request._body;
     request.party.clear();
@@ -106,7 +106,7 @@ void splitPart(request &request, responseT &response, serverT &serverConfig)
 
         std::string fullPart = tmp.substr(0, end - 1);
 
-        Multipart m;
+        // Multipart m;
         m.fullPart = fullPart;
         extractName(m);
         if (extractFileName(m) == 1)
@@ -125,9 +125,7 @@ void splitPart(request &request, responseT &response, serverT &serverConfig)
         int errorValue = createAndWriteMultipartFile(response, m);
         {
             if (errorValue == 500)
-            {
                 errorCode(response, serverConfig, 500);
-            }
             else if (errorValue == 403)
                 errorCode(response, serverConfig, 403);
         }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Multipart.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/01/28 15:37:29 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/03 16:03:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,8 @@
 #define MULTIPART_HPP
 
 #include <iostream>
-
+#include "Response.hpp"
 class request;
-
-struct responseT;
-struct serverT;
-class Multipart;
 
 class Multipart
 {
@@ -33,7 +29,7 @@ public:
 
 bool isMultipart(request &request);
 int extractBundary(request &request);
-void splitPart(request &reques, responseT &response, serverT &serverConfig);
+void splitPart(request &request, responseT &response, serverT &serverConfig, Multipart &m);
 void extractName(Multipart &m);
 int extractFileName(Multipart &m);
 void extractContentType(Multipart &m);

@@ -3,23 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/03 15:28:39 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:27:43 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
-#include "Request.hpp"
-#include "Get.hpp"
-#include "Response.hpp"
-#include "Init.hpp"
 #include <sys/types.h>
-#include "Error.hpp"
 #include <sys/socket.h>
-#include "Delete.hpp"
+#include "Init.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "Config.hpp"
+#include "Cgi.hpp"
+#include "Get.hpp"
 #include "Post.hpp"
+#include "Delete.hpp"
+#include "Error.hpp"
 
 /* ----- CONSTRUCTORS ----- */
 
@@ -110,7 +112,6 @@ void Client::reset()
 
 	// Reset des booléens internes
 	this->res.infos.error = false;
-	this->res.infos.fileExist = false;
 }
 
 void Client::processRequest(serverT &serverConfig)
@@ -122,31 +123,43 @@ void Client::processRequest(serverT &serverConfig)
 
 	this->req = request();
 	this->res = responseT();
+	utilsConfigT utils;
+	cgi cgi;
 
-	initMain(this->req, this->res, serverConfig);
+	initMain(this->req, this->res, serverConfig, cgi);
 
-	if (requestMain(this->req, p) == 1)
+	// method GET
+	requestMain(this->req, p, serverConfig, utils, this->res, cgi);
+	if (this->req._method == "GET" && this->res.code == 200)
+    {
+        getMain(this->req, this->res, serverConfig, cgi);
+        // else if (errorValue == 404)
+        // {
+        //     errorCode(this->res, serverConfig, 404);
+        // }
+        // else if (errorValue == 403)
+        // {
+        //     errorCode(this->res, serverConfig, 403);
+        // }
+    }
+	
+
+	// step 4 : method POST
+    if (this->req._method == "POST" && this->res.code == 200)
+        postMain(this->req, this->res, serverConfig, cgi);
+
+    // step 5 : method DELETE
+    if (this->req._method == "DELETE" && this->res.code == 200)
+        deleteMain(this->req, this->res, serverConfig);
+
+    // step  6 : response
+    if (this->res.cgi == false)
 	{
-		std::cerr << "[ERROR] Parsing failed -> 400  Bad Request" << std::endl;
-		errorCode(this->res, serverConfig, 400);
-	}
-	else
-	{
-		if (this->req._method == "GET")
-			getMain(this->req, this->res, serverConfig);
-		else if (this->req._method == "POST")
-			postMain(this->req, this->res, serverConfig);
-		else if (this->req._method == "DELETE")
-		{
-			if (deleteMain(this->req, this->res, serverConfig) == 1 && this->res.code == 200)
-				errorCode(this->res, serverConfig, 500);
-		}
+        responseMain(this->req, this->res);
 	}
 
-	responseMain(this->req, this->res);
-
-	std::cout << "\n\nREPONSE\n"
-			  << res.response;
+	
+	std::cout << "\n\nREPONSE\n" << res.response;
 
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;

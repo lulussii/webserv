@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 08:48:04 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 10:17:03 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,17 +84,21 @@ int accessCgi(cgi &cgi)
  *
  * step 1 - cgi.method : add method GET POST or DELETE
  *
- * step 3 - cgi.contentLenght
+ * step 3 - cgi.contentType
  *
- * step 4 - cgi.contentType
+ * step 4 - cgi.serverName
  *
- * step 5 - cgi.serverName
+ * step 5 - cgi.serverPort : listen in server (8080)
  *
- * step 6 - cgi.serverPort : listen in server (8080)
+ * step 6 - cgi.gatewayInterface
  *
- * step 7 - cgi.gatewayInterface
+ * step 7 - cgi.serverProtocol : request._version (HTTP/1.1)
  *
- * step 8 - cgi.serverProtocol : request._version (HTTP/1.1)
+ * step 8 - body (chunked or classic)
+ * 
+ * step 9 - cgi.contentLenght
+ * 
+ * step 10 - cgi code
  *
  */
 void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m)
@@ -105,19 +109,6 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
     if (it != request.headers.end())
         cgi.contentType = it->second;
-
-    if (m.content.empty())
-    {
-        std::stringstream convert;
-        convert << response.contentLen;
-        cgi.contentLenght = convert.str();
-    }
-    else
-    {
-        std::stringstream convert;
-        convert << m.content.size();
-        cgi.contentLenght = convert.str();
-    }
 
     it = request.headers.find("Host");
     if (it != request.headers.end())
@@ -135,11 +126,15 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
         cgi.body = response.body;
     else
         cgi.body = m.content;
+    
+    convert << cgi.body.size();
+    cgi.contentLenght = convert.str();
+
 
     std::stringstream code;
     code << response.code;
-
     cgi.code = code.str();
+    
     // std::cout << "CGI METHOD : " << cgi.method << std::endl;
     // std::cout << "CGI QURRY : " << cgi.queryString << std::endl;
     // std::cout << "CGI CONTENT LENGHT : " << cgi.contentLenght << std::endl;
@@ -239,7 +234,9 @@ int cgiPipe(cgi &cgi, responseT &res)
         close(body[0]);     // don't read
         close(response[1]); // don't write
 
-        write(body[1], cgi.body.c_str(), cgi.body.size());
+        std::cout << cgi.body << std::endl;
+        
+        write(body[1], cgi.body.c_str(), cgi.body.size()); //write the body from request (body chunked too)
         close(body[1]); // EOF
 
         char buffer[1024];
@@ -322,9 +319,15 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     if (it != cgi.errorTxt.end())
         response.response += " " + it->second;
 
-    response.response += "\r\n";
-    if (cgi.method == "DELETE" || cgi.code == "413")
-        response.response += "Content-Length: 0";
+    if (cgi.method == "DELETE" || cgi.method == "GET" || cgi.code == "413")
+    {
+        if (cgi.method == "DELETE" || cgi.code == "413")
+        {
+            response.response += "\r\n";
+            response.response += "Content-Length: 0";
+        }
+    }
+        
     else
     {
         std::stringstream length;
@@ -339,9 +342,15 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     // empty line
     response.response += "\r\n";
 
-    response.response += cgi.body;
+    // if (cgi.method == "POST")
+        response.response += cgi.body;
 
-    std::cout << "[DEBUG RESPONSE REQUEST AFTER CGI]\n\n" << response.response << std::endl;
+    std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
+    // if (cgi.method == "GET")
+    // {
+    //     std::cout << "\n---DEBUG BODY NOT IN RESPONSE---\n\n";
+    //     std::cout << cgi.body;
+    // }
 }
 
 int cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)

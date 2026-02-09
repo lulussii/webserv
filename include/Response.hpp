@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/01/28 15:38:08 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/04 17:24:29 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,28 +15,23 @@
 
 #include <iostream>
 #include "Config.hpp"
-#include "Request.hpp"
-
 class request;
+
 
 typedef struct infos
 {
     bool error;
     bool get;
     bool loc;
-    bool fileExist;
-    bool file;
     bool repository;
-    bool read;
 } infosT;
 
 typedef struct post
 {
-    int count;
     std::string path;
 } postT;
 
-struct responseT
+typedef struct response
 {
     std::string response;
 
@@ -51,7 +46,10 @@ struct responseT
     infosT infos;
     postT post;
     std::string filename;
-};
+    bool cgi;
+
+    std::map<int, std::string> errorTxt;
+} responseT;
 
 void responseMain(request &request, responseT &response);
 
