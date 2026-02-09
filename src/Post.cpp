@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/09 11:52:48 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 15:08:19 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,13 +139,9 @@ int createAndWriteFile(responseT &response)
     if (stat(response.post.path.c_str(), &test) == -1)
     {
         response.code = 201;
-        std::cout << "PATH : " << response.post.path;
         fd = open(response.post.path.c_str(), O_CREAT | O_TRUNC | O_WRONLY, 0644);
         if (fd < 0)
-        {
-            std::cout << "ICI";
             return (500);
-        }
     }
     else
     {

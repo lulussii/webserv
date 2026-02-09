@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/09 14:09:44 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/09 15:27:10 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,11 @@ void pathBuild(responseT &response, serverT &serverConfig, request &request)
         response.path = serverConfig.root + response.location.index;
     else
         response.path = serverConfig.root + request._url;
+    
+    std::cout << "DEBUG PATH : " << response.path << std::endl;
+    std::cout << "DEBUG ROOT : " << serverConfig.root << std::endl;
+    std::cout << "DEBUG INDEX : " << response.location.index << std::endl;
+    std::cout << "DEBUG URL : " << request._url << std::endl;
 }
 
 /**
