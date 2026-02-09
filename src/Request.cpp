@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 10:46:06 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 11:02:56 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,7 +263,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     // p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : repo secret (chmod 000) + in config location /secret
-    //p.line = "GET /html/secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // p.line = "GET /html/secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     // GET error 403 : file secret (chmod 000)
     //p.line = "GET /html/secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
@@ -287,7 +287,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
     
     // POST error 400 (no content length so bad request)
-    //p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
 
     //POST access 500 chmod 000 tmp/uploads
     //p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
