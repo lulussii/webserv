@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/09 10:24:54 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/09 14:08:25 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class Client
 		responseT	res;
 		
 		long		contentLength;
+		long		bodyStartIndex;
 		bool		headersReceived;
 		bool		requestComplete;
 		

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/02 15:26:16 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/05 10:10:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,45 +29,12 @@
 
 #define LISTEN_BACKLOG 5
 
-serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
+bool	server_run = true;
+
+void	handle_sigint(int sig)
 {
-    serverT mateConfig;
-
-	if (!myConfig._listen.empty())
-		mateConfig.listen = myConfig._listen[0].port;
-	else
-		mateConfig.listen = 8080;
-	
-	mateConfig.root = myConfig._root;
-	mateConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
-    mateConfig.errorPage = myConfig._errorPages;
-
-	std::vector<LocationConfig> myLocs = myConfig._locations;
-
-	for (size_t i = 0; i < myLocs.size(); i++)
-	{
-		locationsT mateLoc;
-		LocationConfig &curr = myLocs[i];
-
-		mateLoc.path = curr._path;
-		if (!curr._index.empty())
-			mateLoc.index = curr._index[0];
-		else
-			mateLoc.index = "";
-		mateLoc.upload_dir = curr._uploadPath;
-		mateLoc.methods.clear();
-		if (curr._allowGet) mateLoc.methods.push_back("GET");
-		if (curr._allowPost) mateLoc.methods.push_back("POST");
-		if (curr._allowDelete) mateLoc.methods.push_back("DELETE");
-		if (curr._autoIndex == 1)
-			mateLoc.autoindex = "on";
-		else
-			mateLoc.autoindex = "off";
-			
-        mateConfig.locations[curr._path] = mateLoc;
-    }
-
-    return mateConfig;
+	(void)sig;
+	server_run = false;
 }
 
 /**
@@ -75,11 +42,68 @@ serverT Server::_convertToMateConfig(const ServerConfig &myConfig)
  */
 Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
 {
-    for (int i = 0; i <= MAX_CLIENTS; ++i)
-    {
-        _fds[i].fd = -1;         // -1 signifie que le slot est libre
-        _fds[i].events = POLLIN; // Par défaut, on écoute (lecture)
+	for (int i = 0; i <= MAX_CLIENTS; i++)
+	{
+		_fds[i].fd = -1;
+		_fds[i].events = POLLIN;
+		_fds[i].revents = 0;
+	}
+}
+
+Server::~Server()
+{
+	for (int i = 0; i < MAX_CLIENTS + _nbListeningSockets; i++)
+	{
+		if (_fds[i].fd >= 0)
+			close(_fds[i].fd);
+	}
+	_clients.clear();
+	std::cout << "[INFO] All resources cleared" << std::endl;
+}
+
+
+serverT Server::_convertConfig(const ServerConfig &myConfig)
+{
+    serverT newConfig;
+
+	if (!myConfig._listen.empty())
+		newConfig.listen = myConfig._listen[0].port;
+	else
+		newConfig.listen = 8080;
+	
+	newConfig.root = myConfig._root;
+	newConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
+    newConfig.errorPage = myConfig._errorPages;
+
+	std::vector<LocationConfig> myLocs = myConfig._locations;
+
+	for (size_t i = 0; i < myLocs.size(); i++)
+	{
+		locationsT newLoc;
+		LocationConfig &curr = myLocs[i];
+
+		newLoc.path = curr._path;
+		if (!curr._index.empty())
+			newLoc.index = curr._index[0];
+		else
+			newLoc.index = "";
+		newLoc.upload_dir = curr._uploadPath;
+		newLoc.methods.clear();
+		if (curr._allowGet) 
+			newLoc.methods.push_back("GET");
+		if (curr._allowPost) 
+			newLoc.methods.push_back("POST");
+		if (curr._allowDelete) 
+			newLoc.methods.push_back("DELETE");
+		if (curr._autoIndex == 1)
+			newLoc.autoindex = "on";
+		else
+			newLoc.autoindex = "off";
+			
+        newConfig.locations[curr._path] = newLoc;
     }
+
+    return newConfig;
 }
 
 /**
@@ -88,53 +112,28 @@ Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs)
  */
 int Server::_createServerSocket(int port)
 {
-	// 1. Création du socket
-	// AF_INET 		: Utilisation de l'IPv4 (Internet Protocol v4)
-	// SOCK_STREAM	: Utilisation du protocole TCP
-	// 0			: Protocole par défaut
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fd == -1) 
 		return (-1);
-
-	// 2. Mode non-bloquant
-	// Par défaut, un socket bloque le programme s'il n'y a rien à lire.
-	// C'est ce qui permet au server de gérer 1000 clients avec 1 seul thread.
 	if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1)
 	{
 		std::cerr << "Error : Failed to set non-blocking mode on server socket" << std::endl;
 		close (fd);
 		return (-1);
 	}
-	
-	// 3. Reuse adress
-	// Quand le serveur est coupé, le port reste en état de "TIME-WAIT" pendant quelques minutes.
-	// SO_REUSEADDR force la reprise du port 8080 immédiatement sans avoir*
-	// l'erreur "Adress already in use".
     int opt = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-	// 4. Préparation de l'adresse
-	// htons(Host TO Network Short) : Convertit le port dans le format compris par le réseau.
-	// INADRR_ANY : Ecoute sur toutes les interfaces (wifi, Ethernet, Localhost, etc)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
-
-	// 5. Bind (assignation)
-	// Réservation de l'adresse pour le socket
 	if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 	{
 		std::cerr << "Error: Failed to bind to port " << port << std::endl;
 		close(fd);
 		return (-1);
 	}
-	
-	// 6. Listen
-	// Le socket passe en mode "passif".
-	// Il ne chechera pas à se connecter, il attendra les connexions.
-	// LISTEN_BACKLOG : taille de la file d'attente.
 	if (listen(fd, LISTEN_BACKLOG) == -1)
 	{
 		std::cerr << "Error: Failed to listen on socket" << std::endl;
@@ -142,7 +141,6 @@ int Server::_createServerSocket(int port)
 		return (-1);
 	}
 
-	// Le socket est prêt, on retourne son numéro au serveur
 	return fd;
 }
 
@@ -213,58 +211,49 @@ void Server::setup()
  */
 void Server::run()
 {
-	while(true)
+	const int	totalFds = MAX_CLIENTS + _nbListeningSockets;
+	while(server_run == true)
 	{
-		// 1. POLL
-		// La fonction poll met le programme en pause.
-		// Elle ne la main que dans 2 cas :
-		//	A. Il y a de l'activité (un client parle ou se connecte).
-		//	B. 1000ms se sont écoulées sans rien.
-		int ret = poll(_fds, MAX_CLIENTS + _nbListeningSockets, 1000);
+		int ret = poll(_fds, totalFds, 1000);
 		if (ret < 0)
+		{
+			if (server_run == false)
+				break;
 			break;
-
-		// 2. Vérification de la porte d'entrée (slot 0)
-		// L'index 0 de _fds correspond au serveur
-		// Si poll a mis le flag POLLIN -> quelqu'un veut entrer, on crée un nouveau client.
+		}
+			
 		for (int i = 0; i < _nbListeningSockets; i++)
 		{
 			if (_fds[i].revents & POLLIN)
 				_acceptNewConnection(_fds[i].fd);	
 		}
-		
-
-		// 3. Vérification des clients déjà là
-		// On parcourt toute la liste des places possibles pour les clients.
-		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
+	
+		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
-			// Vérification des deux conditions pour agir : 
-			// 1. _fds[i].fd != -1  -> Est-ce qu'il y a vraiment un client à cette place ?
-			// 2. _fds[i].revents != 0 -> Est-ce qu'il s'est passé un truc (lecture/écriture) ?
-			// Si oui, traitement de la demande
 			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
 		}
-
-		// 4. Gestion du temps
-		// On repasse sur tous les clients pour vérifier leur inactivité.
-		for (int i = _nbListeningSockets; i <= MAX_CLIENTS + _nbListeningSockets; i++)
+		
+		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
-			if (_fds[i].fd != -1)
+			int clientFd = _fds[i].fd;
+			if (clientFd >= 0)
 			{
-				// Calcul du temps qui s'est écoulé depuis la dernière action.
-				time_t	now = time(NULL);
-				double diff = difftime(now, _clients[_fds[i].fd].lastTime);
-
-				// Si ça fait plus de 60 secondes qu'il est muet -> déconnexion
-				if (diff > 60)
+				if (_clients.find(clientFd) != _clients.end())
 				{
-					std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
-					_closeConnection(i);
+					time_t	now = time(NULL);
+					double diff = difftime(now, _clients[_fds[i].fd].lastTime);
+					if (diff > 60)
+					{
+						if (i < 0)
+							std::cout << "[TIMEOUT] Client " << _fds[i].fd << " disconnected (inactive)." << std::endl;
+						_closeConnection(i);
+					}
 				}
 			}
 		}
 	}
+	std::cout << "\n[INFO] Server stopping gracefully..." << std::endl;
 }
 
 void Server::_acceptNewConnection(int serverFd)
@@ -331,7 +320,7 @@ void Server::_handleClientActivity(int i)
 	{
 		if (_fds[i].revents & POLLIN)
 		{
-			serverT mateConf = _convertToMateConfig(currentConfig);
+			serverT mateConf = _convertConfig(currentConfig);
 			client.handleRead(mateConf);
 		}
 

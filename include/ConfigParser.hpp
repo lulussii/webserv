@@ -6,22 +6,25 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 11:52:00 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/04 15:25:17 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIGPARSER_HPP
 # define CONFIGPARSER_HPP
 
-#include <iostream>
 #include <vector>
 #include <map>
-#include <sstream>
 #include <string>
 #include <cstdlib>
 #include <fstream>
-#include "ServerConfig.hpp"
+#include <string>
+#include <unistd.h>
+#include <sstream>
+#include <iostream>
+#include <climits>
 #include "LocationConfig.hpp"
+#include "ServerConfig.hpp"
 
 class ConfigParser
 {
