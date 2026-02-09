@@ -18,7 +18,7 @@ typedef struct locationsConfigS
 
 typedef struct serverConfigS
 {
-    int listen;
+    int listen; // METTRE VECTOR
     std::string root;
     std::map<int, std::string> errorPage;
     int clientMaxBodySize;
