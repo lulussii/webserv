@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 15:38:59 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 10:47:16 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,28 +81,6 @@ static int firstLine(parsingT &p, request &request)
 }
 
 /**
- * @brief Removes leading and trailing whitespace (spaces and tabs) from a string.
- *
- * This function takes a std::string and returns a new string with all
- * whitespace characters (' ' and '\t') removed from the beginning and end.
- *
- * @param str The input string to be trimmed.
- * @return A new std::string without leading or trailing whitespace.
- */
-std::string trim(const std::string &str)
-{
-    size_t start = 0;
-    while (start < str.size() && (str[start] == ' ' || str[start] == '\t'))
-        ++start;
-
-    size_t end = str.size();
-    while (end > start && (str[end - 1] == ' ' || str[end - 1] == '\t'))
-        --end;
-
-    return str.substr(start, end - start);
-}
-
-/**
  * @brief `headers parsing`
  *
  */
@@ -131,9 +109,10 @@ static void headers(parsingT &p, request &request)
         if (posDoubleDot == std::string::npos)
             continue;
 
-        std::string key = trim(headerLine.substr(0, posDoubleDot));
-        std::string value = trim(headerLine.substr(posDoubleDot + 1));
+        std::string key = headerLine.substr(0, posDoubleDot);
+        std::string value = headerLine.substr(posDoubleDot + 1);
         request.headers[key] = value;
+        // request.headers[headerLine.substr(0, posDoubleDot)] = headerLine.substr(posDoubleDot + 1);
     }
 }
 
@@ -241,7 +220,7 @@ bool checkIs(request &request, responseT &response)
  *
  * @return 1 if problem, else 0
  */
-void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response, cgi &cgi)
+void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi)
 {
     // -----
     //| GET |
@@ -369,7 +348,6 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConf
     if (request._method == "POST")
         postBody(p, request);
 
-    (void) utils;
     // if (configMain(serverConfig, utils) == 500)
     // {
     //     errorCode(response, serverConfig, 500);

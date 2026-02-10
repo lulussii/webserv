@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 13:14:23 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 10:30:58 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,8 @@
 #include "Request.hpp"
 #include "Config.hpp"
 
-class cgi
+typedef struct cgi
 {
-public:
     std::string method;
     std::string queryString;
     std::string contentLenght;
@@ -34,7 +33,7 @@ public:
     std::string code;
     std::string response;
     std::map<std::string, std::string> errorTxt;
-};
+} cgi ;
 
 void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
 void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m);

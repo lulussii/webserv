@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 12:52:41 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 10:39:14 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,8 @@ void initCgi(cgi &cgi)
     cgi.errorTxt["500"] = "Internal Server Error";
 }
 
-void initMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
+void initMain(request &request, responseT &response, cgi &cgi)
 {
-    (void)serverConfig;
     initRequest(request);
     initResponse(response);
     initCgi(cgi);

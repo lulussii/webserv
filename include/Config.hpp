@@ -20,22 +20,11 @@ typedef struct locationsConfigS
 typedef struct serverConfigS
 {
     std::vector<Listen>	listens;
-    int listen; //METTRE VECTOR
+    int listen;
     std::string root;
     std::map<int, std::string> errorPage;
     int clientMaxBodySize;
     std::map<std::string, locationsT> locations;
 } serverT;
-
-typedef struct utilsConfigS
-{
-    std::string server;
-    std::string location;
-    std::string l;
-    std::string pars;
-    std::string newS;
-} utilsConfigT;
-
-int configMain(serverT &serverConfig, utilsConfigT &utils);
 
 #endif

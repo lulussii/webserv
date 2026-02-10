@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 11:34:02 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 10:47:25 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,10 @@
 #include <vector>
 #include "Multipart.hpp"
 
-class cgi;
+struct cgi;
 
-class request
+typedef struct request
 {
-public:
     std::string _method;
     std::string _url;
     std::string _version;
@@ -31,14 +30,13 @@ public:
     std::vector<Multipart> party;
     std::string _body;
     size_t contentLenght;
-};
+} request ;
 
 typedef struct parsingS
 {
     std::string line;
 } parsingT;
 
-void requestMain(request &request, parsingT &p, serverT &serverConfig, utilsConfigT &utils, responseT &response, cgi &cgi);
-std::string trim(const std::string &str);
+void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi);
 
 #endif

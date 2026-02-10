@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:45 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 16:03:43 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 10:23:59 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,16 @@
 
 #include <iostream>
 #include "Response.hpp"
-class request;
+struct request;
 
-class Multipart
+typedef struct Multipart
 {
-public:
     std::string fullPart;
     std::string filename;
     std::string name;
     std::string contentType;
     std::string content;
-};
+} Multipart;
 
 bool isMultipart(request &request);
 int extractBundary(request &request);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/09 14:09:18 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/10 10:51:18 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,24 +109,19 @@ void Client::processRequest(serverT &serverConfig)
 
 	this->req = request();
 	this->res = responseT();
-	utilsConfigT utils;
 	cgi cgi;
 
-	initMain(this->req, this->res, serverConfig, cgi);
+	initMain(this->req, this->res, cgi);
 
 	// method GET
-	requestMain(this->req, p, serverConfig, utils, this->res, cgi);
+	requestMain(this->req, p, serverConfig, this->res, cgi);
 	if (this->req._method == "GET" && this->res.code == 200)
     {
-        getMain(this->req, this->res, serverConfig, cgi);
-        // else if (errorValue == 404)
-        // {
-        //     errorCode(this->res, serverConfig, 404);
-        // }
-        // else if (errorValue == 403)
-        // {
-        //     errorCode(this->res, serverConfig, 403);
-        // }
+		int errorValue = getMain(this->req, this->res, serverConfig, cgi);
+        if (errorValue == 404)
+            errorCode(this->res, serverConfig, 404);
+        else if (errorValue == 403)
+            errorCode(this->res, serverConfig, 403);
     }
 	
 
@@ -144,7 +139,6 @@ void Client::processRequest(serverT &serverConfig)
         responseMain(this->req, this->res);
 	}
 
-	
 	std::cout << "\n\nREPONSE\n" << res.response;
 
 	writeBuffer = this->res.response;

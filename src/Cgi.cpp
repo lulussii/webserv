@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 15:07:20 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 10:58:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,6 @@
  */
 bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig)
 {
-    // std::cout << "EXTENSION : " << response.location.cgiExtension << std::endl;
-    // std::cout << "BINARY : " << response.location.cgiBinary << std::endl;
-    
     std::string url = request._url;
     if (response.location.cgiBinary.empty() || response.location.cgiExtension.empty())
         return (false);
