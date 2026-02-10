@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/03 16:03:05 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 17:15:55 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,13 @@
 #include <ctime>        //time_t
 
 /**
- * @brief `Check if is multipart/form-data`
+ * @brief `Check if request is multipart/form-data`
+ * 
+ * step 1 : Look for the "Content-Type" header in the request headers map.
+ * 
+ * step 2 : If the header exists, check if the string "multipart/form-data" is present.
+ * 
+ * step 3 : Return true if found, otherwise return false.
  *
  */
 bool isMultipart(request &request)
@@ -40,11 +46,17 @@ bool isMultipart(request &request)
 }
 
 /**
- * @brief `extraxt bundary name`
- *
- * step 1 : search in Content-Type "bundary="
- *
- * step 2 : extract what is after =
+ * @brief `Extract boundary string from multipart/form-data Content-Type`
+ * 
+ * step 1 : Look for the "Content-Type" header in the request headers map.
+ * 
+ * step 2 : Search for the substring "boundary=" inside the header value.
+ * 
+ * step 3 : If "boundary=" is found, extract everything after the '=' as the boundary string.
+ * 
+ * step 4 : Store the boundary string in request.boundary.
+ * 
+ * step 5 : Return 0 if successful, 400 if the header or boundary is missing.
  */
 int extractBundary(request &request)
 {
@@ -68,21 +80,23 @@ int extractBundary(request &request)
 }
 
 /**
- * @brief `split all part separate by bundary`
+ * @brief `split all parts separated by boundary`
  *
- * step 1 : use a copy of body in tmp
+ * step 1 : Create a temporary copy of the request body.
  *
- * step 2 : loop while we are not at the end (--bundary--)
+ * step 2 : Loop until the end of the multipart (until "--boundary--").
  *
- * step 3 : delete first bundary part in tmp (--bundary) 2 for --, and for \r\n
+ * step 3 : Remove the first boundary from tmp (including "--" and "\r\n").
  *
- * step 4 : search --bundary in tmp, if not, search end --bundary--
+ * step 4 : Search for the next boundary in tmp. If not found, search for the ending boundary.
  *
- * step 5 : create new string without --bundary or end, - 1 for space
+ * step 5 : Extract the part content between boundaries, trimming extra characters.
  *
- * step 6 : add part to class Multipart
+ * step 6 : Fill the Multipart struct with the extracted part data.
  *
- * step 7 : create path with file name
+ * step 7 : Generate a unique file path using the filename and timestamp.
+ * 
+ * step 8 : Write the multipart content to disk, handle errors if writing fails.
  */
 void splitPart(request &request, responseT &response, serverT &serverConfig, Multipart &m)
 {
@@ -106,12 +120,10 @@ void splitPart(request &request, responseT &response, serverT &serverConfig, Mul
 
         std::string fullPart = tmp.substr(0, end - 1);
 
-        // Multipart m;
         m.fullPart = fullPart;
         extractName(m);
         if (extractFileName(m) == 1)
             errorCode(response, serverConfig, 400);
-            
         extractContentType(m);
         extractContent(m);
         request.party.push_back(m);
@@ -142,15 +154,47 @@ void splitPart(request &request, responseT &response, serverT &serverConfig, Mul
 }
 
 /**
- * @brief `find filename`
+ * @brief `extract the name from a multipart part`
  *
- * step 1 : search filename= and from filename=
+ * step 1 : Search for "name=" in the full part string.
  *
- * step 2 : search /r/n who is at the end of file name
+ * step 2 : Extract substring starting from "name=".
  *
- * step 3 : split before /r/n
+ * step 3 : Find the end of the name field using ";" delimiter.
  *
- * step 4 : delete "" and filename=
+ * step 4 : Remove "name=\"" prefix and trailing quote.
+ *
+ */
+void extractName(Multipart &m)
+{
+    std::string name;
+    std::string tmp = "name=\"";
+
+    size_t len = m.fullPart.find("name");
+    
+    name = m.fullPart.substr(len);
+
+    size_t space = name.find(";");
+    name = name.substr(0, space);
+
+    name = name.substr(tmp.size());
+    name = name.substr(0, name.size() - 1);
+
+    m.name = name;
+}
+
+/**
+ * @brief `extract the filename from a multipart part`
+ *
+ * step 1 : Search for "filename=" in the full part string.
+ *
+ * step 2 : Extract substring starting from "filename=".
+ *
+ * step 3 : Find the end of the filename using "\r\n".
+ *
+ * step 4 : Remove "filename=\"" prefix and trailing quote.
+ * 
+ * step 5 : Assign the cleaned filename to the Multipart struct.
  *
  */
 int extractFileName(Multipart &m)
@@ -164,6 +208,7 @@ int extractFileName(Multipart &m)
         filename = "";
         return (1);
     }
+    
     filename = m.fullPart.substr(len);
 
     size_t space = filename.find("\r\n");
@@ -178,40 +223,25 @@ int extractFileName(Multipart &m)
 }
 
 /**
- * @brief `find filename`
+ * @brief `extract Content-Type from a multipart part`
  *
- * step 1 : search name=" and copy from name="
- *
- * step 2 : search ; who is at the end of name
- *
- * step 3 : split before;
- *
- * step 4 : delete "" and name=
- *
+ * step 1 : Search for "Content-Type:" in the full part string.
+ * 
+ * step 2 : Extract substring starting from "Content-Type:".
+ * 
+ * step 3 : Find the end of the Content-Type line using "\r\n".
+ * 
+ * step 4 : Remove the "Content-Type: " prefix.
+ * 
+ * step 5 : Assign the content type to the Multipart struct.
  */
-void extractName(Multipart &m)
-{
-    std::string name;
-    std::string tmp = "name=\"";
-
-    size_t len = m.fullPart.find("name");
-    name = m.fullPart.substr(len);
-
-    size_t space = name.find(";");
-    name = name.substr(0, space);
-
-    name = name.substr(tmp.size());
-    name = name.substr(0, name.size() - 1);
-
-    m.name = name;
-}
-
 void extractContentType(Multipart &m)
 {
     std::string contentType;
     std::string tmp = "Content-Type: ";
 
     size_t len = m.fullPart.find("Content-Type:");
+    
     contentType = m.fullPart.substr(len);
 
     size_t space = contentType.find("\r\n");
@@ -223,6 +253,15 @@ void extractContentType(Multipart &m)
     m.contentType = contentType;
 }
 
+/**
+ * @brief `extract the content data from a multipart part`
+ *
+ * step 1 : Search for the delimiter "\r\n\r\n" that separates headers from content.
+ * 
+ * step 2 : Extract the substring after the delimiter.
+ * 
+ * step 3 : Assign the extracted content to the Multipart struct.
+ */
 void extractContent(Multipart &m)
 {
     std::string content;
@@ -236,13 +275,18 @@ void extractContent(Multipart &m)
 }
 
 /**
- * @brief `create a file and write in`
+ * @brief `create a file and write content from multipart`
  *
- * step 1 : check is file exist, yes code 200 else code 201
+ * step 1 : Check if the file exists. 
+ *   - If it does not exist, set response code to 201 (Created)
+ *   - If it exists, set response code to 200 (OK)
  *
- * step 2 : open file and create it if it's not
+ * step 2 : Open the file. 
+ *   - Use O_CREAT | O_TRUNC | O_WRONLY if file does not exist
+ *   - Use O_TRUNC | O_WRONLY if file exists
+ *   - Handle errors (return 500 or 403 if open fails)
  *
- * step 3 : write body in file
+ * step 3 : Write the content of the multipart to the file. 
  *
  * step 4 : close fd
  *

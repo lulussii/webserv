@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 11:50:38 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 17:41:51 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,19 @@
 #include <vector>
 
 /**
- * @brief `check if cgi exist and allowed`
+ * @brief `Check if the request should be handled by a CGI script`
  *
- * step 1 : check if location allowed cgi
+ * step 1 : verify that the location allows CGI (cgiBinary and cgiExtension are set)
  *
- * step 2 : pars url to have test.php without query
+ * step 2 : parse URL to separate query string from script path
  *
- * step 3 : build path (/Users/mathildelaussel/webserv/mathilde/server_files/test.php)
+ * step 3 : build the absolute script path using server root and URL (/Users/mathildelaussel/webserv/mathilde/server_files/test.php)
  *
- * step 4 : check if regular file, if yes, search if cgi extension is in path
+ * step 4 : check if file exists and is a regular file
+ * 
+ * step 5 : verify that the file extension matches the configured CGI extension
+ * 
+ * step 6 : set CGI paths and response flag if CGI
  */
 bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig)
 {
@@ -42,6 +46,7 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
         cgi.queryString = url.substr(pos + 1);
         url = url.substr(0, pos);
     }
+    
     std::string path;
     if (url == "/")
         path = serverConfig.root + response.location.index;
@@ -51,7 +56,7 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
     struct stat test;
     if (stat(path.c_str(), &test) != -1 && S_ISREG(test.st_mode))
     {
-        pos = path.find(response.location.cgiExtension);
+        pos = path.rfind(response.location.cgiExtension);
         if (pos != std::string::npos)
         {
             cgi.binaryPath = response.location.cgiBinary;
@@ -64,15 +69,15 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
 }
 
 /**
- * @brief `check binary and extension`
+ * @brief `Check file permissions for CGI execution`
  *
- * step 1 : check can found script (F_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/test.php
+ * step 1 : check if the script exists (F_OK)
  * 
- * step 2 : check can read script (R_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/test.php
+ * step 2 : check if the script is readable (R_OK)
  *
- * step 3 : check can found binary (F_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi
+ * step 3 : check if the CGI binary exists (F_OK)
  * 
- * step 2 : check can execute binary (X_OK) who is /Users/mathildelaussel/webserv/mathilde/server_files/cgi/php-cgi
+ * step 4 : check if the CGI binary is executable (X_OK)
  */
 int accessCgi(cgi &cgi)
 {
@@ -88,25 +93,17 @@ int accessCgi(cgi &cgi)
 }
 
 /**
- * @brief `handle cgi env``
+ * @brief `Prepare CGI environment variables and request body`
  *
- * step 1 - cgi.method : add method GET POST or DELETE
- *
- * step 3 - cgi.contentType
- *
- * step 4 - cgi.serverName
- *
- * step 5 - cgi.serverPort : listen in server (8080)
- *
- * step 6 - cgi.gatewayInterface
- *
- * step 7 - cgi.serverProtocol : request._version (HTTP/1.1)
- *
- * step 8 - body (chunked or classic)
- * 
- * step 9 - cgi.contentLenght
- * 
- * step 10 - cgi code
+ * step 1 : set the request method (GET, POST, etc.)
+ * step 2 : get Content-Type from request headers
+ * step 3 : get Host from request headers
+ * step 4 : set server port
+ * step 5 : set gateway interface (CGI/1.1)
+ * step 6 : set server protocol (HTTP version)
+ * step 7 : set request body (either multipart content or raw body)
+ * step 8 : calculate Content-Length
+ * step 9 : set status code for CGI environment (REDIRECT_STATUS)
  *
  */
 void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m)
@@ -140,7 +137,6 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     convert << cgi.body.size();
     cgi.contentLenght = convert.str();
 
-
     std::stringstream code;
     code << response.code;
     cgi.code = code.str();
@@ -159,12 +155,24 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
 }
 
 /**
- * @brief `create pipe`
+ * @brief `Execute the CGI script using fork and pipes`
  *
- * step 1 : creat two pipe
+ * step 1 : create two pipes (one for input, one for output)
+ * 
+ * step 2 : fork a child process
+ *   - (child) : redirect stdin/stdout to pipes using dup2
+ *   - (child) : build argv and envp for execve
+ *   - (child) : change working directory to script directory
+ *   - (child) : execute CGI binary with script
+ * 
+ * step 3 : parent process
+ *   - write request body to child stdin pipe
+ *   - read CGI stdout from child into cgi.response
+ *   - wait for child process to finish
  *
- * step 2 : fork and check pid
+ * @return 0 on success, 500 on pipe/fork errors
  */
+
 int cgiPipe(cgi &cgi)
 {
     int body[2];
@@ -262,23 +270,27 @@ int cgiPipe(cgi &cgi)
 }
 
 /**
- * @brief
+ * @brief `Parse CGI stdout into headers and body`
  *
- * step 1 : split headers and body
- *
- * step 2 : pars in headers content type and status
+ * step 1 : search for header/body separator (\r\n\r\n or \n\n)
+ * step 2 : split response into headers and body
+ * step 3 : extract Status: header if present, default to 200
+ * step 4 : extract Content-Type header if present, default to text/plain
  */
+
 void parsStdout(cgi &cgi)
 {
     int space = 4;
     cgi.headers.clear();
     cgi.body.clear();
+    
     size_t pos = cgi.response.find("\r\n\r\n");
     if (pos == std::string::npos)
     {
         space = 2;
         pos = cgi.response.find("\n\n");
     }
+    
     if (pos != std::string::npos)
     {
         cgi.headers = cgi.response.substr(0, pos);
@@ -286,16 +298,10 @@ void parsStdout(cgi &cgi)
     }
     else
         cgi.body = cgi.response;
-    // std::cout << "[DEBUG HEADERS] : " << cgi.headers << std::endl;
-    // std::cout << "[DEBUG BODY] : " << cgi.body << std::endl;
-
     pos = cgi.headers.find("Status:");
     if (pos != std::string::npos)
     {
         std::string tmp = cgi.headers.substr(pos);
-        // size_t end = tmp.find("\r\n");
-        // if (end == std::string::npos)
-        //     end = tmp.find("\n");
         cgi.code = tmp.substr(8, 3);
     }
     else
@@ -312,29 +318,39 @@ void parsStdout(cgi &cgi)
     }
     else
         cgi.contentType = "text/plain";
-
-    // std::cout << "[DEBUG content] : [" << cgi.contentType << "]" << std::endl;
-    // std::cout << "[DEBUG status] : [" << cgi.code << "]" << std::endl;
 }
+
+/**
+ * @brief `Build the HTTP response from CGI output`
+ *
+ * step 1 : start response with HTTP version and CGI status code
+ * 
+ * step 2 : add status text if available
+ * 
+ * step 3 : determine if Content-Length should be 0 (DELETE, 413) or size of CGI body
+ * 
+ * step 4 : add Content-Type header
+ * 
+ * step 5 : add empty line to separate headers from body
+ * 
+ * step 6 : append CGI body if applicable
+ */
 
 void buildCgiResponse(cgi &cgi, responseT &response)
 {
     response.response.clear();
 
     response.response += cgi.serverProtocol + " " + cgi.code;
+    
     std::map<std::string, std::string>::iterator it = cgi.errorTxt.find(cgi.code);
     if (it != cgi.errorTxt.end())
         response.response += " " + it->second;
 
-    if (cgi.method == "DELETE" || cgi.method == "GET" || cgi.code == "413") //ICI GERER LA CONDITION
+    if (cgi.method == "DELETE" || cgi.code == "413")
     {
-        if (cgi.method == "DELETE" || cgi.code == "413")
-        {
-            response.response += "\r\n";
-            response.response += "Content-Length: 0";
-        }
+        response.response += "\r\n";
+        response.response += "Content-Length: 0";
     }
-        
     else
     {
         std::stringstream length;
@@ -346,11 +362,9 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     response.response += "Content-Type: " + cgi.contentType;
     response.response += "\r\n";
 
-    // empty line
     response.response += "\r\n";
 
-    // if (cgi.method == "POST")
-        response.response += cgi.body;
+    response.response += cgi.body;
 
     // std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
     // if (cgi.method == "GET")
@@ -359,6 +373,16 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     //     std::cout << cgi.body;
     // }
 }
+
+/**
+ * @brief `Main CGI handler for the request`
+ *
+ * step 1 : check if request matches a CGI script (isCgi)
+ * 
+ * step 2 : check script and binary access permissions (accessCgi)
+ * 
+ * step 3 : set error response (404/403) if checks fail
+ */
 
 void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)
 {

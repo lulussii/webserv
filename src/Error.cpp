@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Error.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/02 09:02:24 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 17:20:22 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,34 +14,35 @@
 #include "Get.hpp"
 
 /**
- * @brief `search html body for error`
- *
- * if code is 404 so the new path is root/404.html
+ * @brief `Search HTML body for error`
  * 
- * step 1 : add content type who is an html (404.html etc)
+ * step 1 : Set the response code and mark the response as an error.
  * 
- * step 2 : search an error page in my config
+ * step 2 : Default content type is "text/plain".
  * 
- * step 3 : if there is the error page in my config 
- * (it != serverConfig.errorPage.end() because end it's the end of the map)
- * So if it is different from nothing, the end, it's that I found an error page
+ * step 3 : Search for a custom error page in the server configuration.
+ *    - Check if the code exists in serverConfig.errorPage map.
  * 
- * step 4 : if ok --> build response path to search error page html 
- * Exemple : serverConfig.root = /Users/mathildelaussel/server/ + it->second = 404.html
+ * step 4 : If a custom error page exists:
+ *    - Build the full path: serverConfig.root + error page file name.
+ *    - Set content type to "text/html".
+ *    - Read the file into the response body.
  * 
- * step  5 : read file to add the body html
+ * step 5 : If the file is successfully read and not empty:
+ *    - Set content length to the body size and return.
  * 
- * step 6 : if the error page is not allowed, so body empty and content len = 0;
+ * step 6 : If no custom error page exists or reading failed:
+ *    - Set body to empty and content length to 0.
  * 
  */
 void errorCode(responseT &response, serverT &serverConfig, int code)
 {
     response.code = code;
     response.infos.error = true;
+    
     response.contentType = "text/plain";
     
     std::map<int, std::string>::iterator it = serverConfig.errorPage.find(response.code);
-
     if (it != serverConfig.errorPage.end())
     {
         response.path = serverConfig.root + it->second;
@@ -53,6 +54,7 @@ void errorCode(responseT &response, serverT &serverConfig, int code)
             return;
         }
     }
+    
     response.body = "";
     response.contentLen = 0;
 }
