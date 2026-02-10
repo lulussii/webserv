@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 10:58:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 11:50:38 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ int accessCgi(cgi &cgi)
         return (404);
     if (access(cgi.scriptPath.c_str(), R_OK) == -1)
         return (403);
-    if (access(cgi.binaryPath.c_str(), X_OK) == -1)
+    if (access(cgi.binaryPath.c_str(), F_OK) == -1)
         return (404);
     if (access(cgi.binaryPath.c_str(), X_OK) == -1)
         return (403);
@@ -229,12 +229,12 @@ int cgiPipe(cgi &cgi)
         dir = dir.substr(0, pos + 1);
         if (chdir(dir.c_str()) == -1)
         {
-            ;
+            ; //ICI GERER LE CAS ECHEC
         }
         // std::cout << dir << std::endl;
 
         execve(cgi.binaryPath.c_str(), args, envp.data());
-
+        //ICI GERER LE CAS ECHEC
         // return (500);// check if exceve fail
     }
 
@@ -326,7 +326,7 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     if (it != cgi.errorTxt.end())
         response.response += " " + it->second;
 
-    if (cgi.method == "DELETE" || cgi.method == "GET" || cgi.code == "413")
+    if (cgi.method == "DELETE" || cgi.method == "GET" || cgi.code == "413") //ICI GERER LA CONDITION
     {
         if (cgi.method == "DELETE" || cgi.code == "413")
         {

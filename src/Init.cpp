@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 10:39:14 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 11:28:16 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,6 @@ void initResponse(responseT &response)
     response.repo = "";
 
     response.infos.error = false;
-    response.infos.get = false;
-    response.infos.loc = false;
     response.infos.repository = false;
 
     response.post.path = "";

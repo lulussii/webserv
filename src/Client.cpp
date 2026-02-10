@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/10 10:51:18 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 14:35:04 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,10 @@ void Client::processRequest(serverT &serverConfig)
             errorCode(this->res, serverConfig, 404);
         else if (errorValue == 403)
             errorCode(this->res, serverConfig, 403);
+		else if (errorValue == 500)
+            errorCode(this->res, serverConfig, 403);
     }
 	
-
 	// step 4 : method POST
     if (this->req._method == "POST" && this->res.code == 200)
         postMain(this->req, this->res, serverConfig, cgi);
