@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 15:02:27 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 19:09:52 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -385,3 +385,45 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT
         return ;
     }
 }
+
+// ------
+//| GET |
+// ------
+// //200
+// curl -i http://localhost:8080/html/index.html
+
+// //404
+// curl -i http://localhost:8080/html/nofile.html
+
+
+// ------
+//| POST |
+// ------
+// //201
+// curl -i -X POST -H "Content-Type: text/plain" --data "Bonjour serveur" http://localhost:8080/uploads
+
+// //413
+// curl -i -X POST -H "Content-Type: text/plain" --data "$(head -c 20000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload
+
+
+// --------
+//| DELETE |
+// --------
+// //204
+// curl -i -X DELETE http://localhost:8080/uploads/delete-me.txt
+
+// //403
+// curl -i -X DELETE http://localhost:8080/uploads/forbidden.txt 
+
+// //404
+// curl -i -X DELETE http://localhost:8080/uploads/nofile.txt
+
+
+// ------
+//| CGI |
+// ------
+// //200
+// curl -i http://localhost:8080/cgi/test.php
+
+// //200
+// curl -i -X POST -H "Content-Type: application/x-www-form-urlencoded" --data "param1=val1&param2=val2" http://localhost:8080/cgi/test.php
