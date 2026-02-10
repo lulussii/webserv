@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 16:47:02 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 18:30:15 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,7 +163,21 @@ int createAndWriteFile(responseT &response)
             return (403);
     }
 
-    write(fd, response.body.c_str(), response.body.size());
+    // write(fd, response.body.c_str(), response.body.size());
+    size_t total = 0;
+    size_t len = response.body.size();
+    const char *data = response.body.c_str();
+    while (total < len)
+    {
+        ssize_t n = write(fd, data + total, len - total);
+        if (n <= 0)
+        {
+            close(fd);
+            return (500); 
+        }
+        total += n;
+    }
+    
 
     close(fd);
 

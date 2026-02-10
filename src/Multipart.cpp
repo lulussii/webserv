@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 17:15:55 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 18:27:28 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,7 +288,7 @@ void extractContent(Multipart &m)
  *
  * step 3 : Write the content of the multipart to the file. 
  *
- * step 4 : close fd
+ * step 4 : Close the file descriptor
  *
  */
 int createAndWriteMultipartFile(responseT &response, Multipart &m)
@@ -311,7 +311,20 @@ int createAndWriteMultipartFile(responseT &response, Multipart &m)
             return (403);
     }
 
-    write(fd, m.content.data(), m.content.size());
+    // write(fd, m.content.data(), m.content.size());
+    size_t total = 0;
+    size_t len = m.content.size();
+    const char *data = m.content.data();
+    while (total < len)
+    {
+        ssize_t n = write(fd, data + total, len - total);
+        if (n <= 0)
+        {
+            close(fd);
+            return (500); 
+        }
+        total += n;
+    }
 
     close(fd);
 

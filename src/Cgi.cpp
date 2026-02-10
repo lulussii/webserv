@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 17:41:51 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 18:37:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,6 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
  *
  * @return 0 on success, 500 on pipe/fork errors
  */
-
 int cgiPipe(cgi &cgi)
 {
     int body[2];
@@ -251,14 +250,42 @@ int cgiPipe(cgi &cgi)
         close(body[0]);     // don't read
         close(response[1]); // don't write
         
-        write(body[1], cgi.body.c_str(), cgi.body.size()); //write the body from request (body chunked too)
+        // write(body[1], cgi.body.c_str(), cgi.body.size()); //write the body from request (body chunked too)
+        
+        size_t total = 0;
+        size_t len =cgi.body.size();
+        const char *data =  cgi.body.c_str();
+        while (total < len)
+        {
+            ssize_t n = write(body[1], data + total, len - total);
+            if (n <= 0)
+            {
+               close(body[1]);
+                close(response[0]);
+                return (500);  
+            }
+            total += n;
+        }
+
         close(body[1]); // EOF
 
         char buffer[1024];
-        ssize_t n;
-        while ((n = read(response[0], buffer, sizeof(buffer))) > 0)
-            cgi.response.append(buffer, n);
-        // std::cout.write(buffer, n); //  show exit CGI (test)
+        // while ((n = read(response[0], buffer, sizeof(buffer))) > 0)
+        //     cgi.response.append(buffer, n);
+        while (true)
+        {
+            ssize_t n = read(response[0], buffer, sizeof(buffer));
+            
+            if (n == 0) //EOF
+                break;
+
+            if (n < 0)
+            {
+                close(response[0]);
+                return (500); 
+            }
+            cgi.response.append(buffer, n); 
+        }
 
         close(response[0]);
 
