@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:25:17 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/12 14:41:05 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,15 @@ class ConfigParser
 			throw std::runtime_error(ss.str());
 		}
 		
-		bool	hasOpeningBraceOnNextLine(std::ifstream &file);
-		void	_checkAndStripSemicolon(std::string &value, std::stringstream &ss);
-		int		_parsePort(const std::string &str);
-		bool	_isValidIP(const std::string &ip);
+		bool			_hasOpeningBraceOnNextLine(std::ifstream &file);
+		void			_validateBlockStart(std::stringstream &ss, std::ifstream &file);
+		void			_finalizeServer(ServerConfig &server);
+		void			_handleLocationBlock(std::string &args, std::ifstream &file, ServerConfig &server);
+		void			_checkAndStripSemicolon(std::string &value, std::stringstream &ss);
+		void 			_checkExtraArgs(std::stringstream &ss);
+		int				_parsePort(const std::string &str);
+		bool			_isValidIP(const std::string &ip);
+		unsigned long	_parseBytes(std::string str);
 
 	public: 
 

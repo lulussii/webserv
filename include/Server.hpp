@@ -6,21 +6,37 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/05 08:28:29 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/12 15:12:11 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-#include <vector>
+#include <iostream>
+#include <arpa/inet.h>
+#include <fcntl.h>
 #include <map>
 #include <poll.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <vector>
+
 #include "Client.hpp"
-#include "ServerConfig.hpp"
 #include "Config.hpp"
+#include "Delete.hpp"
+#include "Get.hpp"
+#include "Init.hpp"
+#include "Post.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "ServerConfig.hpp"
 
 #define MAX_CLIENTS 10
+#define LISTEN_BACKLOG 5
+
+extern bool server_run;
 
 class Server
 {
@@ -30,19 +46,19 @@ class Server
 		struct pollfd			_fds[MAX_CLIENTS + 1];
 		std::map<int, Client>	_clients;
 		std::vector<ServerConfig> _configs;
+		std::vector<serverT> 	_refinedConfigs;
 
 		std::map<int, int>		_serverSockets;
 
 		serverT _convertConfig(const ServerConfig &myConfig);
 
 		int		_createServerSocket(int port);
-		int		_acceptClient(int server_fd);
 		void	_acceptNewConnection(int serverFd);
 		void	_handleClientActivity(int i);
 		void	_closeConnection(int i);
+		void	_checkTimeouts();
 		
-		void	_enableWriting(int i);
-		void	_disableWriting(int i);
+   		void 	_initRefinedConfigs();
 
 	public:
 		Server(const std::vector<ServerConfig> &configs);
@@ -50,6 +66,8 @@ class Server
 
 		void setup();
 		void run();
+		
+		ServerConfig &getConfig(int port, std::string hostHeader);
 };
 
 void handle_sigint(int sig);
