@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:11 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 10:24:07 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/10 11:28:23 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ struct request;
 typedef struct infos
 {
     bool error;
-    bool get;
-    bool loc;
     bool repository;
 } infosT;
 

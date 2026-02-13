@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/09 09:21:39 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 17:17:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,11 @@
 #include <unistd.h>   //unlink()
 
 /**
- * @brief `build the file path`
+ * @brief `build the file path for DELETE method`
+ * 
+ * step 1 : Check if location.upload_dir is set
+ * 
+ * step 2 : Concatenate upload_dir with request URL to set response.path
  *
  */
 void pathBuildDelete(responseT &response, request &request)
@@ -27,7 +31,18 @@ void pathBuildDelete(responseT &response, request &request)
 }
 
 /**
- * @brief `check if the file exist and if we can access before delete with unlink`
+ * @brief `check file existence and permissions before deleting with unlink`
+ * 
+ * step 1 : Use stat() to check if the file exists
+ *   - If not, call errorCode with 404
+ *
+ * step 2 : Check read access with access()
+ *   - If access denied, call errorCode with 403
+ *
+ * step 3 : Attempt to delete the file using unlink()
+ *   - If unlink fails, call errorCode with 500
+ *
+ * step 4 : If deletion succeeds, set response.code to 204 (No Content)
  *
  */
 void existFileDelete(responseT &response, serverT &serverConfig)
@@ -54,23 +69,23 @@ void existFileDelete(responseT &response, serverT &serverConfig)
 /**
  * @brief `DELETE method main`
  *
- * step 1 : build file path
+ * step 0 : Check if the request targets a CGI
+ *   - If yes, return 405 Method Not Allowed
  *
- * step 2 : check if the file exist and if we can access before delete
+ * step 1 : Build the full file path to delete
+ *
+ * step 2 : Check existence, permissions, and perform deletion
  *
  */
 void deleteMain(request &request, responseT &response, serverT &serverConfig)
 {
-    // step 0 
      if (response.cgi == true)
     {
         errorCode(response, serverConfig, 405);
         return;
     }
 
-    // step 1 : build file path
     pathBuildDelete(response, request);
 
-    // step 2 : check if the file exist and if we can access before delete
     existFileDelete(response, serverConfig);
 }

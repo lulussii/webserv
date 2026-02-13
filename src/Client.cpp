@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:48:12 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/13 09:12:44 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,8 @@ void Client::_dispatchMethod(serverT &config, cgi &cgiInstance)
 		errorValue = getMain(this->req, this->res, config, cgiInstance);
 		if (errorValue == 404 || errorValue == 403)
 			errorCode(this->res, config, errorValue);
+		else if (errorValue == 500)
+			errorCode(this->res, config, 403);
 	}
 	else if (this->req._method == "POST")
 	{

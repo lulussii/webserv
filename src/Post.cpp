@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/09 15:08:19 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/10 18:30:15 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,13 @@
 #include <ctime>    //time_t
 
 /**
- * @brief `check if the content lenght < clientMaxBodySize, if it's not to big`
+ * @brief `Check if the request body size respects client_max_body_size.`
  *
- * step 1 : check if already a content lenght
+ * step 1 : Check if the "Content-Length" header is present. 
  *
- * step 2 : else take content lenght from body
+ * step 2 : If no "Content-Length" header is found,use the already parsed body size stored in the request. 
+ * 
+ * step 3 : Compare the body size with serverConfig.clientMaxBodySize. 
  *
  * @return true if ok, else false
  */
@@ -51,9 +53,13 @@ bool clientMaxBodySize(serverT &serverConfig, request &request, responseT &respo
 }
 
 /**
- * @brief `check if the body of POST exist`
+ * @brief `Check if a POST request contains a body`
+ * 
+ * step 1 : Verify if the request body is not empty
+ * 
+ * step 2 : If a body exists, assign it to the response body, for use later. 
  *
- * @return true if ok, else false
+ * @return true if a body is present, otherwise return false.
  */
 bool bodyExist(request &request, responseT &response)
 {
@@ -66,13 +72,15 @@ bool bodyExist(request &request, responseT &response)
 }
 
 /**
- * @brief `create random file with path in location`
- *
- * stringstream use to convert an int into a string
- *
- * add "/uploads/" to path because we wants to uploads inside this repo
- *
- * add
+ * @brief `Create a unique file path for an uploaded file`
+ * 
+ * step 1 : Get the current timestamp using std::time. 
+ * 
+ * step 2 : Convert the timestamp to a string using stringstream. 
+ * 
+ * step 3 : Build the upload path using upload_dir ans a filename based on the current timestamp. 
+ * 
+ * step 4 : Put the resulting path in the response post path. 
  */
 void createFileName(responseT &response)
 {
@@ -83,15 +91,15 @@ void createFileName(responseT &response)
 }
 
 /**
- * @brief `check repo`
+ * @brief `check repository validity and permissions before create file upload`
  *
- * step 1 : exist else error 500
+ * step 1 : Check if the repository exists → Server Error 500
  *
- * step 2 : is repo else error 500
+ * step 2 : Check if the path is a directory → Server Error 500
  *
- * step 3 : can access else error 403
+ * step 3 : Check write access permissions on the directory → Forbidden Error 403
  *
- * step 4 : everything is OK
+ * step 4 : Repository is valid and writable
  */
 int checkRepo(responseT &response, serverT &serverConfig)
 {
@@ -112,23 +120,27 @@ int checkRepo(responseT &response, serverT &serverConfig)
         errorCode(response, serverConfig, 403);
         return (403);
     }
-    else
-        response.infos.repository = true;
+    // else
+    //     response.infos.repository = true;
 
     return (0);
 }
 
 /**
- * @brief `create a file and write in`
+ * @brief `Create or remplace a file and write the request body into it`
  *
- * step 1 : check is file exist, yes code 200 else code 201
- *
- * step 2 : open file and create it if it's not
- *
- * step 3 : write body in file
- *
- *
- * step 4 : close fd
+ * step 1 : check if the target file already exists using stat()
+ *  - If the file does not exist : HTTP code 201 Created
+ *  - If the file does exist : HTTP code 200 OK
+ * 
+ * step 2 : Open the file 
+ *  - Create the file if it does not exist (O_CREAT)
+ *  - Truncate the file if it already exists (O_TRUNC)
+ *  - Open the file in write-only mode (O_WRONLY)
+ * 
+ * step 3 : Write the request body into the file. 
+ * 
+ * step 4 : Close the file descriptor
  *
  */
 int createAndWriteFile(responseT &response)
@@ -151,7 +163,21 @@ int createAndWriteFile(responseT &response)
             return (403);
     }
 
-    write(fd, response.body.c_str(), response.body.size());
+    // write(fd, response.body.c_str(), response.body.size());
+    size_t total = 0;
+    size_t len = response.body.size();
+    const char *data = response.body.c_str();
+    while (total < len)
+    {
+        ssize_t n = write(fd, data + total, len - total);
+        if (n <= 0)
+        {
+            close(fd);
+            return (500); 
+        }
+        total += n;
+    }
+    
 
     close(fd);
 
@@ -159,24 +185,24 @@ int createAndWriteFile(responseT &response)
 }
 
 /**
- * @brief `prepare response`
+ * @brief `Prepare the HTTP response before sending it to the client`
  *
- * step 1 : if not error, delete body
+ * step 1 : If the response is not an error response, clear the response body.
+ * (The body will be rebuilt later by the response builder.)
  *
- * step 2 : if content type already exist in header
+ * step 2 : Check if the request already contains a "Content-Type" header.
+ *  If so, reuse this value and stop processing.
  *
- * step 3 : content type if not content type
+ * step 3 : f no Content-Type is provided, determine it from the file extension of the requested resource (index file).
+ * 
  * .html/htm -> text/html
- *
  * .css -> text/css
- *
  * .txt -> text/plain
- *
  * .jpeg/jpg -> image/jpeg
- *
  * .png -> image/png
- *
  * .gif -> image/gif
+ * 
+ * step 4 : if no extension, "application/octet-stream" by default. 
  */
 void prepareResponse(responseT &response, request request)
 {
@@ -224,17 +250,21 @@ void prepareResponse(responseT &response, request request)
 /**
  * @brief `POST method main`
  *
- * step 1 : check client_max_body_size
+ * step 1 : Check client_max_body_size
  *
- * step 2 : check if body exist
+ * step 2 : Check if request body exists
  *
- * step 3 : create name file
+ * step 3 : Chunked transfer encoding (if any)
  *
- * step 4 : check repo
+ * step 4 : Boundary 
  *
- * step 5 : create and write on file
+ * step 5 : CGI 
  *
- * step 6 : prepare response
+ * step 6 : Create a unique file path for an uploaded file
+ *
+ * step 7 : Create or remplace a file and write the request body into it
+ * 
+ * step 8 : Prepare HTTP response
  *
  */
 void postMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
@@ -264,8 +294,8 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
 
     if (isMultipart(request) == true)
     {
-        int errroValue = extractBundary(request);
-        if (errroValue == 400)
+        int errorValue = extractBundary(request);
+        if (errorValue == 400)
         {
             errorCode(response, serverConfig, 400);
             return;
