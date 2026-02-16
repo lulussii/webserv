@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 18:37:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 09:24:04 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,6 +380,7 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     }
     else
     {
+        response.response += "\r\n";
         std::stringstream length;
         length << cgi.body.size();
         response.response += "Content-Length: " + length.str();
