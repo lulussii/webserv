@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Chunked.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:01:32 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 16:51:28 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 10:51:01 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,10 @@ bool isChunked(request &request)
     std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
 
     if (it != request.headers.end() && it->second == "chunked")
+    {
+        std::cout << "[INFO] Is Chunked " << std::endl;
         return (true);
+    }
     return (false);
 }
 
