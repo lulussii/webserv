@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/16 08:51:32 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/16 12:19:09 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,9 @@ int checkRepo(responseT &response, serverT &serverConfig)
  * 
  * step 4 : Close the file descriptor
  *
+ * subject p.9 "You are not required to use poll()
+ * (or an equivalent function) for regular disk files;
+ * read() and write() on them do not require readiness notifications."
  */
 int createAndWriteFile(responseT &response)
 {
