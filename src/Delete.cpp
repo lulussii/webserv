@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/16 09:58:02 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/16 10:44:58 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void existFileDelete(responseT &response, serverT &serverConfig)
         errorCode(response, serverConfig, 404);
     else
     {
-        if (access(response.path.c_str(), R_OK) == -1)
+        if (access(response.path.c_str(), R_OK) == -1 || S_ISDIR(test.st_mode))
         {
             errorCode(response, serverConfig, 403);
             return;
