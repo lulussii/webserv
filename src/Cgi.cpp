@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/16 09:24:04 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/16 10:27:43 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -393,13 +393,6 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     response.response += "\r\n";
 
     response.response += cgi.body;
-
-    // std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
-    // if (cgi.method == "GET")
-    // {
-    //     std::cout << "\n---DEBUG BODY NOT IN RESPONSE---\n\n";
-    //     std::cout << cgi.body;
-    // }
 }
 
 /**
@@ -416,7 +409,7 @@ void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &respo
 {
     if (isCgi(request, cgi, response, serverConfig) == false)
     {
-        std::cout << "FALSE " << std::endl; //debug
+        std::cout << "[INFO] No CGI " << std::endl;
         return ;
     }
 

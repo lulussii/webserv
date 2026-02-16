@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/10 14:35:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 10:28:05 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,12 +135,12 @@ void Client::processRequest(serverT &serverConfig)
         deleteMain(this->req, this->res, serverConfig);
 
     // step  6 : response
-    if (this->res.cgi == false)
+    if (this->res.cgi == false || this->res.infos.error == true)
 	{
         responseMain(this->req, this->res);
 	}
 
-	std::cout << "\n\nREPONSE\n" << res.response;
+	std::cout << "\n[RESPONSE]\n" << res.response;
 
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
