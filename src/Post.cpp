@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 18:30:15 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 08:51:32 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,45 +206,45 @@ int createAndWriteFile(responseT &response)
  */
 void prepareResponse(responseT &response, request request)
 {
-    if (response.infos.error == false)
-        response.body = "";
-
+    if (response.infos.error == true)
+    response.body = "";
+    else
+    response.body = request._body;
+    
+    
     std::map<std::string, std::string>::iterator it = request.headers.find("Content-Type");
     if (it != request.headers.end())
-    {
         response.contentType = it->second;
-        return;
-    }
-
-    size_t dot = response.location.index.rfind(".");
-    if (dot == std::string::npos)
+    else 
     {
-        response.contentType = "application/octet-stream";
-        return;
-    }
-    std::string extension = response.location.index.substr(dot);
+        size_t dot = response.location.index.rfind(".");
+        if (dot == std::string::npos)
+        {
+            response.contentType = "application/octet-stream";
+            return;
+        }
+        std::string extension = response.location.index.substr(dot);
+        if (extension.find("?") != std::string::npos)
+        {
+            size_t end = extension.find("?");
+            extension = extension.substr(0, end);
+        }
 
-    // case index.html?user=42
-    if (extension.find("?") != std::string::npos)
-    {
-        size_t end = extension.find("?");
-        extension = extension.substr(0, end);
+        if (extension == ".html" || extension == ".htm")
+            response.contentType = "text/html";
+        else if (extension == ".css")
+            response.contentType = "text/css";
+        else if (extension == ".txt")
+            response.contentType = "text/plain";
+        else if (extension == ".jpeg" || extension == ".jpg")
+            response.contentType = "image/jpeg";
+        else if (extension == ".png")
+            response.contentType = "image/png";
+        else if (extension == ".gif")
+            response.contentType = "image/gif";
+        else
+            response.contentType = "application/octet-stream";
     }
-
-    if (extension == ".html" || extension == ".htm")
-        response.contentType = "text/html";
-    else if (extension == ".css")
-        response.contentType = "text/css";
-    else if (extension == ".txt")
-        response.contentType = "text/plain";
-    else if (extension == ".jpeg" || extension == ".jpg")
-        response.contentType = "image/jpeg";
-    else if (extension == ".png")
-        response.contentType = "image/png";
-    else if (extension == ".gif")
-        response.contentType = "image/gif";
-    else
-        response.contentType = "application/octet-stream";
 }
 
 /**
@@ -329,7 +329,6 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
             errorCode(response, serverConfig, 403);
         return;
     }
-
     prepareResponse(response, request);
 
     return;
