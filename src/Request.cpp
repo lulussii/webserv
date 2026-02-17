@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 19:09:52 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 13:29:25 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,118 +239,8 @@ bool checkIs(request &request, responseT &response)
  */
 void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi)
 {
-    // -----
-    //| GET |
-    // ------
+    std::cout << "[REQUEST] : " << p.line << std::endl;
     
-    // GET /upload
-    //p.line = "GET /uploads HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-
-    // GET /
-    // p.line = "GET / HTTP/1.1\r\nHost: localhost\r\nUser-Agent: curl/8.7.1\r\nAccept: */*\r\n\r\n";
-
-    // GET error 404
-    //p.line = "GET /doesnotexist.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // GET error 403 : repo secret (chmod 000) + in config location /secret
-    // p.line = "GET /html/secret/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // GET error 403 : file secret (chmod 000)
-    // p.line = "GET /html/secret.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // GET error 403 or 404: url outside root
-    //p.line = "GET /../secret.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // GET autoindex : location /test { autoindex on; methods GET;
-    // p.line = "GET /test HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-
-
-    // ------
-    //| POST |
-    // ------
-    
-    // POST
-    // p.line = "POST /login HTTP/1.1\r\nHost: localhost\r\nContent-Length: 24\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\nusername=bob&password=42";
-
-    // POST
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
-    
-    // POST error 400 (no content length so bad request)
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    //POST access 500 chmod 000 tmp/uploads
-    // p.line = "POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
-
-    // POST error 413, put an Content-Length more than 100000000
-
-    // POST CHUNKED
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n5\r\nHello\r\n6\r\n World\r\n0\r\n\r\n";
-
-    // POST CHUNKED error 400 : chunk size not good
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nTransfer-Encoding: chunked\r\n\r\nZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n";
-
-    // POST BOUNDARY
-    // p.line ="POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 138\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"test.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
-
-    // POST BOUNDARY COMPLEX
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Length: 314\r\n\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file1\"; filename=\"hello.txt\"\r\nContent-Type: text/plain\r\n\r\nHello World!\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file2\"; filename=\"image.png\"\r\nContent-Type: image/png\r\n\r\nPNGDATA123456\r\n------WebKitFormBoundary7MA4YWxkTrZu0gW--\r\n";
-
-    // POST BOUNDARY error 400
-    // p.line = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Type: multipart/form-data\r\nContent-Length: 20\r\n\r\nHello World";
-
-
-    // --------
-    //| DELETE |
-    // --------
-    
-    // DELETE simple
-    //p.line = "DELETE /uploads/upload_0 HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // DELETE error 404
-    //p.line = "DELETE /upload/nope.txt HTTP/1.1\r\nHost: localhost\r\n\r\n";
-    
-    // DELETE error 403 or 404 : delete repo
-    //p.line = "DELETE /upload/ HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    // DELETE error 405 in conf must delete DELETE in / location
-    //p.line = "DELETE / HTTP/1.1\r\nHost: localhost\r\n\r\n";
-
-    
-    // ------
-    //| CGI |
-    // ------
-
-    // POST CGI 
-    // p.line = "POST /cgi/test.php?name=mlaussel HTTP/1.1\r\nHost: localhost\r\nContent-Length: 13\r\nContent-Type: text/plain\r\n\r\nHello World!";
-
-    // GET SIMPLE CGI
-    // p.line = "GET /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
-
-    // GET CGI WITH QUERY
-    // p.line = "GET /cgi/test.php?name=clarke&city=polis HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
-
-    // POST SIMPLE CGI
-    // p.line = "POST /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""Content-Type: text/plain\r\n""Content-Length: 11\r\n""\r\n""Hello World";
-
-    // POST CGI with QUERY AND BODY 
-    // p.line = "POST /cgi/test.php?x=42 HTTP/1.1\r\n""Host: localhost\r\n""Content-Type: text/plain\r\n""Content-Length: 5\r\n""\r\n""Salut";
-
-    // POST CGI CHUNKED
-    // p.line = "POST /cgi/test.php HTTP/1.1\r\n""Host: localhost\r\n""Transfer-Encoding: chunked\r\n""Content-Type: text/plain\r\n""\r\n""5\r\n""Hello\r\n""6\r\n"" World\r\n""0\r\n""\r\n";
-
-    // GET CGI BAD SCRIPT error 404
-    // p.line = "GET /doesnotexist.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
-
-    // DELETE CGI error 405
-    // p.line = "DELETE /test.php HTTP/1.1\r\n""Host: localhost\r\n""\r\n";
-
-    
-    //curl "http://localhost:8080/cgi/test.php?name=mlaussel"
-
-    
-    //curl -i -X POST 'http://localhost:8080/cgi/test.php?name=mlaussel' \ -H 'Content-Type: text/plain' \ -d 'Hello World!'
-
     // step 1 : firstline extract and parsing
     if (firstLine(p, request) == 1)
     {
@@ -386,44 +276,3 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT
     }
 }
 
-// ------
-//| GET |
-// ------
-// //200
-// curl -i http://localhost:8080/html/index.html
-
-// //404
-// curl -i http://localhost:8080/html/nofile.html
-
-
-// ------
-//| POST |
-// ------
-// //201
-// curl -i -X POST -H "Content-Type: text/plain" --data "Bonjour serveur" http://localhost:8080/uploads
-
-// //413
-// curl -i -X POST -H "Content-Type: text/plain" --data "$(head -c 20000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload
-
-
-// --------
-//| DELETE |
-// --------
-// //204
-// curl -i -X DELETE http://localhost:8080/uploads/delete-me.txt
-
-// //403
-// curl -i -X DELETE http://localhost:8080/uploads/forbidden.txt 
-
-// //404
-// curl -i -X DELETE http://localhost:8080/uploads/nofile.txt
-
-
-// ------
-//| CGI |
-// ------
-// //200
-// curl -i http://localhost:8080/cgi/test.php
-
-// //200
-// curl -i -X POST -H "Content-Type: application/x-www-form-urlencoded" --data "param1=val1&param2=val2" http://localhost:8080/cgi/test.php

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 17:17:43 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 10:44:58 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void existFileDelete(responseT &response, serverT &serverConfig)
         errorCode(response, serverConfig, 404);
     else
     {
-        if (access(response.path.c_str(), R_OK) == -1)
+        if (access(response.path.c_str(), R_OK) == -1 || S_ISDIR(test.st_mode))
         {
             errorCode(response, serverConfig, 403);
             return;
@@ -79,7 +79,8 @@ void existFileDelete(responseT &response, serverT &serverConfig)
  */
 void deleteMain(request &request, responseT &response, serverT &serverConfig)
 {
-     if (response.cgi == true)
+   
+    if (response.cgi == true)
     {
         errorCode(response, serverConfig, 405);
         return;

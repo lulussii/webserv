@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/13 09:12:44 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/17 13:48:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,23 +132,34 @@ void Client::processRequest(std::vector<serverT> &allConfigs)
 
 	initMain(this->req, this->res, cgiObj);
 
-	serverT* tempConfig = &allConfigs[0]; 
-	requestMain(this->req, p, *tempConfig, this->res, cgiObj);
+	// method GET
+	requestMain(this->req, p, serverConfig, this->res, cgi);
+	if (this->req._method == "GET" && this->res.code == 200)
+    {
+		int errorValue = getMain(this->req, this->res, serverConfig, cgi);
+        if (errorValue == 404)
+            errorCode(this->res, serverConfig, 404);
+        else if (errorValue == 403)
+            errorCode(this->res, serverConfig, 403);
+		else if (errorValue == 500)
+            errorCode(this->res, serverConfig, 403);
+    }
+	
+	// step 4 : method POST
+    if (this->req._method == "POST" && this->res.code == 200)
+        postMain(this->req, this->res, serverConfig, cgi);
 
-	serverT *activeConfig = _selectServerConfig(allConfigs);
+    // step 5 : method DELETE
+    if (this->req._method == "DELETE" && this->res.code == 200)
+        deleteMain(this->req, this->res, serverConfig);
 
-	if (!activeConfig)
-	{
-		std::cerr << "[ERROR] Fatal: No config found for port " << this->serverPort << std::endl;
-		return;
-	}
-
-	_dispatchMethod(*activeConfig, cgiObj);
-
-	if (this->res.cgi == false)
+    // step  6 : response
+    if (this->res.cgi == false || this->res.infos.error == true)
 	{
 		responseMain(this->req, this->res);
 	}
+
+	std::cout << "\n[RESPONSE]\n" << res.response;
 
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;

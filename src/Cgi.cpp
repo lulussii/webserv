@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 18:37:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 13:03:16 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,24 +140,14 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     std::stringstream code;
     code << response.code;
     cgi.code = code.str();
-    
-    // std::cout << "CGI METHOD : " << cgi.method << std::endl;
-    // std::cout << "CGI QURRY : " << cgi.queryString << std::endl;
-    // std::cout << "CGI CONTENT LENGHT : " << cgi.contentLenght << std::endl;
-    // std::cout << "CGI CONTENT TYPE : " << cgi.contentType << std::endl;
-    // std::cout << "CGI SCRIPT PATH : " << cgi.scriptPath << std::endl;
-    // std::cout << "CGI BINARY PATH : " << cgi.binaryPath << std::endl;
-    // std::cout << "CGI SERVER NAME : " << cgi.serverName << std::endl;
-    // std::cout << "CGI SERVER PORT : " << cgi.serverPort << std::endl;
-    // std::cout << "CGI GATE WAY : " << cgi.gatewayInterface << std::endl;
-    // std::cout << "CGI SERVER PROTOCOL : " << cgi.serverProtocol << std::endl;
-    // std::cout << "BODY : " << cgi.body << std::endl;
 }
 
 /**
  * @brief `Execute the CGI script using fork and pipes`
  *
  * step 1 : create two pipes (one for input, one for output)
+ *      pipe1 body : write in stdin from script
+ *      pipe2 response : read from stdou from script
  * 
  * step 2 : fork a child process
  *   - (child) : redirect stdin/stdout to pipes using dup2
@@ -169,6 +159,12 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
  *   - write request body to child stdin pipe
  *   - read CGI stdout from child into cgi.response
  *   - wait for child process to finish
+ * 
+ * Infos : 
+ *      POLLIN ready to read
+ *      POLLOUT ready to write
+ *      POLLERR error
+ *      POLLUP EOF
  *
  * @return 0 on success, 500 on pipe/fork errors
  */
@@ -250,8 +246,6 @@ int cgiPipe(cgi &cgi)
         close(body[0]);     // don't read
         close(response[1]); // don't write
         
-        // write(body[1], cgi.body.c_str(), cgi.body.size()); //write the body from request (body chunked too)
-        
         size_t total = 0;
         size_t len =cgi.body.size();
         const char *data =  cgi.body.c_str();
@@ -270,8 +264,6 @@ int cgiPipe(cgi &cgi)
         close(body[1]); // EOF
 
         char buffer[1024];
-        // while ((n = read(response[0], buffer, sizeof(buffer))) > 0)
-        //     cgi.response.append(buffer, n);
         while (true)
         {
             ssize_t n = read(response[0], buffer, sizeof(buffer));
@@ -380,6 +372,7 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     }
     else
     {
+        response.response += "\r\n";
         std::stringstream length;
         length << cgi.body.size();
         response.response += "Content-Length: " + length.str();
@@ -392,13 +385,6 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     response.response += "\r\n";
 
     response.response += cgi.body;
-
-    // std::cout << "---DEBUG RESPONSE REQUEST AFTER CGI---\n\n[" << response.response << "]" << std::endl;
-    // if (cgi.method == "GET")
-    // {
-    //     std::cout << "\n---DEBUG BODY NOT IN RESPONSE---\n\n";
-    //     std::cout << cgi.body;
-    // }
 }
 
 /**
@@ -415,7 +401,7 @@ void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &respo
 {
     if (isCgi(request, cgi, response, serverConfig) == false)
     {
-        std::cout << "FALSE " << std::endl; //debug
+        std::cout << "[INFO] No CGI " << std::endl;
         return ;
     }
 

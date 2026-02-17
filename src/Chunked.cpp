@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Chunked.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:01:32 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 16:51:28 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 14:14:43 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,11 @@ bool isChunked(request &request)
 {
     std::map<std::string, std::string>::iterator it = request.headers.find("Transfer-Encoding");
 
-    if (it != request.headers.end() && it->second == "chunked")
+    if (it != request.headers.end() && it->second == " chunked")
+    {
+        std::cout << "[INFO] Is Chunked " << std::endl;
         return (true);
+    }
     return (false);
 }
 
@@ -63,19 +66,37 @@ int chunkedParsing(request &request, responseT &response)
     std::string tmp = request._body;
     std::string cut;
     std::string newBody = "";
+    int flag = 0;
 
     while (!tmp.empty())
     {
-        size_t space = tmp.find("\r\n");
-
-        if (space == std::string::npos)
+        if (flag == 0)
         {
-            space = tmp.find("\n");
-            if (space == std::string::npos)
+            size_t pos = tmp.find("\r\n");
+            size_t spaceSize = 2;
+            if (pos == std::string::npos)
+            {
+                pos = tmp.find("\n");
+                if (pos == std::string::npos)
+                    return (400);
+                spaceSize = 1;
+            }
+
+            tmp = tmp.substr(pos + spaceSize);
+        }
+        flag = 1;
+
+        size_t pos = tmp.find("\r\n");
+        size_t spaceSize = 2;
+        if (pos == std::string::npos)
+        {
+            pos = tmp.find("\n");
+            if (pos == std::string::npos)
                 return (400);
+            spaceSize = 1;
         }
 
-        cut = tmp.substr(0, space);
+        cut = tmp.substr(0, pos);
 
         unsigned long chunkSize;
         if (sscanf(cut.c_str(), "%lx", &chunkSize) != 1)
@@ -84,22 +105,11 @@ int chunkedParsing(request &request, responseT &response)
         if (chunkSize == 0)
             break;
 
-        tmp = tmp.substr(space + 2);
-        
+        tmp = tmp.substr(pos + spaceSize);
+
         newBody += tmp.substr(0, chunkSize);
 
-        tmp = tmp.substr(chunkSize + 2);
-        
-        
-        // if (static_cast<size_t>(atoi(cut.c_str())) == 0)
-        //     break;
-
-        // tmp = tmp.substr(space + 2);
-
-        // newBody += tmp.substr(0, static_cast<size_t>(atoi(cut.c_str())));
-
-        // tmp = tmp.substr(static_cast<size_t>(atoi(cut.c_str())) + 2);
-        
+        tmp = tmp.substr(chunkSize + spaceSize);
     }
     response.body = newBody;
     return (0);

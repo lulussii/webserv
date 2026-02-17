@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Multipart.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:04:09 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 18:27:28 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/16 12:18:50 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,6 +290,9 @@ void extractContent(Multipart &m)
  *
  * step 4 : Close the file descriptor
  *
+ * subject p.9 "You are not required to use poll()
+ * (or an equivalent function) for regular disk files;
+ * read() and write() on them do not require readiness notifications."
  */
 int createAndWriteMultipartFile(responseT &response, Multipart &m)
 {
