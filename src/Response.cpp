@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/16 10:12:07 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/18 16:32:45 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,5 @@ void responseMain(request &request, responseT &response)
 
     response.response += "\r\n";
 
-    // if (response.infos.error == true || request._method == "GET")
-        response.response += response.body;
-    response.response += "\r\n";
+    response.response += response.body;
 }

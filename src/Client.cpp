@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/16 10:28:05 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/18 16:49:29 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,8 +140,7 @@ void Client::processRequest(serverT &serverConfig)
         responseMain(this->req, this->res);
 	}
 
-	std::cout << "\n[RESPONSE]\n" << res.response;
-
+	// std::cout << "\n[RESPONSE]\n" << res.response;
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
 

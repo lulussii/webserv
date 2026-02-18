@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/16 15:06:43 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/18 17:28:12 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,31 +28,31 @@ static void pathBuild(responseT &response, serverT &serverConfig, request &reque
 {
     if (request._url == "/")
         response.path = serverConfig.root + response.location.index;
-        // response.path = serverConfig.root + "/";
+    // response.path = serverConfig.root + "/";
     else
         response.path = serverConfig.root + request._url;
-    //ICI GERER LE CAS OU IL Y A UNE ROOT DANS UNE LOCATION
+    // ICI GERER LE CAS OU IL Y A UNE ROOT DANS UNE LOCATION
 }
 
 /**
  * @brief `Check if path exists and determine its type (file or directory)`
- * 
+ *
  * step 1 : if path does not exist → 404
- * 
+ *
  * step 2 : If regular file → repository = false
- * 
+ *
  * step 3 : If directory → repository = true
  */
 static int existAndType(responseT &response, serverT &serverConfig)
 {
     struct stat test;
-    
+
     if (stat(response.path.c_str(), &test) == -1)
     {
-         errorCode(response, serverConfig, 404);
-         return (404);
+        errorCode(response, serverConfig, 404);
+        return (404);
     }
-    
+
     if (S_ISREG(test.st_mode))
     {
         response.infos.repository = false;
@@ -64,28 +64,28 @@ static int existAndType(responseT &response, serverT &serverConfig)
         response.infos.repository = true;
         return (0);
     }
-    
+
     errorCode(response, serverConfig, 404);
-    return (404);      
+    return (404);
 }
 
 /**
  * @brief `Generate an autoindex page if enabled and path is a directory`
- * 
+ *
  * step 1 : Open directory (DIR *dir = opendir(response.path.c_str());)
- * 
+ *
  * step 2 : Generate HTML header
- * 
+ *
  * step 3 loop : we read each directory name with (directory = readdir(dir))
- * 
+ *
  * step 4 directory->d_name it's entry name
- * 
+ *
  * step 5 ignorate courent directory and parents directory
- * 
+ *
  * step 6 add end of body html
- * 
+ *
  * step 7 calculate body size, add content type and code success 200
- * 
+ *
  * step 8 close directory
  */
 static void autoindex(responseT &response, serverT &serverConfig, request &request)
@@ -118,13 +118,13 @@ static void autoindex(responseT &response, serverT &serverConfig, request &reque
 
 /**
  * @brief `Check access permissions for the directory`
- * 
+ *
  * step 1 : Check if the request target is identified as a repository.
- * 
+ *
  * step 2 : If it is a repository, verify read access permissions using access() and R_OK.
- * 
+ *
  * step 3 : If access is denied, generate a 403 Forbidden response and stop processing.
- * 
+ *
  * step 4 : If access is allowed or the target is not a repository, continue normally.
  */
 int accessRepo(responseT &response, serverT &serverConfig)
@@ -144,7 +144,7 @@ int accessRepo(responseT &response, serverT &serverConfig)
  * @brief `Check file access permissions`
  *
  * step 1 : Use access() to check read permissions (R_OK) on the file path.
- * 
+ *
  * step 2 : If access is denied or the file is not readable, return a 403 Forbidden error.
  */
 void accessFile(responseT &response, serverT &serverConfig)
@@ -170,7 +170,7 @@ void accessFile(responseT &response, serverT &serverConfig)
  *  - If read fails, close the file and return 500 (server error).
  *
  * step 4 : Set response.contentLen with the size of response.body.
- * 
+ *
  * step 5 : Close the file descriptor.
  *
  * @return 0 if success, 500 if read error, 403/404 for permission or missing file
@@ -210,14 +210,14 @@ int readFile(responseT &response)
 
 /**
  * @brief `Determine the Content-Type header based on the file extension`
- * 
- * step 1 : Find the last dot in the filename to determine the extension. 
- * 
- * step 2 : Extract the substring form the dot to the end as the extension. 
- * 
- * step 3 : Handle query strings. 
- * 
- * step 4 : Match common extensions to their types 
+ *
+ * step 1 : Find the last dot in the filename to determine the extension.
+ *
+ * step 2 : Extract the substring form the dot to the end as the extension.
+ *
+ * step 3 : Handle query strings.
+ *
+ * step 4 : Match common extensions to their types
  *
  *      .html/htm -> text/html
  *
@@ -230,20 +230,20 @@ int readFile(responseT &response)
  *      .png -> image/png
  *
  *      .gif -> image/gif
- * 
+ *
  * step 5 : If the extension is not recognized, default to "application/octet-stream"
  */
-void contentType(responseT &response)
+void contentType(responseT &response, request &request)
 {
-    size_t dot = response.location.index.rfind(".");
-
+    size_t dot = request._url.rfind(".");
     if (dot == std::string::npos)
     {
         response.contentType = "application/octet-stream";
         return;
     }
-    std::string extension = response.location.index.substr(dot);
+    std::string extension = request._url.substr(dot);
 
+    std::cout << "extension " << extension << std::endl;
     if (extension.find("?") != std::string::npos)
     {
         size_t end = extension.find("?");
@@ -269,21 +269,21 @@ void contentType(responseT &response)
 /**
  * @brief `GET method main`
  *
- * step 1 : Build file path. 
+ * step 1 : Build file path.
  *
- * step 2 : If CGI, do CGI part. 
+ * step 2 : If CGI, do CGI part.
  *
- * step 3 : Check if the file exists and determine its type. 
+ * step 3 : Check if the file exists and determine its type.
  *
- * step 4 : Check access permission for the directory. 
+ * step 4 : Check access permission for the directory.
  *
- * step 5 : Autoindex if enabled and directory. 
- * 
- * step 6 : Check access permission for the directory. 
- * 
+ * step 5 : Autoindex if enabled and directory.
+ *
+ * step 6 : Check access permission for the directory.
+ *
  * step 7 : Open and read a file to found the response body and content length.
- * 
- * step 8 : Determine content type. 
+ *
+ * step 8 : Determine content type.
  *
  * @return 1 if problem, else 0
  */
@@ -301,13 +301,13 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
         buildCgiResponse(cgi, response);
         return (0);
     }
-    
+
     if (existAndType(response, serverConfig) != 0)
         return (0);
 
     if (accessRepo(response, serverConfig) != 0)
         return (0);
-    
+
     autoindex(response, serverConfig, request);
 
     if (response.infos.error == false && response.infos.repository == false)
@@ -321,7 +321,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
     }
 
     if (response.infos.repository == false)
-        contentType(response);
+        contentType(response, request);
 
     return (0);
 }
