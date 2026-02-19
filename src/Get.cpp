@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/19 13:57:06 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 14:19:40 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,13 +235,20 @@ int readFile(responseT &response)
  */
 void contentType(responseT &response, request &request)
 {
+    std::string extension;
     size_t dot = request._url.rfind(".");
     if (dot == std::string::npos)
     {
-        response.contentType = "application/octet-stream";
-        return;
+        dot = response.location.index.rfind(".");
+        if (dot == std::string::npos)
+        {
+            response.contentType = "application/octet-stream";
+            return;
+        }
+        extension = response.location.index.substr(dot);
     }
-    std::string extension = request._url.substr(dot);
+    else
+        extension = request._url.substr(dot);
 
     std::cout << "extension " << extension << std::endl;
     if (extension.find("?") != std::string::npos)

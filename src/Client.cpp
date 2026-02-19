@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 13:56:54 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 14:13:35 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ void Client::processRequest(serverT &serverConfig)
         responseMain(this->req, this->res);
 	}
 
-	// std::cout << "\n[RESPONSE]\n" << res.response;
+	std::cout << "\n[RESPONSE]\n" << res.response;
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
 

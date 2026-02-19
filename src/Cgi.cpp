@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Cgi.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/16 13:03:16 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/19 14:55:16 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@
  * step 3 : build the absolute script path using server root and URL (/Users/mathildelaussel/webserv/mathilde/server_files/test.php)
  *
  * step 4 : check if file exists and is a regular file
- * 
+ *
  * step 5 : verify that the file extension matches the configured CGI extension
- * 
+ *
  * step 6 : set CGI paths and response flag if CGI
  */
 bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig)
@@ -46,12 +46,12 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
         cgi.queryString = url.substr(pos + 1);
         url = url.substr(0, pos);
     }
-    
+
     std::string path;
     if (url == "/")
         path = serverConfig.root + response.location.index;
     else
-        path = serverConfig.root + url;
+        path = serverConfig.root + url.substr(1); // delete /
 
     struct stat test;
     if (stat(path.c_str(), &test) != -1 && S_ISREG(test.st_mode))
@@ -72,11 +72,11 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
  * @brief `Check file permissions for CGI execution`
  *
  * step 1 : check if the script exists (F_OK)
- * 
+ *
  * step 2 : check if the script is readable (R_OK)
  *
  * step 3 : check if the CGI binary exists (F_OK)
- * 
+ *
  * step 4 : check if the CGI binary is executable (X_OK)
  */
 int accessCgi(cgi &cgi)
@@ -120,11 +120,8 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
         cgi.serverName = it->second;
 
     std::stringstream convert;
-    //convert << serverConfig.listen;
-    //cgi.serverPort = convert.str();
-    (void)serverConfig;
-    cgi.serverPort = "8080"; //hard code to test;
-
+    convert << serverConfig.listen;
+    cgi.serverPort = convert.str();
     cgi.gatewayInterface = "CGI/1.1";
 
     cgi.serverProtocol = request._version;
@@ -133,9 +130,15 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
         cgi.body = response.body;
     else
         cgi.body = m.content;
-    
-    convert << cgi.body.size();
-    cgi.contentLenght = convert.str();
+
+    if (request._method != "GET")
+    {
+        std::stringstream length;
+        length << cgi.body.size();
+        cgi.contentLenght = length.str();
+    }
+    else
+        cgi.contentLenght = "0";
 
     std::stringstream code;
     code << response.code;
@@ -148,19 +151,19 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
  * step 1 : create two pipes (one for input, one for output)
  *      pipe1 body : write in stdin from script
  *      pipe2 response : read from stdou from script
- * 
+ *
  * step 2 : fork a child process
  *   - (child) : redirect stdin/stdout to pipes using dup2
  *   - (child) : build argv and envp for execve
  *   - (child) : change working directory to script directory
  *   - (child) : execute CGI binary with script
- * 
+ *
  * step 3 : parent process
  *   - write request body to child stdin pipe
  *   - read CGI stdout from child into cgi.response
  *   - wait for child process to finish
- * 
- * Infos : 
+ *
+ * Infos :
  *      POLLIN ready to read
  *      POLLOUT ready to write
  *      POLLERR error
@@ -232,31 +235,31 @@ int cgiPipe(cgi &cgi)
         dir = dir.substr(0, pos + 1);
         if (chdir(dir.c_str()) == -1)
         {
-            ; //ICI GERER LE CAS ECHEC
+            ; // ICI GERER LE CAS ECHEC
         }
         // std::cout << dir << std::endl;
 
         execve(cgi.binaryPath.c_str(), args, envp.data());
-        //ICI GERER LE CAS ECHEC
-        // return (500);// check if exceve fail
+        // ICI GERER LE CAS ECHEC
+        //  return (500);// check if exceve fail
     }
 
     else if (pid > 0)
     {
         close(body[0]);     // don't read
         close(response[1]); // don't write
-        
+
         size_t total = 0;
-        size_t len =cgi.body.size();
-        const char *data =  cgi.body.c_str();
+        size_t len = cgi.body.size();
+        const char *data = cgi.body.c_str();
         while (total < len)
         {
             ssize_t n = write(body[1], data + total, len - total);
             if (n <= 0)
             {
-               close(body[1]);
+                close(body[1]);
                 close(response[0]);
-                return (500);  
+                return (500);
             }
             total += n;
         }
@@ -267,16 +270,16 @@ int cgiPipe(cgi &cgi)
         while (true)
         {
             ssize_t n = read(response[0], buffer, sizeof(buffer));
-            
-            if (n == 0) //EOF
+
+            if (n == 0) // EOF
                 break;
 
             if (n < 0)
             {
                 close(response[0]);
-                return (500); 
+                return (500);
             }
-            cgi.response.append(buffer, n); 
+            cgi.response.append(buffer, n);
         }
 
         close(response[0]);
@@ -302,14 +305,14 @@ void parsStdout(cgi &cgi)
     int space = 4;
     cgi.headers.clear();
     cgi.body.clear();
-    
+
     size_t pos = cgi.response.find("\r\n\r\n");
     if (pos == std::string::npos)
     {
         space = 2;
         pos = cgi.response.find("\n\n");
     }
-    
+
     if (pos != std::string::npos)
     {
         cgi.headers = cgi.response.substr(0, pos);
@@ -343,15 +346,15 @@ void parsStdout(cgi &cgi)
  * @brief `Build the HTTP response from CGI output`
  *
  * step 1 : start response with HTTP version and CGI status code
- * 
+ *
  * step 2 : add status text if available
- * 
+ *
  * step 3 : determine if Content-Length should be 0 (DELETE, 413) or size of CGI body
- * 
+ *
  * step 4 : add Content-Type header
- * 
+ *
  * step 5 : add empty line to separate headers from body
- * 
+ *
  * step 6 : append CGI body if applicable
  */
 
@@ -360,7 +363,7 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     response.response.clear();
 
     response.response += cgi.serverProtocol + " " + cgi.code;
-    
+
     std::map<std::string, std::string>::iterator it = cgi.errorTxt.find(cgi.code);
     if (it != cgi.errorTxt.end())
         response.response += " " + it->second;
@@ -391,9 +394,9 @@ void buildCgiResponse(cgi &cgi, responseT &response)
  * @brief `Main CGI handler for the request`
  *
  * step 1 : check if request matches a CGI script (isCgi)
- * 
+ *
  * step 2 : check script and binary access permissions (accessCgi)
- * 
+ *
  * step 3 : set error response (404/403) if checks fail
  */
 
@@ -402,18 +405,18 @@ void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &respo
     if (isCgi(request, cgi, response, serverConfig) == false)
     {
         std::cout << "[INFO] No CGI " << std::endl;
-        return ;
+        return;
     }
 
     int value = accessCgi(cgi);
     if (value == 404)
     {
         errorCode(response, serverConfig, 404);
-        return ;
+        return;
     }
     if (value == 403)
     {
         errorCode(response, serverConfig, 403);
-        return ;
+        return;
     }
 }
