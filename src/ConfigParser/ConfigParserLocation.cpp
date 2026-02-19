@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:23:21 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/09 14:15:44 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/12 14:38:51 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,116 +19,85 @@ void ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 	loc._allowMethodsDefined = true;
 
 	std::stringstream ss(args);
-	std::string value;
-	bool foundSemicolon = false;
+	std::string method;
+	bool end = false;
 
-	while (ss >> value)
+	while (ss >> method)
 	{
-		if (value[0] == '#')
-			break;
-
-		bool isLast = false;
-		if (value == ";")
+		if (method[method.size() - 1] == ';')
 		{
-			foundSemicolon = true;
-			break;
+			method.erase(method.size() - 1);
+			end = true;
 		}
-		else if (value[value.size() - 1] == ';')
-		{
-			value.erase(value.size() - 1);
-			foundSemicolon = true;
-			isLast = true;
-		}
-
-		if (value == "GET")
-		{
-			if (loc._allowGet)
-				_throwError("Config Error: Duplicate method GET");
+		if (method == "GET" && !loc._allowGet) 
 			loc._allowGet = true;
-		}
-		else if (value == "POST")
-		{
-			if (loc._allowPost)
-				_throwError("Config Error: Duplicate method POST");
+		else if (method == "POST" && !loc._allowPost) 
 			loc._allowPost = true;
-		}
-		else if (value == "DELETE")
-		{
-			if (loc._allowDelete)
-				_throwError("Config Error: Duplicate method DELETE");
+		else if (method == "DELETE" && !loc._allowDelete) 
 			loc._allowDelete = true;
-		}
 		else
-			_throwError("Config Error: Unknown method: " + value);
+			_throwError("Config Error: Invalid or duplicate method: " + method);
 
-		if (isLast)
-			break;
+		if (end) break;
 	}
-	if (!foundSemicolon)
-		_throwError("Syntax Error: Allow_methods must end with ';");
+	if (!end)
+		_throwError("Syntax Error: Missing semicolon at end of methods");
 }
 
 void ConfigParser::parseReturn(std::string &args, LocationConfig &loc)
 {
 	std::stringstream ss(args);
-	std::string code;
+	int code;
 	std::string url;
 
-	ss >> code;
-	if (code.empty())
-		_throwError("Syntax Error: return directive needs a code");
+	if (!(ss >> code >> url))
+		_throwError("Syntax Error: Invalid return directive");
 
-	ss >> url;
-	if (url.empty())
-		_throwError("Syntax Error: return directive needs a URL");
+	if (url[url.size() - 1] != ';')
+		_throwError("Syntax Error: Missing semicolon");
+	url.erase(url.size() - 1);
 
-	_checkAndStripSemicolon(url, ss);
+	if (code < 300 || code > 399)
+		_throwError("Config Error: return code must be 3xx");
 
-	loc._returnCode = std::atoi(code.c_str());
+	loc._returnCode = code;
 	loc._returnPath = url;
-
-	for (size_t i = 0; i < code.size(); i++)
-	{
-		if (!std::isdigit(code[i]))
-			_throwError("Syntax Error: return directive '" + code + "' contains non-digit characters");
-	}
-
-	if (loc._returnCode < 300 || loc._returnCode > 399)
-		_throwError("Config Error: return code must be a 3xx status");
 }
 
 void ConfigParser::parseUpload(std::string &args, LocationConfig &loc)
 {
 	std::stringstream ss(args);
-	std::string value;
-	ss >> value;
+	std::string path;
 
-	if (value.empty())
-		_throwError("Syntax Error: upload_store directive is empty");
+	if (!(ss >> path))
+		_throwError("Syntax Error: Upload path missing");
 
-	_checkAndStripSemicolon(value, ss);
+	if (path[path.size() - 1] != ';')
+		_throwError("Syntax Error: Missing semicolon");
+	path.erase(path.size() - 1);
 
-	loc._uploadPath = value;
+	loc._uploadPath = path;
 }
 
-void	ConfigParser::parseCgi(std::string &args, LocationConfig &loc)
+void ConfigParser::parseCgi(std::string &args, LocationConfig &loc)
 {
-	std::string	path;
-	std::string	extension;
-	std::stringstream	ss(args);
+	std::stringstream ss(args);
+	std::string ext, path;
 
-	if (!(ss >> extension >> path))
-		_throwError("Config Error: cgi_setup requires exactly 2 arguments (extension and path)");
+	if (!(ss >> ext >> path))
+		_throwError("Config Error: cgi_setup requires extension and path");
 
-	_checkAndStripSemicolon(path, ss);
+	if (path[path.size() - 1] != ';')
+		_throwError("Syntax Error: Missing semicolon");
+	path.erase(path.size() - 1);
 
-	if (extension. empty() || extension[0] != '.')
-		_throwError("Config Error: cgi extension must start with a dot");
+	if (ext[0] != '.')
+		_throwError("Config Error: Extension must start with '.'");
 	
 	if (access(path.c_str(), X_OK) == -1)
-		_throwError("Config Error: cgi binary not found or not executable");
-	
-	loc._cgiExtension = extension;
+		_throwError("Config Error: CGI binary not found or not executable");
+
+	loc._cgiExtension = ext;
 	loc._cgiBinary = path;
 }
 
@@ -141,15 +110,13 @@ void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std:
 	while (std::getline(file, line))
 	{
 		_lineNumber++;
-
 		std::stringstream ss(line);
 		std::string key;
-
 		ss >> key;
 
-		if (key.empty() || key[0] == '#')
-			continue;
-		if (key[0] == '}')
+		if (key.empty() || key[0] == '#') continue;
+
+		if (key == "}")
 		{
 			server._locations.push_back(loc);
 			return;
@@ -170,8 +137,8 @@ void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std:
 			parseUpload(args, loc);
 		else if (key == "cgi_setup")
 			parseCgi(args, loc);
-		else
-			_throwError("Unknown directive in location: " + key);
+		else 
+			_throwError("Syntax Error: Unknown directive in location: " + key);
 	}
-	_throwError("Syntax Error: Location block not closed with '}");
+	_throwError("Syntax Error: Location block not closed with '}'");
 }

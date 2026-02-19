@@ -6,12 +6,11 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:11:38 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/04 15:21:26 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/12 14:41:21 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
-
 
 std::vector<ServerConfig> ConfigParser::getConfigs() const
 {
@@ -74,7 +73,7 @@ bool ConfigParser::_isValidIP(const std::string &ip)
  * 	Skips empty lines and comments.
  *	Return true if '{' is found immediately, false otherwise.
  */
-bool ConfigParser::hasOpeningBraceOnNextLine(std::ifstream &file)
+bool ConfigParser::_hasOpeningBraceOnNextLine(std::ifstream &file)
 {
 	std::string line;
 	while (std::getline(file, line))

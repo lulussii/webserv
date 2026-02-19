@@ -1,26 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConfig.cpp                                   :+:      :+:    :+:   */
+/*   ClientCgi.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/12 09:53:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 10:07:48 by lserodon         ###   ########.fr       */
+/*   Created: 2026/02/17 15:33:07 by lserodon          #+#    #+#             */
+/*   Updated: 2026/02/17 15:35:39 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
-#include "ConfigParser.hpp"
+#ifndef CLIENTCGI_HPP
+# define CLIENTCGI_HPP
 
-ServerConfig::ServerConfig()
-{
-	this->_root = "";
-	this->_clientMaxBodySize = 1000000;
-	this->_autoIndex = -1;
-}
+#include "Client.hpp"
 
-std::vector<ServerConfig> ConfigParser::getServers() const
+class ClientCgi : public Client
 {
-	return (this->_servers);
-}
+	
+};
+
+#endif

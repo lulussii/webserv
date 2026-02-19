@@ -32,6 +32,8 @@ SRC 		= $(SRC_DIR)/main.cpp 								\
 			  $(SRC_DIR)/Request.cpp							\
 			  $(SRC_DIR)/Response.cpp 							\
 			  $(SRC_DIR)/Server.cpp 							\
+			  $(SRC_DIR)/Run.cpp	 							\
+			  $(SRC_DIR)/ServerUtils.cpp 						\
 			  $(SRC_DIR)/Error.cpp 								\
 			  $(SRC_DIR)/Get.cpp 								\
 			  $(SRC_DIR)/Post.cpp 								\
@@ -44,8 +46,8 @@ SRC 		= $(SRC_DIR)/main.cpp 								\
 			  $(SRC_DIR)/ConfigParser/ConfigParserLocation.cpp	\
 			  $(SRC_DIR)/LocationConfig.cpp						\
 			  $(SRC_DIR)/Chunked.cpp							\
-			  $(SRC_DIR)/Multipart.cpp								\
-			  $(SRC_DIR)/Cgi.cpp			\
+			  $(SRC_DIR)/Multipart.cpp							\
+			  $(SRC_DIR)/Cgi.cpp								\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= .objs
