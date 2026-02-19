@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 10:30:58 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 18:19:33 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,15 @@ typedef struct cgi
     std::string code;
     std::string response;
     std::map<std::string, std::string> errorTxt;
+    
+    bool isCgi;
+    int writePipe[2];
+    int readPipe[2];
+    std::string writeBuffer;
+    std::string readBuffer;
+    bool writing;
+    bool reading;
+    pid_t pid;
 } cgi ;
 
 void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
@@ -40,5 +49,9 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
 int cgiPipe(cgi &cgi);
 void parsStdout(cgi &cgi);
 void buildCgiResponse(cgi &cgi, responseT &response);
+bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig);
+int accessCgi(cgi &cgi);
+
+
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 10:01:13 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 18:56:01 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ class Client
 		bool		isReadyToWrite;
 		bool		isChunkedRequest;
 
+		cgi	cgiClient;
+
 		Client();
 		Client(int fd, int port);
 
@@ -68,10 +70,12 @@ class Client
 		long	getContentLength(const std::string &buffer);
 		void	parseHeaders(const std::string& rawHeaders, request &req);
 
-
-		void 	handleRead(serverT &serverConfig);
+		void	requestLine(request &request);
+		void	handleRead(serverT &serverConfig, request &request, responseT &response, cgi &cgi);
+		// void 	handleRead(serverT &serverConfig);
 		void	handleWrite();
-		void	processRequest(serverT &serverConfig);
+		void	processRequest(serverT &serverConfig, request &request, responseT &response, cgi &cgi);
+		// void	processRequest(serverT &serverConfig);
 		void	reset();
 };
 

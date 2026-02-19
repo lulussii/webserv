@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 14:13:35 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 19:06:01 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,38 @@ Client::Client(int fd, int port)
 	: fd(fd), serverPort(port), lastTime(time(NULL)), contentLength(0),
 	  headersReceived(false), requestComplete(false), isReadyToWrite(false)
 {
+	cgiClient.contentLenght = "";
+    cgiClient.contentType = "";
+    cgiClient.method = "";
+    cgiClient.queryString = "";
+    cgiClient.scriptPath = "";
+    cgiClient.binaryPath = "";
+    cgiClient.serverName = "";
+    cgiClient.serverPort = "";
+    cgiClient.gatewayInterface = "";
+    cgiClient.serverProtocol = "";
+    cgiClient.body = "";
+    cgiClient.code = "200";
+    cgiClient.isCgi= false;
+    cgiClient.writePipe[0] = -1;
+    cgiClient.writePipe[1] = -1;
+    cgiClient.readPipe[0] = -1;
+    cgiClient.readPipe[1] = -1;
+    cgiClient.writeBuffer = "";
+    cgiClient.readBuffer = "";
+    cgiClient.writing = false;
+    cgiClient.reading = false;
+    cgiClient.pid = -1;
+
+    cgiClient.errorTxt["200"] = "OK";
+    cgiClient.errorTxt["201"] = "Created";
+    cgiClient.errorTxt["204"] = "No Content";
+    cgiClient.errorTxt["400"] = "Bad Request";
+    cgiClient.errorTxt["403"] = "Forbidden";
+    cgiClient.errorTxt["404"] = "Not Found";
+    cgiClient.errorTxt["405"] = "Method Not Allowed";
+    cgiClient.errorTxt["413"] = "Content Too Large";
+    cgiClient.errorTxt["500"] = "Internal Server Error";
 	reset();
 }
 
@@ -63,48 +95,36 @@ long Client::getContentLength(const std::string &buffer)
 	return std::atol(buffer.substr(start, end - start).c_str());
 }
 
-void Client::processRequest(serverT &serverConfig)
+void Client::processRequest(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
 {
 	std::cout << "[INFO] Request complete. Processing..." << std::endl;
 
-	parsingT p;
-	p.line = readBuffer;
-
-	this->req = request();
-	this->res = responseT();
-	cgi cgi;
-
-	initMain(this->req, this->res, cgi);
-
 	// method GET
-	requestMain(this->req, p, serverConfig, this->res, cgi);
-	if (this->req._method == "GET" && this->res.code == 200)
+	if (request._method == "GET" && response.code == 200)
     {
-		int errorValue = getMain(this->req, this->res, serverConfig, cgi);
+		int errorValue = getMain(request, response, serverConfig, cgi);
         if (errorValue == 404)
-            errorCode(this->res, serverConfig, 404);
+            errorCode(response, serverConfig, 404);
         else if (errorValue == 403)
-            errorCode(this->res, serverConfig, 403);
+            errorCode(response, serverConfig, 403);
 		else if (errorValue == 500)
-            errorCode(this->res, serverConfig, 403);
+            errorCode(response, serverConfig, 403);
     }
 	
-	// step 4 : method POST
-    if (this->req._method == "POST" && this->res.code == 200)
-        postMain(this->req, this->res, serverConfig, cgi);
+	// method POST
+    if (request._method == "POST" && response.code == 200)
+        postMain(request, response, serverConfig, cgi);
 
-    // step 5 : method DELETE
-    if (this->req._method == "DELETE" && this->res.code == 200)
-        deleteMain(this->req, this->res, serverConfig);
+    // method DELETE
+    if (request._method == "DELETE" && response.code == 200)
+        deleteMain(request, response, serverConfig);
 
-    // step  6 : response
-    if (this->res.cgi == false || this->res.infos.error == true)
-	{
-        responseMain(this->req, this->res);
-	}
+    // step response
+    if (response.cgi == false || response.infos.error == true)
+        responseMain(request, response);
 
 	std::cout << "\n[RESPONSE]\n" << res.response;
-	writeBuffer = this->res.response;
+	writeBuffer = response.response;
 	isReadyToWrite = true;
 
 	std::cout << "[INFO] Response generated. Size " << writeBuffer.size() << " bytes." << std::endl;
@@ -132,7 +152,7 @@ void Client::parseHeaders(const std::string& rawHeaders, request &req)
 	}
 }
 
-void Client::handleRead(serverT &serverConfig)
+void Client::requestLine(request &request)
 {
 	char tmpBuffer[4096];
 	int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
@@ -178,9 +198,60 @@ void Client::handleRead(serverT &serverConfig)
 				requestComplete = true;
 			}
 		}
-		if (requestComplete)
-			processRequest(serverConfig);
+
+		request.lineRequest = readBuffer;
 	}
+}
+
+void Client::handleRead(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
+{
+	// char tmpBuffer[4096];
+	// int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
+	
+	// if (bytesRead <= 0)
+	// 	throw std::runtime_error("Read error or client disconnected");
+
+	// readBuffer.append(tmpBuffer, bytesRead);
+	// lastTime = time(NULL);
+
+	// if (!headersReceived)
+	// {
+	// 	size_t	headerEnd = readBuffer.find("\r\n\r\n");
+	// 	if (headerEnd != std::string::npos)
+	// 	{
+	// 		headersReceived = true;
+	// 		bodyStartIndex = headerEnd + 4;
+
+	// 		parseHeaders(readBuffer.substr(0, headerEnd), this->req);
+
+	// 		this->isChunkedRequest = isChunked(this->req);
+	// 		if (!this->isChunkedRequest)
+	// 			this->contentLength = getContentLength(readBuffer);
+	// 	}
+	// }
+	// if (headersReceived)
+	// {
+	// 	if (this->isChunkedRequest)
+	// 	{
+	// 		if (readBuffer.find("0\r\n\r\n", bodyStartIndex) != std::string::npos)
+	// 		{
+	// 			this->req._body = readBuffer.substr(bodyStartIndex);
+	// 			chunkedParsing(this->req, this->res);
+	// 			requestComplete = true;
+	// 		}
+	// 	}	
+	// 	else
+	// 	{
+	// 		size_t	currentBodySize = readBuffer.size() - bodyStartIndex;
+	// 		if (currentBodySize >= (size_t)contentLength)
+	// 		{
+	// 			this->req._body = readBuffer.substr(bodyStartIndex, contentLength);
+	// 			requestComplete = true;
+	// 		}
+	// 	}
+		// if (requestComplete)
+			processRequest(serverConfig, request, response, cgi);
+	// }
 }
 
 void Client::handleWrite()

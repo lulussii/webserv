@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 11:28:16 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 17:50:54 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ void initRequest(request &request)
     request.boundary = "";
     request._body = "";
     request.contentLenght = 0;
+    request.lineRequest = "";
 }
 
 void initCgi(cgi &cgi)
@@ -72,6 +73,16 @@ void initCgi(cgi &cgi)
     cgi.serverProtocol = "";
     cgi.body = "";
     cgi.code = "200";
+    cgi.isCgi = false;
+    cgi.writePipe[0] = -1;
+    cgi.writePipe[1] = -1;
+    cgi.readPipe[0] = -1;
+    cgi.readPipe[1] = -1;
+    cgi.writeBuffer = "";
+    cgi.readBuffer = "";
+    cgi.writing = false;
+    cgi.reading = false;
+    cgi.pid = -1;
 
     cgi.errorTxt["200"] = "OK";
     cgi.errorTxt["201"] = "Created";

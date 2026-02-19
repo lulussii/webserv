@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/19 14:55:16 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 16:58:01 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
             cgi.binaryPath = response.location.cgiBinary;
             cgi.scriptPath = path;
             response.cgi = true;
+            cgi.isCgi = true;
             return (true);
         }
     }
