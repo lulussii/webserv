@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:41:05 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/18 13:59:05 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,6 @@ void ConfigParser::parseServer(std::ifstream &file)
 			parseAutoIndex(args, currentServer);
 		else if (key == "index")
 			parseIndex(args, currentServer);
-		else if (key == "server_name")
-			parseServerName(args, currentServer);
 		else if (key == "error_page")
 			parseErrorPage(args, currentServer);
 		else if (key == "location")

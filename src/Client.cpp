@@ -6,11 +6,13 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/17 13:48:36 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 10:01:35 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Chunked.hpp"
+#include <sstream>
 
 Client::Client()
 	: fd(-1), serverPort(-1), lastTime(time(NULL)), contentLength(0),
@@ -61,76 +63,18 @@ long Client::getContentLength(const std::string &buffer)
 	return std::atol(buffer.substr(start, end - start).c_str());
 }
 
-serverT* Client::_selectServerConfig(std::vector<serverT> &allConfigs)
+void Client::processRequest(serverT &serverConfig)
 {
-	serverT *defaultConfig = NULL;
+	std::cout << "[INFO] Request complete. Processing..." << std::endl;
 
-	for (size_t i = 0; i < allConfigs.size(); i++)
-	{
-		for (size_t p = 0; p < allConfigs[i].listens.size(); p++)
-		{
-			if (allConfigs[i].listens[p].port == this->serverPort)
-			{
-				if (defaultConfig == NULL) defaultConfig = &allConfigs[i];
-
-				if (this->req.headers.count("Host") > 0)
-				{
-					std::string hostName = this->req.headers["Host"];
-					
-					if (!hostName.empty() && hostName[0] == ' ') hostName.erase(0, 1);
-					size_t pos = hostName.find(':');
-					if (pos != std::string::npos) hostName = hostName.substr(0, pos);
-					if (!hostName.empty() && hostName[hostName.length() - 1] == '\r')
-						hostName.erase(hostName.length() - 1);
-
-					for (size_t k = 0; k < allConfigs[i].servernames.size(); k++)
-					{
-						if (allConfigs[i].servernames[k] == hostName)
-						{
-							return &allConfigs[i];
-						}
-					}
-				}
-			}
-		}
-	}
-	if (defaultConfig) return defaultConfig;
-	return &allConfigs[0];
-}
-
-void Client::_dispatchMethod(serverT &config, cgi &cgiInstance)
-{
-	if (this->res.code != 200) return;
-
-	int errorValue = 0;
-
-	if (this->req._method == "GET")
-	{
-		errorValue = getMain(this->req, this->res, config, cgiInstance);
-		if (errorValue == 404 || errorValue == 403)
-			errorCode(this->res, config, errorValue);
-		else if (errorValue == 500)
-			errorCode(this->res, config, 403);
-	}
-	else if (this->req._method == "POST")
-	{
-		postMain(this->req, this->res, config, cgiInstance);
-	}
-	else if (this->req._method == "DELETE")
-	{
-		deleteMain(this->req, this->res, config);
-	}
-}
-
-void Client::processRequest(std::vector<serverT> &allConfigs)
-{
 	parsingT p;
 	p.line = readBuffer;
+
 	this->req = request();
 	this->res = responseT();
-	cgi cgiObj;
+	cgi cgi;
 
-	initMain(this->req, this->res, cgiObj);
+	initMain(this->req, this->res, cgi);
 
 	// method GET
 	requestMain(this->req, p, serverConfig, this->res, cgi);
@@ -156,16 +100,40 @@ void Client::processRequest(std::vector<serverT> &allConfigs)
     // step  6 : response
     if (this->res.cgi == false || this->res.infos.error == true)
 	{
-		responseMain(this->req, this->res);
+        responseMain(this->req, this->res);
 	}
 
 	std::cout << "\n[RESPONSE]\n" << res.response;
 
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
+
+	std::cout << "[INFO] Response generated. Size " << writeBuffer.size() << " bytes." << std::endl;
 }
 
-void Client::handleRead(std::vector<serverT> &allConfigs)
+void Client::parseHeaders(const std::string& rawHeaders, request &req)
+{
+	std::istringstream	stream(rawHeaders);
+	std::string			line;
+
+	std::getline(stream, line);
+
+	while (std::getline(stream, line) && line != "\r")
+	{
+		size_t colonPos = line.find(':');
+		if (colonPos != std::string::npos)
+		{
+			std::string key = line.substr(0, colonPos);
+			std::string value = line.substr(colonPos + 1);
+
+			if (!value.empty() && value[value.size() - 1] == '\r')
+				value.erase(value.size() - 1);
+			req.headers[key] = value;
+		}
+	}
+}
+
+void Client::handleRead(serverT &serverConfig)
 {
 	char tmpBuffer[4096];
 	int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
@@ -178,26 +146,41 @@ void Client::handleRead(std::vector<serverT> &allConfigs)
 
 	if (!headersReceived)
 	{
-		if (readBuffer.size() > 8192)
-			throw std::runtime_error("431 Request Header Fields Too Large");
-
-		size_t headerEnd = readBuffer.find("\r\n\r\n");
+		size_t	headerEnd = readBuffer.find("\r\n\r\n");
 		if (headerEnd != std::string::npos)
 		{
 			headersReceived = true;
-			contentLength = getContentLength(readBuffer);
 			bodyStartIndex = headerEnd + 4;
+
+			parseHeaders(readBuffer.substr(0, headerEnd), this->req);
+
+			this->isChunkedRequest = isChunked(this->req);
+			if (!this->isChunkedRequest)
+				this->contentLength = getContentLength(readBuffer);
 		}
 	}
-
 	if (headersReceived)
 	{
-		size_t currentBodySize = readBuffer.size() - bodyStartIndex;
-		if (currentBodySize >= (size_t)contentLength)
+		if (this->isChunkedRequest)
 		{
-			requestComplete = true;
-			processRequest(allConfigs);
+			if (readBuffer.find("0\r\n\r\n", bodyStartIndex) != std::string::npos)
+			{
+				this->req._body = readBuffer.substr(bodyStartIndex);
+				chunkedParsing(this->req, this->res);
+				requestComplete = true;
+			}
+		}	
+		else
+		{
+			size_t	currentBodySize = readBuffer.size() - bodyStartIndex;
+			if (currentBodySize >= (size_t)contentLength)
+			{
+				this->req._body = readBuffer.substr(bodyStartIndex, contentLength);
+				requestComplete = true;
+			}
 		}
+		if (requestComplete)
+			processRequest(serverConfig);
 	}
 }
 

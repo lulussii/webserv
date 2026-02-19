@@ -6,10 +6,11 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 15:12:07 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:16:13 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <cstring>
 #include "Server.hpp"
 
 void handle_sigint(int sig)
@@ -18,24 +19,25 @@ void handle_sigint(int sig)
 	server_run = false;
 }
 
-Server::Server(const std::vector<ServerConfig> &configs) : _configs(configs) 
+Server::Server(const std::vector<ServerConfig> &configs) : _nbListeningSockets(0), _configs(configs)
 {
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	std::memset(_fds, 0, sizeof(_fds)); 
+
+    for (int i = 0; i < MAX_TOTAL_FDS; i++)
 	{
-		_fds[i].fd = -1;
-		_fds[i].events = POLLIN;
-		_fds[i].revents = 0;
-	}
+        _fds[i].fd = -1;
+    }
 }
 
 Server::~Server()
 {
-	for (int i = 0; i < MAX_CLIENTS + _nbListeningSockets; i++)
+	for (int i = 0; i < MAX_TOTAL_FDS; i++)
 	{
 		if (_fds[i].fd >= 0)
 			close(_fds[i].fd);
 	}
 	_clients.clear();
+	std::cout << "[INFO] All resources cleared" << std::endl;
 }
 
 void Server::_initRefinedConfigs()
@@ -50,7 +52,6 @@ void Server::_initRefinedConfigs()
 void Server::setup()
 {
 	_initRefinedConfigs();
-
 	std::vector<int> openPorts;
 	int fdsIndex = 0;
 

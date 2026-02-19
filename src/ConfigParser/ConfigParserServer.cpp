@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:27:26 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:46:31 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/18 13:59:20 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,32 +106,6 @@ void ConfigParser::parseListen(std::string &args, ServerConfig &server)
 	}
 
 	server._listen.push_back(Listen(host, port));
-}
-
-void ConfigParser::parseServerName(std::string &args, ServerConfig &server)
-{
-	std::stringstream ss(args);
-	std::string name;
-	bool foundSemicolon = false;
-
-	while (ss >> name)
-	{
-		if (name[0] == '#') break;
-		
-		if (name[name.size() - 1] == ';')
-		{
-			name.erase(name.size() - 1);
-			foundSemicolon = true;
-			if (!name.empty()) server._serverNames.push_back(name);
-			break; 
-		}
-		server._serverNames.push_back(name);
-	}
-
-	if (!foundSemicolon)
-		_throwError("Syntax Error: server_name must end with ';'");
-	
-	_checkExtraArgs(ss);
 }
 
 void ConfigParser::parseBodySize(std::string &args, ServerConfig &server)

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 15:09:25 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:16:01 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@ bool server_run = true;
 
 void Server::run()
 {
-	const int totalFds = MAX_CLIENTS + _nbListeningSockets;
-	
+	const int totalFds = MAX_TOTAL_FDS;
 	while(server_run)
 	{
 		int ret = poll(_fds, totalFds, 1000);
@@ -36,15 +35,15 @@ void Server::run()
 			if (_fds[i].fd != -1 && _fds[i].revents != 0)
 				_handleClientActivity(i);
 		}
-		
 		_checkTimeouts();
 	}
+	std::cout << "\n[INFO] Server stopping gracefully..." << std::endl;
 }
 
 void Server::_checkTimeouts()
 {
 	time_t now = time(NULL);
-	for (int i = _nbListeningSockets; i < MAX_CLIENTS + _nbListeningSockets; i++)
+	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
 	{
 		int fd = _fds[i].fd;
 		if (fd >= 0 && _clients.count(fd))

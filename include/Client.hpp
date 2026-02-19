@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:48:59 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 10:01:13 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ class Client
 		bool		requestComplete;
 		
 		bool		isReadyToWrite;
+		bool		isChunkedRequest;
 
 		Client();
 		Client(int fd, int port);
@@ -65,10 +66,12 @@ class Client
 		int getServerPort() const;
 
 		long	getContentLength(const std::string &buffer);
+		void	parseHeaders(const std::string& rawHeaders, request &req);
 
-		void 	handleRead(std::vector<serverT> &sallConfigs);
+
+		void 	handleRead(serverT &serverConfig);
 		void	handleWrite();
-		void	processRequest(std::vector<serverT> &allConfigs);
+		void	processRequest(serverT &serverConfig);
 		void	reset();
 };
 

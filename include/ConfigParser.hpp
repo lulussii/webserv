@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:41:05 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/18 13:58:47 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,6 @@ class ConfigParser
 		void	parseLocation(std::ifstream &file, ServerConfig &server,std::string &path);
 
 		void	parseListen(std::string &args, ServerConfig &server);
-		void	parseServerName(std::string &args, ServerConfig &server);
 		void	parseErrorPage(std::string &args, ServerConfig &server);
 		void	parseBodySize(std::string &args, ServerConfig &server);
 		void	parseMethods(std::string &args, LocationConfig &loc);

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/05 08:24:42 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:15:09 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,6 @@
 #include "Client.hpp"
 #include "Server.hpp"
 #include "ConfigParser.hpp"
-
-#define MAX_CLIENTS 10
-#define LISTEN_BACKLOG 5
 
 int main(int argc, char **argv) 
 {

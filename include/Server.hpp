@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 15:12:11 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:15:41 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 #include "Response.hpp"
 #include "ServerConfig.hpp"
 
-#define MAX_CLIENTS 10
+#define MAX_TOTAL_FDS 1024
 #define LISTEN_BACKLOG 5
 
 extern bool server_run;
@@ -43,7 +43,7 @@ class Server
 	private: 
 
 		int						_nbListeningSockets;
-		struct pollfd			_fds[MAX_CLIENTS + 1];
+		struct pollfd			_fds[MAX_TOTAL_FDS];
 		std::map<int, Client>	_clients;
 		std::vector<ServerConfig> _configs;
 		std::vector<serverT> 	_refinedConfigs;

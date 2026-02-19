@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:54:17 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 09:15:37 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 
 	int clientIndex = -1;
-	for (int i = _nbListeningSockets; i < MAX_CLIENTS + _nbListeningSockets; i++) {
+	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS + _nbListeningSockets; i++) {
 		if (_fds[i].fd == -1) {
 			clientIndex = i;
 			break;
@@ -72,28 +72,48 @@ void Server::_acceptNewConnection(int listeningIndex)
 		close(clientFd);
 	}
 }
-
-void Server::_handleClientActivity(int index)
+void Server::_handleClientActivity(int i)
 {
-	int fd = _fds[index].fd;
+	int fd = _fds[i].fd;
+	if (_clients.find(fd) == _clients.end())
+		return;
+    
 	Client &client = _clients[fd];
+	int clientPort = client.getServerPort();
+	
+	ServerConfig &currentConfig = _configs[0]; 
 
-	try {
-		if (_fds[index].revents & POLLIN) {
-			client.handleRead(this->_refinedConfigs);
+	for (size_t j = 0; j < _configs.size(); j++)
+	{
+		if (_configs[j]._listen[0].port == clientPort)
+		{
+			currentConfig = _configs[j];
+			break;
+		}
+	}
+	
+	try 
+	{
+		if (_fds[i].revents & POLLIN)
+		{
+			serverT mateConf = _convertConfig(currentConfig);
+			client.handleRead(mateConf);
 		}
 
-		if ((_fds[index].revents & POLLOUT) && client.isReadyToWrite) {
+		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite)
+		{
 			client.handleWrite();
 		}
 
 		if (client.isReadyToWrite)
-			_fds[index].events = POLLIN | POLLOUT;
+			_fds[i].events = POLLIN | POLLOUT;
 		else
-			_fds[index].events = POLLIN;
+			_fds[i].events = POLLIN;
 	}
-	catch (std::exception &e) {
-		_closeConnection(index);
+	catch (std::exception &e)
+	{
+		std::cerr << "[INFO] Client error: " << e.what() << " (FD: " << fd << ")" << std::endl;
+		_closeConnection(i);
 	}
 }
 
@@ -124,7 +144,6 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
 	newConfig.root = myConfig._root;
 	newConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
 	newConfig.errorPage = myConfig._errorPages;
-	newConfig.servernames = myConfig._serverNames;
 
 	for (size_t i = 0; i < myConfig._locations.size(); i++)
 	{
