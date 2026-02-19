@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/16 12:19:09 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/18 16:52:44 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void createFileName(responseT &response)
 {
     std::stringstream ss;
     time_t now;
-    ss << response.location.upload_dir << "/uploads/" << "upload_" << std::time(&now);
+    ss << response.location.upload_dir << "/upload_" << std::time(&now);
     response.post.path = ss.str();
 }
 
@@ -166,7 +166,6 @@ int createAndWriteFile(responseT &response)
             return (403);
     }
 
-    // write(fd, response.body.c_str(), response.body.size());
     size_t total = 0;
     size_t len = response.body.size();
     const char *data = response.body.c_str();
@@ -288,6 +287,7 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
 
     if (isChunked(request) == true)
     {
+        std::cout << "[INFO] is Chunked" << std::endl;
         if (chunkedParsing(request, response) == 400)
         {
             errorCode(response, serverConfig, 400);
@@ -297,6 +297,7 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
 
     if (isMultipart(request) == true)
     {
+        std::cout << "[INFO] is Multipart" << std::endl;
         int errorValue = extractBundary(request);
         if (errorValue == 400)
         {

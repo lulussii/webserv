@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/16 13:29:25 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/18 15:59:50 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ static int firstLine(parsingT &p, request &request)
     request._method = firstLine.substr(0, pos1);
     request._url = "/" + firstLine.substr(pos1 + 2, pos2 - pos1 - 2);
     request._version = firstLine.substr(pos2 + 1);
-
     return (0);
 }
 

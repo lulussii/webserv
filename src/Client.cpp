@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 10:16:12 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/19 12:50:32 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,7 @@ void Client::processRequest(serverT &serverConfig)
         responseMain(this->req, this->res);
 	}
 
-	std::cout << "\n[RESPONSE]\n" << res.response;
-
+	// std::cout << "\n[RESPONSE]\n" << res.response;
 	writeBuffer = this->res.response;
 	isReadyToWrite = true;
 
