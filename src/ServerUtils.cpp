@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 14:49:11 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 17:47:19 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,13 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 }
 
-void Server::_handleClientActivity(int i, responseT &responseCgi)
+
+
+
+
+
+
+void Server::_handleClientActivity(int i)
 {
 	int fd = _fds[i].fd;
 	if (_clients.find(fd) == _clients.end())
@@ -114,15 +120,14 @@ void Server::_handleClientActivity(int i, responseT &responseCgi)
 	{
 		request request;
 		response response;
-		cgi cgi; //to delete + delete in init
-		
+
 		// STEP 0 : INIT
-		initMain(request, response, cgi);
-		
+		initMain(request, response, cgiClient); //delete cgi from init
+
 		// STEP 1 : PARSING CONFIG
 		serverT mateConf = _convertConfig(currentConfig);
 
-		if (_fds[i].revents & POLLIN) //READ OK
+		if (_fds[i].revents & POLLIN) // READ OK
 		{
 			// STEP 2 : RECUPERE REQUEST REQUEST
 			if (!client.requestComplete)
@@ -134,154 +139,56 @@ void Server::_handleClientActivity(int i, responseT &responseCgi)
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
 				requestMainNew(request, mateConf, response);
 			}
-	
-			// STEP 4 : CGI ?
-			if (client.requestComplete && isCgi(request, cgiClient, responseCgi, mateConf) == true)
+
+			// STEP 4 : CGI
+			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
-				Multipart m; //to delete
-				responseCgi.location.index = response.location.index;
-				responseCgi.location.cgiBinary = response.location.cgiBinary;
-				responseCgi.location.cgiExtension = response.location.cgiExtension;
-				int value = accessCgi(cgiClient); //check access cgi
-				if (value == 0)
+				Multipart m;				   // to delete
+				int value = accessCgi(cgiClient);
+				if (value == 0) // check access cgi
 				{
-					handleCgi(request, cgiClient, mateConf, responseCgi, m);
-					if (cgiClient.pid == -1)
-					{
-						client.writeBuffer = responseCgi.response;
-						client.isReadyToWrite = true;
-						if (pipe(cgiClient.writePipe) == -1 || pipe(cgiClient.readPipe) == -1)
-						{
-							// if (cgiClient.writePipe)
-							{
-								close(cgiClient.writePipe[0]);
-								close(cgiClient.writePipe[1]);
-							}
-							// if (cgiClient.readPipe)
-							{
-								close(cgiClient.readPipe[0]);
-								close(cgiClient.readPipe[1]);
-							}
-							throw std::runtime_error("Pipe error");
-						}
-
-						cgiClient.pid = fork();
-
-						if (cgiClient.pid == -1)
-						{
-							close(cgiClient.writePipe[0]);
-							close(cgiClient.writePipe[1]);
-							close(cgiClient.readPipe[0]);
-							close(cgiClient.readPipe[1]);
-							throw std::runtime_error("Fork error");
-						}
-					
-
-						else if (cgiClient.pid == 0)
-						{
-							close(cgiClient.writePipe[1]);
-							close(cgiClient.readPipe[0]);
-							
-							dup2(cgiClient.writePipe[0], STDIN_FILENO);
-							dup2(cgiClient.readPipe[1], STDOUT_FILENO);
-
-							close(cgiClient.writePipe[0]);
-							close(cgiClient.readPipe[1]);
-
-							char *args[] = {const_cast<char *>(cgiClient.binaryPath.c_str()), const_cast<char *>(cgiClient.scriptPath.c_str()), NULL};
-
-							std::vector<std::string> env;
-							env.push_back("REQUEST_METHOD=" + cgiClient.method);
-							env.push_back("SCRIPT_FILENAME=" + cgiClient.scriptPath);
-							env.push_back("QUERY_STRING=" + cgiClient.queryString);
-							env.push_back("CONTENT_TYPE=" + cgiClient.contentType);
-							env.push_back("CONTENT_LENGTH=" + cgiClient.contentLenght);
-							env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-							env.push_back("SERVER_PROTOCOL=" + cgiClient.serverProtocol);
-							env.push_back("SERVER_NAME=" + cgiClient.serverName);
-							env.push_back("SERVER_PORT=" + cgiClient.serverPort);
-							env.push_back("REDIRECT_STATUS=" + cgiClient.code);
-
-							std::vector<char *> envp;
-							for (size_t i = 0; i < env.size(); i++)
-								envp.push_back(const_cast<char *>(env[i].c_str()));
-							envp.push_back(NULL);
-
-							std::string dir = cgiClient.scriptPath; // go in repertory of script
-							size_t pos = dir.rfind("/");
-							dir = dir.substr(0, pos + 1);
-							if (chdir(dir.c_str()) == -1)
-							{
-								; // ICI GERER LE CAS ECHEC
-							}
-							// std::cout << dir << std::endl;
-
-							execve(cgiClient.binaryPath.c_str(), args, envp.data());
-						}
-						else //parent
-						{
-							cgiClient.clientFd = client.fd;
-							close(cgiClient.writePipe[0]);
-							close(cgiClient.readPipe[1]);
-							
-							fcntl(cgiClient.readPipe[0], F_SETFL, O_NONBLOCK);
-							fcntl(cgiClient.writePipe[1], F_SETFL, O_NONBLOCK);
-							
-							cgiClient.writing = true;
-							cgiClient.reading = true;
-
-							cgiClient.writeBuffer = cgiClient.body; // corps à envoyer au CGI
-							cgiClient.readBuffer.clear();
-
-							//add in poll
-							addFdToPoll(cgiClient.writePipe[1], POLLOUT);
-							addFdToPoll(cgiClient.readPipe[0], POLLIN);
-
-							cgiPidMap[cgiClient.pid] = &cgiClient;
-							cgiReadMap[cgiClient.readPipe[0]] = &cgiClient;
-							cgiWriteMap[cgiClient.writePipe[1]] = &cgiClient;
-							
-							client.isReadyToWrite = false;
-						}
-					}
+					handleCgi(request, cgiClient, mateConf, response, m);
+					std::cout << "[DEBUG] Client FD=" << fd
+					<< ", requestComplete=" << client.requestComplete
+					<< ", isCgi=" << cgiClient.isCgi
+					<< ", readBuffer size=" << client.readBuffer.size() << std::endl;
+					forkCgi(cgiClient, client);
 				}
-				else 
+				else
 				{
 					if (value == 404)
 						errorCode(response, mateConf, 404);
 					if (value == 403)
 						errorCode(response, mateConf, 403);
-				}					
-				client.writeBuffer = responseCgi.response;
-				client.isReadyToWrite = true;
-				std::cout << "[INFO] Response generated. Size " << client.writeBuffer.size() << " bytes." << std::endl;
-				
+				}
 			}
+
 			// STEP 5 : STATIC METHOD : GET POST DELETE
 			else if (cgiClient.isCgi == false && response.infos.error == false)
-			{
-				
 				client.handleRead(mateConf, request, response, cgiClient);
-			}
-			
+
 			// STEP 6 : build error response
 			if (response.infos.error == true)
-			{
 				responseMain(request, response);
-			}
-			
+
 			// STEP 7 : PRINT CGI RESPONSE
-			if (isCgi(request, cgiClient, responseCgi, mateConf) == true)
-				std::cout << "[RESPONSE CGI]" << client.writeBuffer << std::endl; //responseCgi.response;
+			if (isCgi(request, cgiClient, response, mateConf) == true)
+				std::cout << "[RESPONSE CGI]" << client.writeBuffer << std::endl;
+			;
+			// else
+			// 	std::cout << "[RESPONSE]" << response.response;
 		}
 
-		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) //WRITE OK
-		{
+		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite)
+		{ // WRITE OK
+			std::cout << "[DEBUG] POLLOUT? fd=" << fd << ", revents=" << _fds[i].revents << ", isReadyToWrite=" << client.isReadyToWrite << std::endl;
 			client.handleWrite();
 		}
+			
 		if (client.isReadyToWrite)
 			_fds[i].events = POLLIN | POLLOUT;
+			
 		else
 			_fds[i].events = POLLIN;
 	}
@@ -291,6 +198,16 @@ void Server::_handleClientActivity(int i, responseT &responseCgi)
 		_closeConnection(i);
 	}
 }
+
+
+
+
+
+
+
+
+
+
 
 void Server::_closeConnection(int index)
 {

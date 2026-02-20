@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 14:07:17 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 16:36:28 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Server
 
 		int		_createServerSocket(int port);
 		void	_acceptNewConnection(int serverFd);
-		void	_handleClientActivity(int i, responseT &responseCgi);
+		void	_handleClientActivity(int i);
 		void	_closeConnection(int i);
 		void	_checkTimeouts();
 		
@@ -75,13 +75,16 @@ class Server
 		std::map<pid_t, cgi*> cgiPidMap;
 
 		//new
-		void handleCgiRead(int fd, responseT &responseCgi);
+		void handleCgiRead(int fd);
 		void handleCgiWrite(int fd);
 		void checkCgiProcess();
 
 		//new
 		void addFdToPoll(int fd, short events);
 		void removeFdFromPoll(int fd);
+
+		//new
+		void forkCgi(cgi &cgiClient, Client &client);
 	};
 	
 

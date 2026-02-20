@@ -6,20 +6,18 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 14:06:47 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 17:48:41 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Cgi.hpp"
-#include "Response.hpp"
 
 bool server_run = true;
 
 void Server::run()
 {
 	const int totalFds = MAX_TOTAL_FDS;
-	responseT responseCgi;
 	
 	while(server_run)
 	{
@@ -37,26 +35,34 @@ void Server::run()
 		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
 			int fd = _fds[i].fd;
-
+ 
 			if (fd == -1)
 				continue;
 
-			// READ PIPE
+			if (_fds[i].revents == 0)
+				continue;
+				
+			
 			if (_fds[i].revents & (POLLERR | POLLHUP))
 			{
 				removeFdFromPoll(fd);
 				close(fd);
 				continue;
 			}
-			if (cgiReadMap.count(fd))
-				handleCgiRead(fd, responseCgi);
+
+			// READ PIPE
+			if ((_fds[i].revents & POLLIN) && cgiReadMap.count(fd))
+			{
+				std::cout << "OUIIIIIII\n";
+				handleCgiRead(fd);
+			}
 			
 			// WRITE PIPE
-			else if (cgiWriteMap.count(fd))
+			else if ((_fds[i].revents & POLLOUT) && cgiWriteMap.count(fd))
 				handleCgiWrite(fd);
 				
-			else if (_fds[i].revents != 0)
-				_handleClientActivity(i, responseCgi);
+			else //if (_fds[i].revents != 0)
+				_handleClientActivity(i);
 		}
 
 		checkCgiProcess();

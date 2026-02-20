@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 14:52:28 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 17:24:39 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,9 @@ void Client::handleRead(serverT &serverConfig, request &request, responseT &resp
 
 void Client::handleWrite()
 {
+	std::cout << "[DEBUG] handleWrite called for FD=" << fd 
+              << ", writeBuffer size=" << writeBuffer.size() 
+              << ", isReadyToWrite=" << isReadyToWrite << std::endl;
 	if (writeBuffer.empty()) return;
 
 	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), MSG_NOSIGNAL);
@@ -275,6 +278,6 @@ void Client::handleWrite()
 	if (writeBuffer.empty())
 	{
 		isReadyToWrite = false;
-		reset();
+		// reset();
 	}
 }
