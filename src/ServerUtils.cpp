@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 17:47:19 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 19:12:46 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,10 +149,6 @@ void Server::_handleClientActivity(int i)
 				if (value == 0) // check access cgi
 				{
 					handleCgi(request, cgiClient, mateConf, response, m);
-					std::cout << "[DEBUG] Client FD=" << fd
-					<< ", requestComplete=" << client.requestComplete
-					<< ", isCgi=" << cgiClient.isCgi
-					<< ", readBuffer size=" << client.readBuffer.size() << std::endl;
 					forkCgi(cgiClient, client);
 				}
 				else
@@ -171,26 +167,28 @@ void Server::_handleClientActivity(int i)
 			// STEP 6 : build error response
 			if (response.infos.error == true)
 				responseMain(request, response);
-
-			// STEP 7 : PRINT CGI RESPONSE
-			if (isCgi(request, cgiClient, response, mateConf) == true)
-				std::cout << "[RESPONSE CGI]" << client.writeBuffer << std::endl;
-			;
-			// else
-			// 	std::cout << "[RESPONSE]" << response.response;
 		}
 
-		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite)
-		{ // WRITE OK
-			std::cout << "[DEBUG] POLLOUT? fd=" << fd << ", revents=" << _fds[i].revents << ", isReadyToWrite=" << client.isReadyToWrite << std::endl;
+		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) // WRITE OK
+		{ 
+			std::cout << "ICI\n\n";
 			client.handleWrite();
 		}
 			
+		std::cout << client.isReadyToWrite << std::endl;
 		if (client.isReadyToWrite)
-			_fds[i].events = POLLIN | POLLOUT;
+		{
+			std::cout << "LA\n\n";
+			_fds[i].events |= POLLOUT;
+			// _fds[i].events = POLLIN | POLLOUT;
+		}
 			
 		else
-			_fds[i].events = POLLIN;
+		{
+			std::cout << "COUCOU\n\n";
+			_fds[i].events &= ~POLLOUT;
+			// _fds[i].events = POLLIN;
+		}
 	}
 	catch (std::exception &e)
 	{

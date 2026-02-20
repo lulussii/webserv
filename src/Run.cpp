@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 17:48:41 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 18:18:32 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ void Server::run()
 			// READ PIPE
 			if ((_fds[i].revents & POLLIN) && cgiReadMap.count(fd))
 			{
-				std::cout << "OUIIIIIII\n";
 				handleCgiRead(fd);
 			}
 			

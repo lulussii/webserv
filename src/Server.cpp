@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 17:50:20 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 19:04:42 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,22 +204,17 @@ void Server::setup()
 
 void Server::handleCgiRead(int fd)
 {
-	std::cout << "JE SUIS BIEN ICI\n";
 	cgi *cgiClient = cgiReadMap[fd];
 	char buffer[4096];
 
 	ssize_t n = read(fd, buffer, sizeof(buffer));
-	std::cout << "[DEBUG] handleCgiRead FD=" << fd << ", n=" << n << std::endl;
 
 	if (n > 0)
 	{
-		std::cout << "ET LA\n";
 		cgiClient->response.append(buffer, n);
-		std::cout << "[DEBUG] CGI response so far: " << cgiClient->response << std::endl;
 	}
 	else if (n == 0) // EOF : le CGI a fini sa sortie
 	{
-		std::cout << "MAIS AUSSI ICI\n";
 		close(fd);
 		removeFdFromPoll(fd);
 		cgiReadMap.erase(fd);
@@ -233,10 +228,8 @@ void Server::handleCgiRead(int fd)
 		if (_clients.count(cgiClient->clientFd))
 		{
 			Client &client = _clients[cgiClient->clientFd];
-			std::cout << "[DEBUG] What in writeBuffer : " << client.writeBuffer << std::endl;
 			client.writeBuffer = response.response;
 			client.isReadyToWrite = true;
-			std::cout << "[DEBUG] Client FD=" << client.fd << " ready to write, writeBuffer size=" << client.writeBuffer.size() << std::endl;
 
 			addFdToPoll(client.fd, POLLOUT); //ICI
 			// Activer POLLOUT pour le client
@@ -253,7 +246,7 @@ void Server::handleCgiRead(int fd)
 		// Maintenant que le CGI a fini, on peut fermer son pipe d’écriture si fini
 		if (!cgiClient->writing && cgiClient->writePipe[1] >= 0)
 		{
-			close(cgiClient->writePipe[1]);
+			// close(cgiClient->writePipe[1]);
 			removeFdFromPoll(cgiClient->writePipe[1]);
 			cgiWriteMap.erase(cgiClient->writePipe[1]);
 			cgiClient->writePipe[1] = -1;
@@ -289,10 +282,8 @@ void Server::handleCgiWrite(int fd)
 		return;
 	}
 
-	std::cout << "[DEBUG] handleCgiWrite FD=" << fd
-          << ", writeBuffer size=" << cgiClient->writeBuffer.size() << std::endl;
 	ssize_t n = write(fd, cgiClient->writeBuffer.c_str(), cgiClient->writeBuffer.size());
-	std::cout << "[DEBUG] wrote " << n << " bytes to CGI FD=" << fd << std::endl;
+
 	if (n > 0)
 	{
 		cgiClient->writeBuffer.erase(0, n);
@@ -334,6 +325,13 @@ void Server::handleCgiWrite(int fd)
 	// Sinon errno == EAGAIN : rien à faire, on attend le prochain poll
 }
 
+
+
+
+
+
+
+
 void Server::checkCgiProcess()
 {
 	for (std::map<pid_t, cgi *>::iterator it = cgiPidMap.begin(); it != cgiPidMap.end();)
@@ -352,7 +350,16 @@ void Server::checkCgiProcess()
 // new
 void Server::addFdToPoll(int fd, short events)
 {
-	std::cout << "[DEBUG] addFdToPoll fd=" << fd << ", events=" << events << std::endl;
+	// check if already exist
+    for (int i = 0; i < MAX_TOTAL_FDS; i++)
+    {
+        if (_fds[i].fd == fd)
+        {
+            _fds[i].events |= events; // add without delete other
+            return;
+        }
+    }
+	//add if not exist
 	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
 	{
 		if (_fds[i].fd == -1)
@@ -363,7 +370,6 @@ void Server::addFdToPoll(int fd, short events)
 			return;
 		}
 	}
-	std::cerr << "[ERROR] No space to add fd " << fd << " in _fds" << std::endl;
 }
 
 void Server::removeFdFromPoll(int fd)
@@ -398,8 +404,6 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 		}
 
 		cgiClient.pid = fork();
-		std::cout << "[DEBUG] CGI readPipe[0]=" << cgiClient.readPipe[0] 
-          << ", writePipe[1]=" << cgiClient.writePipe[1] << std::endl;
 
 		if (cgiClient.pid == -1)
 		{
@@ -465,16 +469,18 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			if (!cgiClient.body.empty())
 				fcntl(cgiClient.writePipe[1], F_SETFL, O_NONBLOCK);
 
-			cgiClient.writing = !cgiClient.body.empty();
 			cgiClient.reading = true;
-
+			cgiClient.writing = !cgiClient.body.empty();
+				
 			cgiClient.writeBuffer = cgiClient.body; // corps à envoyer au CGI
 			
 			cgiClient.readBuffer.clear();
 
 			// add in poll
-			addFdToPoll(cgiClient.writePipe[1], POLLOUT);
 			addFdToPoll(cgiClient.readPipe[0], POLLIN);
+			if (!cgiClient.body.empty())
+				addFdToPoll(cgiClient.writePipe[1], POLLOUT);
+			
 			// addFdToPoll(cgiClient.writePipe[1], POLLIN);
 			// addFdToPoll(cgiClient.readPipe[0], POLLOUT);
 
@@ -483,11 +489,6 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			cgiWriteMap[cgiClient.writePipe[1]] = &cgiClient;
 
 			client.isReadyToWrite = false;
-
-			std::cout << "[DEBUG] CGI forked. pid=" << cgiClient.pid
-              << ", writePipe[1]=" << cgiClient.writePipe[1]
-              << ", readPipe[0]=" << cgiClient.readPipe[0]
-              << ", writeBuffer size=" << cgiClient.writeBuffer.size() << std::endl;
 		}
 	}
 }

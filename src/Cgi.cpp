@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/20 15:39:06 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 18:03:13 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,7 +380,8 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     {
         response.response += "\r\n";
         std::stringstream length;
-        length << cgi.body.size();
+        length << cgi.response.size();
+        // length << cgi.body.size();
         response.response += "Content-Length: " + length.str();
     }
     response.response += "\r\n";
@@ -390,7 +391,9 @@ void buildCgiResponse(cgi &cgi, responseT &response)
 
     response.response += "\r\n";
 
-    response.response += cgi.body;
+    // response.response += cgi.body;
+    response.response += cgi.response;
+    
 }
 
 
