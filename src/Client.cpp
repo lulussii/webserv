@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 19:06:01 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 14:52:28 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,8 +97,6 @@ long Client::getContentLength(const std::string &buffer)
 
 void Client::processRequest(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
 {
-	std::cout << "[INFO] Request complete. Processing..." << std::endl;
-
 	// method GET
 	if (request._method == "GET" && response.code == 200)
     {
@@ -123,7 +121,7 @@ void Client::processRequest(serverT &serverConfig, request &request, responseT &
     if (response.cgi == false || response.infos.error == true)
         responseMain(request, response);
 
-	std::cout << "\n[RESPONSE]\n" << res.response;
+	std::cout << "\n[RESPONSE]\n" << response.response << std::endl;
 	writeBuffer = response.response;
 	isReadyToWrite = true;
 
@@ -158,7 +156,12 @@ void Client::requestLine(request &request)
 	int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
 	
 	if (bytesRead <= 0)
-		throw std::runtime_error("Read error or client disconnected");
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+		else 
+			throw std::runtime_error("Read error or client disconnected");
+	}
 
 	readBuffer.append(tmpBuffer, bytesRead);
 	lastTime = time(NULL);

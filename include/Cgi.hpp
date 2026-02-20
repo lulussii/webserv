@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/19 18:19:33 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 11:13:33 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct cgi
     bool writing;
     bool reading;
     pid_t pid;
+    int clientFd;
 } cgi ;
 
 void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);

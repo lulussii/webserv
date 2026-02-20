@@ -6,13 +6,15 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/19 16:58:01 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 11:13:53 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Cgi.hpp"
 #include "Multipart.hpp"
 #include "Error.hpp"
+#include "Client.hpp"
+#include "Server.hpp"
 #include <unistd.h>   //stat() access() pipe() fork()
 #include <sys/stat.h> //struct stat
 #include <sstream>    //std::stringstream
@@ -390,6 +392,8 @@ void buildCgiResponse(cgi &cgi, responseT &response)
 
     response.response += cgi.body;
 }
+
+
 
 /**
  * @brief `Main CGI handler for the request`

@@ -6,17 +6,21 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 18:42:58 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 14:06:47 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Cgi.hpp"
+#include "Response.hpp"
 
 bool server_run = true;
 
 void Server::run()
 {
 	const int totalFds = MAX_TOTAL_FDS;
+	responseT responseCgi;
+	
 	while(server_run)
 	{
 		int ret = poll(_fds, totalFds, 1000);
@@ -32,9 +36,30 @@ void Server::run()
 	
 		for (int i = _nbListeningSockets; i < totalFds; i++)
 		{
-			if (_fds[i].fd != -1 && _fds[i].revents != 0)
-				_handleClientActivity(i);
+			int fd = _fds[i].fd;
+
+			if (fd == -1)
+				continue;
+
+			// READ PIPE
+			if (_fds[i].revents & (POLLERR | POLLHUP))
+			{
+				removeFdFromPoll(fd);
+				close(fd);
+				continue;
+			}
+			if (cgiReadMap.count(fd))
+				handleCgiRead(fd, responseCgi);
+			
+			// WRITE PIPE
+			else if (cgiWriteMap.count(fd))
+				handleCgiWrite(fd);
+				
+			else if (_fds[i].revents != 0)
+				_handleClientActivity(i, responseCgi);
 		}
+
+		checkCgiProcess();
 		_checkTimeouts();
 	}
 	std::cout << "\n[INFO] Server stopping gracefully..." << std::endl;

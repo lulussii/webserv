@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/19 14:19:40 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 14:50:07 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -250,7 +250,6 @@ void contentType(responseT &response, request &request)
     else
         extension = request._url.substr(dot);
 
-    std::cout << "extension " << extension << std::endl;
     if (extension.find("?") != std::string::npos)
     {
         size_t end = extension.find("?");

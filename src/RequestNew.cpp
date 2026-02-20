@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/19 17:00:14 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 14:50:42 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,7 +236,7 @@ bool checkIs(request &request, responseT &response)
  */
 void requestMainNew(request &request, serverT &serverConfig, responseT &response)
 {
-    std::cout << "[REQUEST] : " << request.lineRequest << std::endl;
+    std::cout << "[REQUEST] :\n" << request.lineRequest << std::endl;
     
     // step 1 : firstline extract and parsing
     if (firstLine(request) == 1)

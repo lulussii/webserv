@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 19:20:52 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/20 14:49:11 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,8 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 
 	int clientIndex = -1;
-	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS + _nbListeningSockets; i++)
+	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
+	// for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS + _nbListeningSockets; i++)
 	{
 		if (_fds[i].fd == -1)
 		{
@@ -88,7 +89,7 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 }
 
-void Server::_handleClientActivity(int i)
+void Server::_handleClientActivity(int i, responseT &responseCgi)
 {
 	int fd = _fds[i].fd;
 	if (_clients.find(fd) == _clients.end())
@@ -125,23 +126,31 @@ void Server::_handleClientActivity(int i)
 		{
 			// STEP 2 : RECUPERE REQUEST REQUEST
 			if (!client.requestComplete)
-			client.requestLine(request);
+				client.requestLine(request);
 
 			// STEP 3 : REQUEST PARSING (need it to know if CGI)
 			if (client.requestComplete)
+			{
+				std::cout << "[INFO] Request complete. Processing..." << std::endl;
 				requestMainNew(request, mateConf, response);
-
+			}
+	
 			// STEP 4 : CGI ?
-			if (isCgi(request, cgiClient, response, mateConf) == true)
+			if (client.requestComplete && isCgi(request, cgiClient, responseCgi, mateConf) == true)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
 				Multipart m; //to delete
+				responseCgi.location.index = response.location.index;
+				responseCgi.location.cgiBinary = response.location.cgiBinary;
+				responseCgi.location.cgiExtension = response.location.cgiExtension;
 				int value = accessCgi(cgiClient); //check access cgi
 				if (value == 0)
 				{
-					handleCgi(request, cgiClient, mateConf, response, m);
+					handleCgi(request, cgiClient, mateConf, responseCgi, m);
 					if (cgiClient.pid == -1)
 					{
+						client.writeBuffer = responseCgi.response;
+						client.isReadyToWrite = true;
 						if (pipe(cgiClient.writePipe) == -1 || pipe(cgiClient.readPipe) == -1)
 						{
 							// if (cgiClient.writePipe)
@@ -212,30 +221,29 @@ void Server::_handleClientActivity(int i)
 						}
 						else //parent
 						{
+							cgiClient.clientFd = client.fd;
 							close(cgiClient.writePipe[0]);
 							close(cgiClient.readPipe[1]);
+							
+							fcntl(cgiClient.readPipe[0], F_SETFL, O_NONBLOCK);
+							fcntl(cgiClient.writePipe[1], F_SETFL, O_NONBLOCK);
+							
 							cgiClient.writing = true;
 							cgiClient.reading = true;
+
 							cgiClient.writeBuffer = cgiClient.body; // corps à envoyer au CGI
 							cgiClient.readBuffer.clear();
+
+							//add in poll
+							addFdToPoll(cgiClient.writePipe[1], POLLOUT);
+							addFdToPoll(cgiClient.readPipe[0], POLLIN);
+
+							cgiPidMap[cgiClient.pid] = &cgiClient;
+							cgiReadMap[cgiClient.readPipe[0]] = &cgiClient;
+							cgiWriteMap[cgiClient.writePipe[1]] = &cgiClient;
+							
+							client.isReadyToWrite = false;
 						}
-					}
-				}
-				if (cgiClient.isCgi && cgiClient.reading) 
-				{
-					char buffer[4096];
-					ssize_t n = read(cgiClient.readPipe[0], buffer, sizeof(buffer));
-					if (n > 0)
-						cgiClient.readBuffer.append(buffer, n);
-					else if (n == 0) // EOF
-					{
-						cgiClient.reading = false;
-						close(cgiClient.readPipe[0]);
-						close(cgiClient.writePipe[1]);
-						parsStdout(cgiClient);
-						buildCgiResponse(cgiClient, response);
-						client.writeBuffer = cgiClient.readBuffer;
-						client.isReadyToWrite = true;
 					}
 				}
 				else 
@@ -244,33 +252,32 @@ void Server::_handleClientActivity(int i)
 						errorCode(response, mateConf, 404);
 					if (value == 403)
 						errorCode(response, mateConf, 403);
-				}
-				if (response.infos.error == true)
-				{
-					responseMain(request, response);
-					client.writeBuffer = response.response;
-					client.isReadyToWrite = true;
-					std::cout << "[INFO] Response generated. Size " << client.writeBuffer.size() << " bytes." << std::endl;
-				}
+				}					
+				client.writeBuffer = responseCgi.response;
+				client.isReadyToWrite = true;
+				std::cout << "[INFO] Response generated. Size " << client.writeBuffer.size() << " bytes." << std::endl;
+				
 			}
 			// STEP 5 : STATIC METHOD : GET POST DELETE
-			if (cgiClient.isCgi == false && response.infos.error == false)
+			else if (cgiClient.isCgi == false && response.infos.error == false)
+			{
+				
 				client.handleRead(mateConf, request, response, cgiClient);
+			}
 			
+			// STEP 6 : build error response
+			if (response.infos.error == true)
+			{
+				responseMain(request, response);
+			}
+			
+			// STEP 7 : PRINT CGI RESPONSE
+			if (isCgi(request, cgiClient, responseCgi, mateConf) == true)
+				std::cout << "[RESPONSE CGI]" << client.writeBuffer << std::endl; //responseCgi.response;
 		}
 
 		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) //WRITE OK
 		{
-			if (cgiClient.isCgi == true && cgiClient.writing == true)
-			{
-                ssize_t n = write(cgiClient.writePipe[1], cgiClient.writeBuffer.c_str(), std::min(cgiClient.writeBuffer.size(), static_cast<size_t>(4096)));
-                if (n > 0)
-                {
-                    cgiClient.writeBuffer.erase(0, n);
-                    if (cgiClient.writeBuffer.empty())
-                        cgiClient.writing = false;
-                }
-            }
 			client.handleWrite();
 		}
 		if (client.isReadyToWrite)
