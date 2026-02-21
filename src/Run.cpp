@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 14:40:58 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 14:57:09 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,9 @@ bool server_run = true;
  *    - Skips if `revents == 0` (no events on this fd).
  *
  * 4. Error and hangup handling:
- *    - If `revents` has `POLLERR` or `POLLHUP`, the fd is closed and removed from poll.
+ *    - If `revents` has `POLLERR` the fd is closed and removed from poll.
+ * 	  - If `revents` has `POLLHUP`(EOF) 
+ * 		- Calls `handleCgiRead(fd)` to read CGI output, parse it, and build HTTP responses.
  *
  * 5. CGI pipes handling:
  *    - If the fd has `POLLIN` and exists in `cgiReadMap`, it is a CGI output pipe ready to read.
@@ -57,11 +59,11 @@ bool server_run = true;
  * 9. Loop continues until `server_run` is false.
  *    - When the server stops, it prints "[INFO] Server stopping gracefully...".
  *
- * @note This function manages the multiplexing of:
- *       - Listening sockets (new connections)
- *       - Client sockets (read/write)
- *       - CGI pipes (read/write)
- *       All using a single `poll()` loop.
+ * @note Multiplexed IO using poll():
+ *    - POLLIN: data is available to read (new connection, client data, CGI output)
+ *    - POLLOUT: fd is ready to write (send client response, write to CGI stdin)
+ *    - POLLERR: error occurred on fd (socket error, broken pipe)
+ *    - POLLHUP: peer has closed connection (EOF on pipe or socket closed)
  */
 void Server::run()
 {
@@ -89,14 +91,6 @@ void Server::run()
 
 			if (_fds[i].revents == 0)
 				continue;
-				
-			
-			// if (_fds[i].revents & (POLLERR | POLLHUP))
-			// {
-			// 	removeFdFromPoll(fd);
-			// 	close(fd);
-			// 	continue;
-			// }
 
 			if (_fds[i].revents & POLLERR)
 			{
@@ -120,9 +114,7 @@ void Server::run()
 
 			// READ PIPE
 			if ((_fds[i].revents & POLLIN) && cgiReadMap.count(fd))
-			{
 				handleCgiRead(fd);
-			}
 			
 			// WRITE PIPE
 			if ((_fds[i].revents & POLLOUT) && cgiWriteMap.count(fd))
