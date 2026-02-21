@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 10:16:39 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:08:36 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <cstring>
 #include "Server.hpp"
+#include "Client.hpp"
 
 void handle_sigint(int sig)
 {
@@ -21,12 +22,12 @@ void handle_sigint(int sig)
 
 Server::Server(const std::vector<ServerConfig> &configs) : _nbListeningSockets(0), _configs(configs)
 {
-	std::memset(_fds, 0, sizeof(_fds)); 
+	std::memset(_fds, 0, sizeof(_fds));
 
-    for (int i = 0; i < MAX_TOTAL_FDS; i++)
+	for (int i = 0; i < MAX_TOTAL_FDS; i++)
 	{
-        _fds[i].fd = -1;
-    }
+		_fds[i].fd = -1;
+	}
 }
 
 Server::~Server()
@@ -60,27 +61,33 @@ void Server::setup()
 		for (size_t j = 0; j < _configs[i]._listen.size(); j++)
 		{
 			int currentPort = _configs[i]._listen[j].port;
-			
+
 			bool alreadyOpen = false;
-			for (size_t k = 0; k < openPorts.size(); k++) {
-				if (openPorts[k] == currentPort) { alreadyOpen = true; break; }
+			for (size_t k = 0; k < openPorts.size(); k++)
+			{
+				if (openPorts[k] == currentPort)
+				{
+					alreadyOpen = true;
+					break;
+				}
 			}
-			if (alreadyOpen) continue;
-			
+			if (alreadyOpen)
+				continue;
+
 			int fd = _createServerSocket(currentPort);
 			if (fd == -1)
 			{
 				std::cerr << "[WARNING] Port " << currentPort << " busy. Skipping." << std::endl;
 				continue;
 			}
-			
+
 			_fds[fdsIndex].fd = fd;
 			_fds[fdsIndex].events = POLLIN;
 			_fds[fdsIndex].revents = 0;
 			_serverSockets[fd] = currentPort;
 			openPorts.push_back(currentPort);
 			fdsIndex++;
-			
+
 			std::cout << "[INFO] Listening on port " << currentPort << std::endl;
 		}
 	}
@@ -89,3 +96,45 @@ void Server::setup()
 	if (_nbListeningSockets == 0)
 		throw std::runtime_error("Fatal: No ports available.");
 }
+
+// new
+void Server::addFdToPoll(int fd, short events)
+{
+	// check if already exist
+    for (int i = 0; i < MAX_TOTAL_FDS; i++)
+    {
+        if (_fds[i].fd == fd)
+        {
+            _fds[i].events |= events; // add without delete other
+            return;
+        }
+    }
+	//add if not exist
+	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
+	{
+		if (_fds[i].fd == -1)
+		{
+			_fds[i].fd = fd;
+			_fds[i].events = events;
+			_fds[i].revents = 0;
+			return;
+		}
+	}
+}
+
+void Server::removeFdFromPoll(int fd)
+{
+	for (int i = 0; i < MAX_TOTAL_FDS; i++)
+	{
+		if (_fds[i].fd == fd)
+		{
+			_fds[i].fd = -1;
+			return;
+		}
+	}
+}
+
+
+
+
+

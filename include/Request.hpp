@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 15:49:28 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/10 10:47:25 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/19 16:40:06 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ struct cgi;
 
 typedef struct request
 {
+    std::string lineRequest;
     std::string _method;
     std::string _url;
     std::string _version;
@@ -37,6 +38,8 @@ typedef struct parsingS
     std::string line;
 } parsingT;
 
-void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi);
+// void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi);
+void requestMainNew(request &request, serverT &serverConfig, responseT &response);
+
 
 #endif

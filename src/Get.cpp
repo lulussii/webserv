@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: Invalid date        by                   #+#    #+#             */
-/*   Updated: 2026/02/19 12:51:25 by lserodon         ###   ########.fr       */
+/*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
+/*   Updated: 2026/02/21 17:25:30 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,15 +236,21 @@ int readFile(responseT &response)
  */
 void contentType(responseT &response, request &request)
 {
+    std::string extension;
     size_t dot = request._url.rfind(".");
     if (dot == std::string::npos)
     {
-        response.contentType = "application/octet-stream";
-        return;
+        dot = response.location.index.rfind(".");
+        if (dot == std::string::npos)
+        {
+            response.contentType = "application/octet-stream";
+            return;
+        }
+        extension = response.location.index.substr(dot);
     }
-    std::string extension = request._url.substr(dot);
+    else
+        extension = request._url.substr(dot);
 
-    std::cout << "extension " << extension << std::endl;
     if (extension.find("?") != std::string::npos)
     {
         size_t end = extension.find("?");
@@ -292,16 +298,17 @@ int getMain(request &request, responseT &response, serverT &serverConfig, cgi &c
 {
     pathBuild(response, serverConfig, request);
 
-    if (response.cgi == true)
-    {
-        Multipart m;
-        handleCgi(request, cgi, serverConfig, response, m);
-        if (cgiPipe(cgi) == 500)
-            errorCode(response, serverConfig, 500);
-        parsStdout(cgi);
-        buildCgiResponse(cgi, response);
-        return (0);
-    }
+    (void) cgi;
+    // if (response.cgi == true)
+    // {
+    //     Multipart m;
+    //     handleCgi(request, cgi, serverConfig, response, m);
+    //     if (cgiPipe(cgi) == 500)
+    //         errorCode(response, serverConfig, 500);
+    //     parsStdout(cgi);
+    //     buildCgiResponse(cgi, response);
+    //     return (0);
+    // }
 
     if (existAndType(response, serverConfig) != 0)
         return (0);

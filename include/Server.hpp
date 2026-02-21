@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 09:15:41 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:51:23 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,23 @@ class Server
 		void run();
 		
 		ServerConfig &getConfig(int port, std::string hostHeader);
-};
+
+		/*CGI PART*/
+		std::map<int, cgi*> cgiReadMap;
+		std::map<int, cgi*> cgiWriteMap;
+		std::map<pid_t, cgi*> cgiPidMap;
+
+		void handleCgiRead(int fd);
+		void handleCgiWrite(int fd);
+		void checkCgiProcess();
+
+		void forkCgi(cgi &cgiClient, Client &client);
+		/*END CGI PART*/
+
+		void addFdToPoll(int fd, short events);
+		void removeFdFromPoll(int fd);
+	};
+	
 
 void handle_sigint(int sig);
 

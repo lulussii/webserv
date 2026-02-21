@@ -1,21 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Request.cpp                                        :+:      :+:    :+:   */
+/*   RequestNew.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/19 16:41:25 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 13:15:24 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h> //read
 #include "Request.hpp"
 #include "Config.hpp"
 #include "Error.hpp"
 #include "Response.hpp"
-#include "Cgi.hpp"
 
 // static void debug(responseT &response)
 // {
@@ -56,23 +54,23 @@
  *
  * @return 1 if problem, else 0
  */
-static int firstLine(parsingT &p, request &request)
+static int firstLine(request &request)
 {
     // step 1 : extract the first line
-    size_t i = p.line.find("\r\n");
+    size_t i = request.lineRequest.find("\r\n");
 
     if (i == std::string::npos)
     {
-        i = p.line.find('\n');
+        i = request.lineRequest.find('\n');
         if (i == std::string::npos) // security for find, if doesn't find, find return the bigger size_t
             return (1);
     }
-    std::string firstLine = p.line.substr(0, i);
+    std::string firstLine = request.lineRequest.substr(0, i);
     
     size_t skip = 2;
-    if (p.line[i] == '\n') // if end of the line with only \n
+    if (request.lineRequest[i] == '\n') // if end of the line with only \n
         skip = 1;
-    p.line = p.line.substr(i + skip); // remove \n or \r\n end first line
+    request.lineRequest = request.lineRequest.substr(i + skip); // remove \n or \r\n end first line
 
     // step 2 : pars the first line
     size_t pos1 = firstLine.find(' ');
@@ -91,7 +89,7 @@ static int firstLine(parsingT &p, request &request)
 /**
  * @brief `Headers parsing`
  * 
- * step 1 : Loop on each line from p.line (without first line)
+ * step 1 : Loop on each line from request.lineRequest (without first line)
  *  - Search end of line '\n' or '\r\n'
  *  - Extract line 
  *  - Delete extract line from p.line
@@ -104,24 +102,24 @@ static int firstLine(parsingT &p, request &request)
  * step 4 : Add in request.headers
  * 
  */
-static int headers(parsingT &p, request &request)
+static int headers(request &request)
 {
     while (true)
     {
-        size_t end = p.line.find("\r\n");
+        size_t end = request.lineRequest.find("\r\n");
         size_t skip = 2; // if \r\n
 
         if (end == std::string::npos)
         {
-            end = p.line.find('\n');
+            end = request.lineRequest.find('\n');
             skip = 1;
         }
         if (end == std::string::npos)
             break;
 
-        std::string headerLine = p.line.substr(0, end);
+        std::string headerLine = request.lineRequest.substr(0, end);
         
-        p.line = p.line.substr(end + skip); // delete the line already read
+        request.lineRequest = request.lineRequest.substr(end + skip); // delete the line already read
 
         if (headerLine.empty())
             break; // end header
@@ -146,9 +144,9 @@ static int headers(parsingT &p, request &request)
  * step 2 : content length with size
  *
  */
-static void postBody(parsingT &p, request &request)
+static void postBody(request &request)
 {
-    request._body = p.line;
+    request._body = request.lineRequest;
     request.contentLenght = request._body.size();
 }
 
@@ -236,19 +234,19 @@ bool checkIs(request &request, responseT &response)
  * step 6 : Verify that the request method is allowed in this location. 
  *
  */
-void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT &response, cgi &cgi)
+void requestMainNew(request &request, serverT &serverConfig, responseT &response)
 {
-    std::cout << "[REQUEST] : " << p.line << std::endl;
+    std::cout << "[REQUEST] :\n" << request.lineRequest << std::endl;
     
     // step 1 : firstline extract and parsing
-    if (firstLine(p, request) == 1)
+    if (firstLine(request) == 1)
     {
        errorCode(response, serverConfig, 400);
        return ;
     }
 
     // step 2 : headers parsing
-    if (headers(p, request) == 1)
+    if (headers(request) == 1)
     {
        errorCode(response, serverConfig, 400);
        return ;
@@ -256,7 +254,7 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT
 
     // step 3 : if POST method, read body
     if (request._method == "POST")
-        postBody(p, request);
+        postBody(request);
 
     if (foundLocation(request, serverConfig, response) == false)
     {
@@ -264,8 +262,6 @@ void requestMain(request &request, parsingT &p, serverT &serverConfig, responseT
         return ;
     }
     
-    // step 4 : CGI
-    cgiMain(request, cgi, serverConfig, response);
     // debug(response);
 
     if (checkIs(request, response) == false)
