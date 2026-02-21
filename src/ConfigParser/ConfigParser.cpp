@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:27:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/18 13:59:05 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 12:00:10 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ void ConfigParser::_handleLocationBlock(std::string &args, std::ifstream &file, 
 		_validateBlockStart(ssLoc, file);
 	parseLocation(file, server, path);
 }
+
 void ConfigParser::parseServer(std::ifstream &file)
 {
 	ServerConfig currentServer;
@@ -61,11 +62,14 @@ void ConfigParser::parseServer(std::ifstream &file)
 	while (std::getline(file, line))
 	{
 		_lineNumber++;
+
+		_stripComments(line);
+		
 		std::stringstream ss(line);
 		std::string key;
 		ss >> key;
 
-		if (key.empty() || key[0] == '#')
+		if (key.empty())
 			continue;
 
 		if (key == "}") {
@@ -105,13 +109,18 @@ void ConfigParser::parse(std::string path)
 	while (std::getline(config, line))
 	{
 		_lineNumber++;
-		if (line.empty()) continue;
+
+		_stripComments(line);
+		
+		if (line.empty()) 
+			continue;
 
 		std::stringstream ss(line);
 		std::string key;
 		ss >> key;
 
-		if (key.empty() || key[0] == '#') continue;
+		if (key.empty()) 
+			continue;
 
 		if (key == "server")
 		{
@@ -123,4 +132,6 @@ void ConfigParser::parse(std::string path)
 			_throwError("Syntax Error: Content found outside server block: " + key);
 		}
 	}
+	if (this->_servers.empty())
+		_throwError("Config Error: File is empty or contains no valid server blocks");
 }

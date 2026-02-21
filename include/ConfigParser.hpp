@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 11:13:02 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/18 13:58:47 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:56:18 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class ConfigParser
 		int				_parsePort(const std::string &str);
 		bool			_isValidIP(const std::string &ip);
 		unsigned long	_parseBytes(std::string str);
+		void			_stripComments(std::string &line);
 
 	public: 
 

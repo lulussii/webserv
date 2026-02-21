@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 09:53:30 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 10:07:48 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:36:08 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ ServerConfig::ServerConfig()
 {
 	this->_root = "";
 	this->_clientMaxBodySize = 1000000;
+	this->_clientMaxBodySizeDefined = false;
 	this->_autoIndex = -1;
 }
 

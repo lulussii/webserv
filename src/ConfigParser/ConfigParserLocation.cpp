@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:23:21 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:38:51 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:55:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,12 @@ void ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 			method.erase(method.size() - 1);
 			end = true;
 		}
+		if (method.empty())
+		{
+			if (end)
+				break;
+			continue;
+		}
 		if (method == "GET" && !loc._allowGet) 
 			loc._allowGet = true;
 		else if (method == "POST" && !loc._allowPost) 
@@ -38,10 +44,13 @@ void ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 		else
 			_throwError("Config Error: Invalid or duplicate method: " + method);
 
-		if (end) break;
+		if (end) 
+			break;
 	}
 	if (!end)
 		_throwError("Syntax Error: Missing semicolon at end of methods");
+
+	_checkExtraArgs(ss);
 }
 
 void ConfigParser::parseReturn(std::string &args, LocationConfig &loc)
@@ -110,11 +119,14 @@ void ConfigParser::parseLocation(std::ifstream &file, ServerConfig &server, std:
 	while (std::getline(file, line))
 	{
 		_lineNumber++;
+
+		_stripComments(line);
 		std::stringstream ss(line);
 		std::string key;
 		ss >> key;
 
-		if (key.empty() || key[0] == '#') continue;
+		if (key.empty()) 
+			continue;
 
 		if (key == "}")
 		{
