@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 19:12:46 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 11:08:45 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,6 @@ void Server::_acceptNewConnection(int listeningIndex)
 
 
 
-
-
-
-
 void Server::_handleClientActivity(int i)
 {
 	int fd = _fds[i].fd;
@@ -171,21 +167,21 @@ void Server::_handleClientActivity(int i)
 
 		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) // WRITE OK
 		{ 
-			std::cout << "ICI\n\n";
+			// std::cout << "ICI\n\n";
 			client.handleWrite();
+
+			if (client.isReadyToWrite)
+			{
+				// std::cout << "LA\n\n";
+				_fds[i].events |= POLLOUT;
+				// _fds[i].events = POLLIN | POLLOUT;
+			}
 		}
-			
-		std::cout << client.isReadyToWrite << std::endl;
-		if (client.isReadyToWrite)
-		{
-			std::cout << "LA\n\n";
-			_fds[i].events |= POLLOUT;
-			// _fds[i].events = POLLIN | POLLOUT;
-		}
+		
 			
 		else
 		{
-			std::cout << "COUCOU\n\n";
+			// std::cout << "COUCOU\n\n";
 			_fds[i].events &= ~POLLOUT;
 			// _fds[i].events = POLLIN;
 		}
