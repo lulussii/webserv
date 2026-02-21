@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:00:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 14:40:58 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,30 @@ void Server::run()
 				continue;
 				
 			
-			if (_fds[i].revents & (POLLERR | POLLHUP))
+			// if (_fds[i].revents & (POLLERR | POLLHUP))
+			// {
+			// 	removeFdFromPoll(fd);
+			// 	close(fd);
+			// 	continue;
+			// }
+
+			if (_fds[i].revents & POLLERR)
 			{
 				removeFdFromPoll(fd);
 				close(fd);
+				continue;
+			}
+
+			if (_fds[i].revents & POLLHUP)
+			{
+				if (cgiReadMap.count(fd))
+					handleCgiRead(fd);
+
+				else
+				{
+					removeFdFromPoll(fd);
+					close(fd);
+				}
 				continue;
 			}
 

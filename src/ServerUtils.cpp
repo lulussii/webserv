@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 13:17:56 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 13:22:38 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,11 @@ void Server::_handleClientActivity(int i)
 				int value = accessCgi(cgiClient);
 				if (value == 0) // check access cgi
 				{
-					handleCgi(request, cgiClient, mateConf, response, m);
-					forkCgi(cgiClient, client);
+					if (cgiClient.pid == -1)
+					{
+						handleCgi(request, cgiClient, mateConf, response, m);
+						forkCgi(cgiClient, client);
+					}
 				}
 				else
 				{

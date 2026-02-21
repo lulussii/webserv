@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/21 12:58:37 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 14:33:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,12 @@ void Server::handleCgiRead(int fd)
 		// std::cout << "[DEBUG] Reading is : " << cgiClient->response << std::endl;
 	}
     
-	else if (n == 0) // EOF : le CGI a fini sa sortie
+    int status;
+    pid_t result = waitpid(cgiClient->pid, &status, WNOHANG);
+
+    std::cout << "RESULT = " << result;
+    std::cout << " PID = " << cgiClient->pid << std::endl;
+    if (result == cgiClient->pid || n == 0)
 	{
 		std::cout << "ICI";
 		close(fd);
@@ -88,7 +93,6 @@ void Server::handleCgiRead(int fd)
 			cgiClient->writePipe[1] = -1;
 		}
 	}
-    
 	else if (n == -1)
 	{
 		close(fd);
@@ -373,16 +377,15 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 
 		else if (cgiClient.pid == 0) // child
 		{
-			
-			dup2(cgiClient.readPipe[1], STDOUT_FILENO);
-			dup2(cgiClient.writePipe[0], STDIN_FILENO);
-			
+			if (dup2(cgiClient.writePipe[0], STDIN_FILENO) == -1)
+                std::cerr << "Error: dup2 failed." << std::endl;
+			if (dup2(cgiClient.readPipe[1], STDOUT_FILENO) == -1)
+                std::cerr << "Error: dup2 failed." << std::endl;
 			close(cgiClient.readPipe[0]);
 			close(cgiClient.readPipe[1]);
 			close(cgiClient.writePipe[0]);
 			close(cgiClient.writePipe[1]);
 
-			
 			char *args[] = {const_cast<char *>(cgiClient.binaryPath.c_str()), const_cast<char *>(cgiClient.scriptPath.c_str()), NULL};
             std::vector<std::string> env;
             std::vector<char *> envp;
@@ -415,6 +418,7 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			//Init writing buffer to CGI
 			cgiClient.writeBuffer = cgiClient.body;
 
+            std::cout << "BODY SIZE = " << cgiClient.body.size() << std::endl;
 			if (cgiClient.body.empty())
 			{
 				//nothing to write so we close writing pipe to have EOF (GET)
@@ -422,7 +426,7 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 				cgiClient.writePipe[1] = -1;
 				cgiClient.writing = false;
 			}
-			
+            
 			else if (!cgiClient.body.empty())
 			{
 				// do writing no blocking
