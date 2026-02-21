@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:08:45 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 13:17:56 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 }
 
-
-
 void Server::_handleClientActivity(int i)
 {
 	int fd = _fds[i].fd;
@@ -101,7 +99,7 @@ void Server::_handleClientActivity(int i)
 	int clientPort = client.getServerPort();
 	cgi &cgiClient = client.cgiClient;
 
-	ServerConfig &currentConfig = _configs[0];
+	ServerConfig &currentConfig = _configs[0]; // MUST CHANGE TO CHOOSE 8080 OR 8081???????
 
 	for (size_t j = 0; j < _configs.size(); j++)
 	{
@@ -166,25 +164,11 @@ void Server::_handleClientActivity(int i)
 		}
 
 		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) // WRITE OK
-		{ 
-			// std::cout << "ICI\n\n";
 			client.handleWrite();
-
-			if (client.isReadyToWrite)
-			{
-				// std::cout << "LA\n\n";
-				_fds[i].events |= POLLOUT;
-				// _fds[i].events = POLLIN | POLLOUT;
-			}
-		}
-		
-			
+		if (client.isReadyToWrite)
+			_fds[i].events = POLLIN | POLLOUT;
 		else
-		{
-			// std::cout << "COUCOU\n\n";
-			_fds[i].events &= ~POLLOUT;
-			// _fds[i].events = POLLIN;
-		}
+			_fds[i].events = POLLIN;
 	}
 	catch (std::exception &e)
 	{

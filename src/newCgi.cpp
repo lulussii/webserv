@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/21 12:08:52 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 12:58:37 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,7 +361,6 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 		}
 
 		cgiClient.pid = fork();
-		std::cout << "PID : " << cgiClient.pid << std::endl; 
 
 		if (cgiClient.pid == -1)
 		{

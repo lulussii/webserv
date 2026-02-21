@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/20 17:24:39 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 13:15:16 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,60 +208,12 @@ void Client::requestLine(request &request)
 
 void Client::handleRead(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
 {
-	// char tmpBuffer[4096];
-	// int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
-	
-	// if (bytesRead <= 0)
-	// 	throw std::runtime_error("Read error or client disconnected");
-
-	// readBuffer.append(tmpBuffer, bytesRead);
-	// lastTime = time(NULL);
-
-	// if (!headersReceived)
-	// {
-	// 	size_t	headerEnd = readBuffer.find("\r\n\r\n");
-	// 	if (headerEnd != std::string::npos)
-	// 	{
-	// 		headersReceived = true;
-	// 		bodyStartIndex = headerEnd + 4;
-
-	// 		parseHeaders(readBuffer.substr(0, headerEnd), this->req);
-
-	// 		this->isChunkedRequest = isChunked(this->req);
-	// 		if (!this->isChunkedRequest)
-	// 			this->contentLength = getContentLength(readBuffer);
-	// 	}
-	// }
-	// if (headersReceived)
-	// {
-	// 	if (this->isChunkedRequest)
-	// 	{
-	// 		if (readBuffer.find("0\r\n\r\n", bodyStartIndex) != std::string::npos)
-	// 		{
-	// 			this->req._body = readBuffer.substr(bodyStartIndex);
-	// 			chunkedParsing(this->req, this->res);
-	// 			requestComplete = true;
-	// 		}
-	// 	}	
-	// 	else
-	// 	{
-	// 		size_t	currentBodySize = readBuffer.size() - bodyStartIndex;
-	// 		if (currentBodySize >= (size_t)contentLength)
-	// 		{
-	// 			this->req._body = readBuffer.substr(bodyStartIndex, contentLength);
-	// 			requestComplete = true;
-	// 		}
-	// 	}
-		// if (requestComplete)
-			processRequest(serverConfig, request, response, cgi);
-	// }
+	if (requestComplete)
+		processRequest(serverConfig, request, response, cgi);
 }
 
 void Client::handleWrite()
 {
-	std::cout << "[DEBUG] handleWrite called for FD=" << fd 
-              << ", writeBuffer size=" << writeBuffer.size() 
-              << ", isReadyToWrite=" << isReadyToWrite << std::endl;
 	if (writeBuffer.empty()) return;
 
 	int bytesSent = send(fd, writeBuffer.c_str(), writeBuffer.size(), MSG_NOSIGNAL);
@@ -278,6 +230,6 @@ void Client::handleWrite()
 	if (writeBuffer.empty())
 	{
 		isReadyToWrite = false;
-		// reset();
+		reset();
 	}
 }

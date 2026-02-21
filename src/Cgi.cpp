@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/21 11:56:42 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/21 12:53:15 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
 
     cgi.serverProtocol = request._version;
 
-    if (m.content.empty())
+    if (m.content.empty()) //ICI
         cgi.body = request._body;
     else
         cgi.body = m.content;
