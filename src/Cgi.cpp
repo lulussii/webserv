@@ -6,12 +6,11 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/21 14:28:31 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:11:43 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Cgi.hpp"
-#include "Multipart.hpp"
 #include "Error.hpp"
 #include "Client.hpp"
 #include "Server.hpp"
@@ -109,7 +108,7 @@ int accessCgi(cgi &cgi)
  * step 9 : set status code for CGI environment (REDIRECT_STATUS)
  *
  */
-void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m)
+void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response)
 {
     if (request._method == "GET" || request._method == "POST")
         cgi.method = request._method;
@@ -129,11 +128,7 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
 
     cgi.serverProtocol = request._version;
 
-    // (void)m;
-    if (m.content.empty())
-        cgi.body = request._body;
-    else
-        cgi.body = m.content;
+    cgi.body = request._body;
 
     if (request._method != "GET")
     {
@@ -149,151 +144,6 @@ void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &res
     cgi.code = code.str();
 }
 
-/**
- * @brief `Execute the CGI script using fork and pipes`
- *
- * step 1 : create two pipes (one for input, one for output)
- *      pipe1 body : write in stdin from script
- *      pipe2 response : read from stdou from script
- *
- * step 2 : fork a child process
- *   - (child) : redirect stdin/stdout to pipes using dup2
- *   - (child) : build argv and envp for execve
- *   - (child) : change working directory to script directory
- *   - (child) : execute CGI binary with script
- *
- * step 3 : parent process
- *   - write request body to child stdin pipe
- *   - read CGI stdout from child into cgi.response
- *   - wait for child process to finish
- *
- * Infos :
- *      POLLIN ready to read
- *      POLLOUT ready to write
- *      POLLERR error
- *      POLLUP EOF
- *
- * @return 0 on success, 500 on pipe/fork errors
- */
-int cgiPipe(cgi &cgi)
-{
-    int body[2];
-    int response[2];
-    cgi.response.clear();
-
-    if (pipe(body) == -1 || pipe(response) == -1)
-        return (500);
-
-    pid_t pid = fork();
-
-    if (pid < 0)
-    {
-        close(body[0]);
-        close(body[1]);
-        close(response[0]);
-        close(response[1]);
-        return (500);
-    }
-
-    else if (pid == 0)
-    {
-        close(body[1]);     // don't write
-        close(response[0]); // dont read
-
-        if (dup2(body[0], STDIN_FILENO) == -1) // read stdin from body
-        {
-            close(body[0]);
-            close(response[1]);
-            // return (500);
-        }
-        if (dup2(response[1], STDOUT_FILENO) == -1) // write on stdout to body
-        {
-            close(body[0]);
-            close(response[1]);
-            // return (500);
-        }
-        close(body[0]);
-        close(response[1]);
-
-        char *args[] = {const_cast<char *>(cgi.binaryPath.c_str()), const_cast<char *>(cgi.scriptPath.c_str()), NULL};
-
-        std::vector<std::string> env;
-        env.push_back("REQUEST_METHOD=" + cgi.method);
-        env.push_back("SCRIPT_FILENAME=" + cgi.scriptPath);
-        env.push_back("QUERY_STRING=" + cgi.queryString);
-        env.push_back("CONTENT_TYPE=" + cgi.contentType);
-        env.push_back("CONTENT_LENGTH=" + cgi.contentLenght);
-        env.push_back("GATEWAY_INTERFACE=CGI/1.1");
-        env.push_back("SERVER_PROTOCOL=" + cgi.serverProtocol);
-        env.push_back("SERVER_NAME=" + cgi.serverName);
-        env.push_back("SERVER_PORT=" + cgi.serverPort);
-        env.push_back("REDIRECT_STATUS=" + cgi.code);
-
-        std::vector<char *> envp;
-        for (size_t i = 0; i < env.size(); i++)
-            envp.push_back(const_cast<char *>(env[i].c_str()));
-        envp.push_back(NULL);
-
-        std::string dir = cgi.scriptPath; // go in repertory of script
-        size_t pos = dir.rfind("/");
-        dir = dir.substr(0, pos + 1);
-        if (chdir(dir.c_str()) == -1)
-        {
-            ; // ICI GERER LE CAS ECHEC
-        }
-        // std::cout << dir << std::endl;
-
-        execve(cgi.binaryPath.c_str(), args, envp.data());
-        // ICI GERER LE CAS ECHEC
-        //  return (500);// check if exceve fail
-    }
-
-    else if (pid > 0)
-    {
-        close(body[0]);     // don't read
-        close(response[1]); // don't write
-
-        size_t total = 0;
-        size_t len = cgi.body.size();
-        const char *data = cgi.body.c_str();
-        while (total < len)
-        {
-            ssize_t n = write(body[1], data + total, len - total);
-            if (n <= 0)
-            {
-                close(body[1]);
-                close(response[0]);
-                return (500);
-            }
-            total += n;
-        }
-
-        close(body[1]); // EOF
-
-        char buffer[1024];
-        while (true)
-        {
-            ssize_t n = read(response[0], buffer, sizeof(buffer));
-
-            if (n == 0) // EOF
-                break;
-
-            if (n < 0)
-            {
-                close(response[0]);
-                return (500);
-            }
-            cgi.response.append(buffer, n);
-        }
-
-        close(response[0]);
-
-        int status;
-        waitpid(pid, &status, 0);
-    }
-
-    return (0);
-}
 
 /**
  * @brief `Parse CGI stdout into headers and body`
@@ -397,35 +247,3 @@ void buildCgiResponse(cgi &cgi, responseT &response)
     
 }
 
-
-
-/**
- * @brief `Main CGI handler for the request`
- *
- * step 1 : check if request matches a CGI script (isCgi)
- *
- * step 2 : check script and binary access permissions (accessCgi)
- *
- * step 3 : set error response (404/403) if checks fail
- */
-
-void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response)
-{
-    if (isCgi(request, cgi, response, serverConfig) == false)
-    {
-        std::cout << "[INFO] No CGI " << std::endl;
-        return;
-    }
-
-    int value = accessCgi(cgi);
-    if (value == 404)
-    {
-        errorCode(response, serverConfig, 404);
-        return;
-    }
-    if (value == 403)
-    {
-        errorCode(response, serverConfig, 403);
-        return;
-    }
-}

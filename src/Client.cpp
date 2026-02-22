@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 13:15:16 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:06:30 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,12 +95,12 @@ long Client::getContentLength(const std::string &buffer)
 	return std::atol(buffer.substr(start, end - start).c_str());
 }
 
-void Client::processRequest(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
+void Client::processRequest(serverT &serverConfig, request &request, responseT &response)
 {
 	// method GET
 	if (request._method == "GET" && response.code == 200)
     {
-		int errorValue = getMain(request, response, serverConfig, cgi);
+		int errorValue = getMain(request, response, serverConfig);
         if (errorValue == 404)
             errorCode(response, serverConfig, 404);
         else if (errorValue == 403)
@@ -111,7 +111,7 @@ void Client::processRequest(serverT &serverConfig, request &request, responseT &
 	
 	// method POST
     if (request._method == "POST" && response.code == 200)
-        postMain(request, response, serverConfig, cgi);
+        postMain(request, response, serverConfig);
 
     // method DELETE
     if (request._method == "DELETE" && response.code == 200)
@@ -206,10 +206,10 @@ void Client::requestLine(request &request)
 	}
 }
 
-void Client::handleRead(serverT &serverConfig, request &request, responseT &response, cgi &cgi)
+void Client::handleRead(serverT &serverConfig, request &request, responseT &response)
 {
 	if (requestComplete)
-		processRequest(serverConfig, request, response, cgi);
+		processRequest(serverConfig, request, response);
 }
 
 void Client::handleWrite()

@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:52:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/10 10:39:22 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:07:59 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Config.hpp"
-#include "Cgi.hpp"
 
-void initMain(request &request, responseT &response, cgi &cgi);
+void initMain(request &request, responseT &response);
 
 #endif

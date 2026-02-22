@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:48:42 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 18:56:01 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:13:00 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <ctime>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include "Cgi.hpp"
 #include "Config.hpp"
 #include "Delete.hpp"
 #include "Error.hpp"
@@ -25,6 +24,7 @@
 #include "Post.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
+#include "Cgi.hpp"
 
 /**
  * @class Client
@@ -71,11 +71,9 @@ class Client
 		void	parseHeaders(const std::string& rawHeaders, request &req);
 
 		void	requestLine(request &request);
-		void	handleRead(serverT &serverConfig, request &request, responseT &response, cgi &cgi);
-		// void 	handleRead(serverT &serverConfig);
+		void	handleRead(serverT &serverConfig, request &request, responseT &response);
 		void	handleWrite();
-		void	processRequest(serverT &serverConfig, request &request, responseT &response, cgi &cgi);
-		// void	processRequest(serverT &serverConfig);
+		void	processRequest(serverT &serverConfig, request &request, responseT &response);
 		void	reset();
 };
 

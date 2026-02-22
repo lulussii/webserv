@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/21 14:33:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:03:04 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,16 +54,12 @@ void Server::handleCgiRead(int fd)
 
 	ssize_t n = read(fd, buffer, sizeof(buffer));
 	if (n > 0)
-	{
 		cgiClient->response.append(buffer, n);
-		// std::cout << "[DEBUG] Reading is : " << cgiClient->response << std::endl;
-	}
+
     
     int status;
     pid_t result = waitpid(cgiClient->pid, &status, WNOHANG);
 
-    std::cout << "RESULT = " << result;
-    std::cout << " PID = " << cgiClient->pid << std::endl;
     if (result == cgiClient->pid || n == 0)
 	{
 		std::cout << "ICI";
@@ -154,7 +150,6 @@ void Server::handleCgiWrite(int fd)
 				break;
 			}
 		}
-		// cgiClient->writing = false;
 		return;
 	}
 

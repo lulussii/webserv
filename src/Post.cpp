@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/18 16:52:44 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:14:29 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "Chunked.hpp"
 #include "Multipart.hpp"
 #include "Error.hpp"
-#include "Cgi.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <fcntl.h>    //open
@@ -120,8 +119,6 @@ int checkRepo(responseT &response, serverT &serverConfig)
         errorCode(response, serverConfig, 403);
         return (403);
     }
-    // else
-    //     response.infos.repository = true;
 
     return (0);
 }
@@ -180,7 +177,6 @@ int createAndWriteFile(responseT &response)
         total += n;
     }
     
-
     close(fd);
 
     return (0);
@@ -269,7 +265,7 @@ void prepareResponse(responseT &response, request request)
  * step 8 : Prepare HTTP response
  *
  */
-void postMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
+void postMain(request &request, responseT &response, serverT &serverConfig)
 {
     Multipart m;
 
@@ -308,16 +304,6 @@ void postMain(request &request, responseT &response, serverT &serverConfig, cgi 
             return;
         splitPart(request, response, serverConfig, m);
         return;
-    }
-
-    if (response.cgi == true)
-    {
-        handleCgi(request, cgi, serverConfig, response, m);
-        if (cgiPipe(cgi) == 500)
-            errorCode(response, serverConfig, 500);
-        parsStdout(cgi);
-        buildCgiResponse(cgi, response);
-        return ;
     }
 
     createFileName(response);

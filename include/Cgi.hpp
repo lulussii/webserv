@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:05 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/21 11:59:42 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:12:07 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,11 @@ typedef struct cgi
     int clientFd;
 } cgi ;
 
-void cgiMain(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
-void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response, Multipart &m);
-int cgiPipe(cgi &cgi);
-void parsStdout(cgi &cgi);
-void buildCgiResponse(cgi &cgi, responseT &response);
 bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfig);
 int accessCgi(cgi &cgi);
+void handleCgi(request &request, cgi &cgi, serverT &serverConfig, responseT &response);
+void parsStdout(cgi &cgi);
+void buildCgiResponse(cgi &cgi, responseT &response);
 
 
 

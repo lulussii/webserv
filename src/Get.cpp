@@ -6,13 +6,12 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/20 16:58:15 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:04:22 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Get.hpp"
 #include "Error.hpp"
-#include "Cgi.hpp"
 #include <unistd.h>   //stat() access()
 #include <sys/stat.h> //struct stat
 #include <fcntl.h>    //open
@@ -293,21 +292,9 @@ void contentType(responseT &response, request &request)
  *
  * @return 1 if problem, else 0
  */
-int getMain(request &request, responseT &response, serverT &serverConfig, cgi &cgi)
+int getMain(request &request, responseT &response, serverT &serverConfig)
 {
     pathBuild(response, serverConfig, request);
-
-    (void) cgi;
-    // if (response.cgi == true)
-    // {
-    //     Multipart m;
-    //     handleCgi(request, cgi, serverConfig, response, m);
-    //     if (cgiPipe(cgi) == 500)
-    //         errorCode(response, serverConfig, 500);
-    //     parsStdout(cgi);
-    //     buildCgiResponse(cgi, response);
-    //     return (0);
-    // }
 
     if (existAndType(response, serverConfig) != 0)
         return (0);

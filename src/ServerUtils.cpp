@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 13:22:38 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 19:12:33 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ void Server::_acceptNewConnection(int listeningIndex)
 
 	int clientIndex = -1;
 	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
-	// for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS + _nbListeningSockets; i++)
 	{
 		if (_fds[i].fd == -1)
 		{
@@ -116,7 +115,7 @@ void Server::_handleClientActivity(int i)
 		response response;
 
 		// STEP 0 : INIT
-		initMain(request, response, cgiClient); //delete cgi from init
+		initMain(request, response);
 
 		// STEP 1 : PARSING CONFIG
 		serverT mateConf = _convertConfig(currentConfig);
@@ -138,13 +137,12 @@ void Server::_handleClientActivity(int i)
 			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
-				Multipart m;				   // to delete
 				int value = accessCgi(cgiClient);
 				if (value == 0) // check access cgi
 				{
 					if (cgiClient.pid == -1)
 					{
-						handleCgi(request, cgiClient, mateConf, response, m);
+						handleCgi(request, cgiClient, mateConf, response);
 						forkCgi(cgiClient, client);
 					}
 				}
@@ -159,7 +157,7 @@ void Server::_handleClientActivity(int i)
 
 			// STEP 5 : STATIC METHOD : GET POST DELETE
 			else if (cgiClient.isCgi == false && response.infos.error == false)
-				client.handleRead(mateConf, request, response, cgiClient);
+				client.handleRead(mateConf, request, response);
 
 			// STEP 6 : build error response
 			if (response.infos.error == true)
@@ -179,16 +177,6 @@ void Server::_handleClientActivity(int i)
 		_closeConnection(i);
 	}
 }
-
-
-
-
-
-
-
-
-
-
 
 void Server::_closeConnection(int index)
 {
