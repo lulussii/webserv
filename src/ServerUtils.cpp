@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 13:22:38 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 09:48:47 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Config.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Cgi.hpp"
@@ -64,7 +65,6 @@ void Server::_acceptNewConnection(int listeningIndex)
 
 	int clientIndex = -1;
 	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
-	// for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS + _nbListeningSockets; i++)
 	{
 		if (_fds[i].fd == -1)
 		{
@@ -99,17 +99,27 @@ void Server::_handleClientActivity(int i)
 	int clientPort = client.getServerPort();
 	cgi &cgiClient = client.cgiClient;
 
-	ServerConfig &currentConfig = _configs[0]; // MUST CHANGE TO CHOOSE 8080 OR 8081???????
+	serverT *confPtr = &_refinedConfigs[0];
 
-	for (size_t j = 0; j < _configs.size(); j++)
+	bool	found = false;
+	for (size_t j = 0; j < _refinedConfigs.size(); j++)
 	{
-		if (_configs[j]._listen[0].port == clientPort)
+		for(size_t k = 0; (k < _refinedConfigs[j].listens.size()); k++)
 		{
-			currentConfig = _configs[j];
-			break;
+			if (_refinedConfigs[j].listens[k].port == clientPort)
+			{
+				confPtr = &_refinedConfigs[j];
+				found = true;
+				break;
+			}
 		}
+		if (found)
+			break;
 	}
 
+	serverT	&currentConfig = *confPtr;
+	currentConfig.listen = clientPort;
+	
 	try
 	{
 		request request;
@@ -118,24 +128,21 @@ void Server::_handleClientActivity(int i)
 		// STEP 0 : INIT
 		initMain(request, response, cgiClient); //delete cgi from init
 
-		// STEP 1 : PARSING CONFIG
-		serverT mateConf = _convertConfig(currentConfig);
-
 		if (_fds[i].revents & POLLIN) // READ OK
 		{
-			// STEP 2 : RECUPERE REQUEST REQUEST
+			// STEP 1 : RECUPERE REQUEST REQUEST
 			if (!client.requestComplete)
 				client.requestLine(request);
 
-			// STEP 3 : REQUEST PARSING (need it to know if CGI)
+			// STEP 2 : REQUEST PARSING (need it to know if CGI)
 			if (client.requestComplete)
 			{
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
-				requestMainNew(request, mateConf, response);
+				requestMainNew(request, currentConfig, response);
 			}
 
-			// STEP 4 : CGI
-			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true)
+			// STEP 3 : CGI
+			if (client.requestComplete && isCgi(request, cgiClient, response, currentConfig) == true)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
 				Multipart m;				   // to delete
@@ -144,24 +151,24 @@ void Server::_handleClientActivity(int i)
 				{
 					if (cgiClient.pid == -1)
 					{
-						handleCgi(request, cgiClient, mateConf, response, m);
+						handleCgi(request, cgiClient, currentConfig, response, m);
 						forkCgi(cgiClient, client);
 					}
 				}
 				else
 				{
 					if (value == 404)
-						errorCode(response, mateConf, 404);
+						errorCode(response, currentConfig, 404);
 					if (value == 403)
-						errorCode(response, mateConf, 403);
+						errorCode(response, currentConfig, 403);
 				}
 			}
 
-			// STEP 5 : STATIC METHOD : GET POST DELETE
+			// STEP 4 : STATIC METHOD : GET POST DELETE
 			else if (cgiClient.isCgi == false && response.infos.error == false)
-				client.handleRead(mateConf, request, response, cgiClient);
+				client.handleRead(currentConfig, request, response, cgiClient);
 
-			// STEP 6 : build error response
+			// STEP 5 : build error response
 			if (response.infos.error == true)
 				responseMain(request, response);
 		}

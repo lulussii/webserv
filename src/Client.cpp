@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 17:25:24 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/22 11:48:41 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ void Client::processRequest(serverT &serverConfig, request &request, responseT &
 
     // step response
     if (response.cgi == false || response.infos.error == true)
-        responseMain(request, response);
+		responseMain(request, response);
 
 	std::cout << "\n[RESPONSE]\n" << response.response << std::endl;
 	writeBuffer = response.response;
@@ -156,12 +156,7 @@ void Client::requestLine(request &request)
 	int bytesRead = recv(fd, tmpBuffer, sizeof(tmpBuffer), 0);
 	
 	if (bytesRead <= 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return;
-		else 
-			throw std::runtime_error("Read error or client disconnected");
-	}
+		throw std::runtime_error("Read error or client disconnected");
 
 	readBuffer.append(tmpBuffer, bytesRead);
 	lastTime = time(NULL);

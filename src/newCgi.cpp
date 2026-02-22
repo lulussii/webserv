@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   newCgi.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/21 14:33:21 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/22 09:09:40 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <wait.h>
 
 /**
  * @brief Reads data from a CGI process pipe and handles the end-of-output.
