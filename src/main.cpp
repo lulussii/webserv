@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/19 09:15:09 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/22 09:42:36 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int main(int argc, char **argv)
 	ConfigParser	parser;
 
 	signal(SIGINT, handle_sigint);
+
 	if (argc == 1)
 	{
 		std::cout << "No argument provided. Using default config" << std::endl;

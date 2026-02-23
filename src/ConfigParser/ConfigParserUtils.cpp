@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:11:38 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/12 14:41:21 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:55:55 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,4 +95,11 @@ bool ConfigParser::_hasOpeningBraceOnNextLine(std::ifstream &file)
 			return (false);
 	}
 	return (false);
+}
+
+void	ConfigParser::_stripComments(std::string &line)
+{
+	size_t	hasPos = line.find('#');
+	if (hasPos != std::string::npos)
+		line = line.substr(0, hasPos);
 }

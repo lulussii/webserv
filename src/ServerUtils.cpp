@@ -6,11 +6,12 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/23 09:30:01 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:36:22 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Config.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "Cgi.hpp"
@@ -99,6 +100,8 @@ void Server::_handleClientActivity(int i)
 	cgi &cgiClient = client.cgiClient;
 	serverT *confPtr = &_refinedConfigs[0];
 
+	serverT *confPtr = &_refinedConfigs[0];
+
 	bool	found = false;
 	for (size_t j = 0; j < _refinedConfigs.size(); j++)
 	{
@@ -117,7 +120,7 @@ void Server::_handleClientActivity(int i)
 
 	serverT	&currentConfig = *confPtr;
 	currentConfig.listen = clientPort;
-
+	
 	try
 	{
 		request request;

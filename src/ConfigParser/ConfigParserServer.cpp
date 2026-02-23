@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:27:26 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/18 13:59:20 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/21 11:36:26 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ void ConfigParser::parseListen(std::string &args, ServerConfig &server)
 
 void ConfigParser::parseBodySize(std::string &args, ServerConfig &server)
 {
-	if (server._clientMaxBodySize != 1000000) 
+	if (server._clientMaxBodySizeDefined) 
 		_throwError("Config Error: Duplicate client_max_body_size");
 
 	std::stringstream ss(args);
@@ -123,6 +123,8 @@ void ConfigParser::parseBodySize(std::string &args, ServerConfig &server)
 	_checkExtraArgs(ss);
 
 	server._clientMaxBodySize = _parseBytes(value);
+
+	server._clientMaxBodySizeDefined = true;
 }
 
 void ConfigParser::parseErrorPage(std::string &args, ServerConfig &server)
