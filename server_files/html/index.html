@@ -63,7 +63,7 @@
             0 0 20px  rgba(90, 194, 194, 0.5),
             0 0 40px  rgba(90, 194, 194, 0.5);
         box-shadow: 6px 6px 25px rgba(90, 194, 194, 0.5);
-        background-color : #3e4048;
+        background-color : #1f2021;
         width: 200px;
         margin: 10px auto;
         padding: 10px;
@@ -139,7 +139,7 @@
             0 0 20px  rgba(194, 154, 90, 0.5),
             0 0 40px  rgba(194, 154, 90, 0.5);
         box-shadow: 6px 6px 25px rgba(194, 154, 90, 0.5);
-        background-color : #3e4048;
+        background-color : #1f2021;
         width: 200px;
         margin: 10px auto;
         padding: 10px;
@@ -176,7 +176,7 @@
             0 0 20px  rgba(34, 254, 0, 0.5),
             0 0 40px  rgba(34, 254, 0, 0.5);
         box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
-        background-color : #3e4048;
+        background-color : #1f2021;
         width: 1000px;
         margin: 10px auto;
         padding: 10px;
@@ -201,6 +201,24 @@
             0 0 20px  rgba(254, 0, 0, 0.5),
             0 0 40px  rgba(254, 0, 0, 0.5);
         box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
+        background-color : #1f2021;
+        width: 1000px;
+        margin: 10px auto;
+        padding: 10px;
+        color: white;
+        text-decoration: none; 
+        border-radius: 8px;
+        text-align: center;
+    }
+
+     .buttonCgi
+    {
+        text-shadow:
+            0 0 5px  rgba(255, 110, 6, 0.834),
+            0 0 10px  rgba(255, 110, 6, 0.834),
+            0 0 20px  rgba(255, 110, 6, 0.834),
+            0 0 40px  rgba(255, 110, 6, 0.834);
+        box-shadow: 6px 6px 25px rgba(255, 110, 6, 0.834);
         background-color : #3e4048;
         width: 1000px;
         margin: 10px auto;
@@ -260,7 +278,7 @@
             <br>
             <a class="buttonPost"> Chunked Error 400 :  curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'ZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
             <br>
-            <a class="buttonPost"> Image : curl -v -X POST  -F "file=@html/image.png" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Image : curl -v -X POST -F "file=@server_files/html/image.png" http://localhost:8080/upload</a>
             <br>
         </div>
 </div>
@@ -284,11 +302,11 @@
 <div class="section">
     <p class="cgi">CGI</p>
     <div class="center-get">
-            <a class="buttonDelete"> CGI : curl -v http://localhost:8080/cgi/test.php</a>
+            <a class="buttonCgi"> CGI : curl -v http://localhost:8080/cgi/test.php</a>
             <br>
-            <a class="buttonDelete"> CGI with query : curl -v "http://localhost:8080/cgi/test.php?name=mlaussel&city=lyon"</a>
+            <a class="buttonCgi"> CGI with query : curl -v "http://localhost:8080/cgi/test.php?name=mlaussel&city=lyon"</a>
             <br>
-            <a class="buttonDelete"> CGI POST : curl -v -X POST http://localhost:8080/cgi/test.php -d "name=John&age=30"</a>
+            <a class="buttonCgi"> CGI POST : curl -v -X POST http://localhost:8080/cgi/test.php -d "name=John&age=30"</a>
             <br>
 
     </div>

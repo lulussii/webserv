@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/02 11:18:36 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/23 08:30:26 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 16:46:25 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ bool isCgi(request &request, cgi &cgi, responseT &response, serverT &serverConfi
     if (url == "/")
         path = serverConfig.root + response.location.index;
     else
-        path = serverConfig.root + url.substr(1); // delete /
+        path = serverConfig.root + url;
 
     struct stat test;
     if (stat(path.c_str(), &test) != -1 && S_ISREG(test.st_mode))
@@ -231,7 +231,6 @@ void buildCgiResponse(cgi &cgi, responseT &response)
         response.response += "\r\n";
         std::stringstream length;
         length << cgi.response.size();
-        // length << cgi.body.size();
         response.response += "Content-Length: " + length.str();
     }
     response.response += "\r\n";
@@ -241,7 +240,6 @@ void buildCgiResponse(cgi &cgi, responseT &response)
 
     response.response += "\r\n";
 
-    // response.response += cgi.body;
     response.response += cgi.response;
     
 }
