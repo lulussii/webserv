@@ -160,6 +160,12 @@
         justify-content: center;
         gap: 10px;  
     }
+    .center-post
+    {
+        display: block;
+        justify-content: center;
+        margin: 10px auto;
+    }
 
 
     </style>
@@ -195,6 +201,12 @@
 
 <div class="section">
     <p class="post">POST</p>
+        <div class="center-post">
+            <a class="button"> Simple POST 1 : curl -v -X POST -d "Hello" http://localhost:8080/upload</a>
+            <a class="button"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42" http://localhost:8080/login</a>
+            <a class="button"> Error 413 : curl -v -X POST -d "$(head -c 200000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
+            <a class="button"> Error 400 : curl -v -X POST http://localhost:8080/upload</a>
+        </div>
 </div>
 
 <div class="section"></div>
