@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/22 19:12:33 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 08:52:22 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,22 +123,25 @@ void Server::_handleClientActivity(int i)
 		if (_fds[i].revents & POLLIN) // READ OK
 		{
 			// STEP 2 : RECUPERE REQUEST REQUEST
-			if (!client.requestComplete)
+			if (!client.requestComplete && response.infos.error == false)
 				client.requestLine(request);
 
+
 			// STEP 3 : REQUEST PARSING (need it to know if CGI)
-			if (client.requestComplete)
+			if (client.requestComplete && response.infos.error == false)
 			{
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
 				requestMainNew(request, mateConf, response);
 			}
 
 			// STEP 4 : CGI
-			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true)
+			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true && response.infos.error == false)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
+				if (request._method == "DELETE")
+					errorCode(response, mateConf, 405);
 				int value = accessCgi(cgiClient);
-				if (value == 0) // check access cgi
+				if (value == 0 && response.infos.error == false) // check access cgi
 				{
 					if (cgiClient.pid == -1)
 					{
@@ -161,7 +164,11 @@ void Server::_handleClientActivity(int i)
 
 			// STEP 6 : build error response
 			if (response.infos.error == true)
+			{
 				responseMain(request, response);
+				client.writeBuffer = response.response;
+				client.isReadyToWrite = true;
+			}
 		}
 
 		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) // WRITE OK

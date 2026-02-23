@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   RequestNew.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/21 13:15:24 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 08:41:23 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,6 @@
 #include "Config.hpp"
 #include "Error.hpp"
 #include "Response.hpp"
-
-// static void debug(responseT &response)
-// {
-//     std::cout << "location : [" << response.location.path << "]" << std::endl;
-//     for (size_t i = 0; i < response.location.methods.size(); ++i)
-//         std::cout << "  Methods: [" << response.location.methods[i] << "] ";
-//     std::cout << std::endl;
-//     if (!response.location.index.empty())
-//         std::cout << "  Index: [" << response.location.index << "]" << std::endl;
-
-//     if (!response.location.autoindex.empty())
-//         std::cout << "  Autoindex: [" << response.location.autoindex << "]" << std::endl;
-
-//     if (!response.location.upload_dir.empty())
-//         std::cout << "  Upload dir: [" << response.location.upload_dir << "]" << std::endl;
-
-//     if (!response.location.cgiExtension.empty())
-//         std::cout << "  cgiExtension: [" << response.location.cgiExtension << "]" << std::endl;
-
-//     if (!response.location.cgiBinary.empty())
-//         std::cout << "  cgiBinary: [" << response.location.cgiBinary << "]" << std::endl;
-// }
 
 /**
  * @brief `Firstline extract and parsing`
@@ -251,19 +229,18 @@ void requestMainNew(request &request, serverT &serverConfig, responseT &response
        errorCode(response, serverConfig, 400);
        return ;
     }
+   
 
     // step 3 : if POST method, read body
     if (request._method == "POST")
         postBody(request);
-
+    
     if (foundLocation(request, serverConfig, response) == false)
     {
         errorCode(response, serverConfig, 404);
         return ;
     }
-    
-    // debug(response);
-
+   
     if (checkIs(request, response) == false)
     {
         errorCode(response, serverConfig, 405);

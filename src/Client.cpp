@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/22 19:06:30 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 08:47:57 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,9 @@ void Client::processRequest(serverT &serverConfig, request &request, responseT &
 
     // step response
     if (response.cgi == false || response.infos.error == true)
-        responseMain(request, response);
+	{
+		responseMain(request, response);
+	}
 
 	std::cout << "\n[RESPONSE]\n" << response.response << std::endl;
 	writeBuffer = response.response;

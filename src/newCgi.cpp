@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   newCgi.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/22 19:03:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 08:54:16 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include <sys/wait.h> //waitpid
 
 /**
  * @brief Reads data from a CGI process pipe and handles the end-of-output.
@@ -46,9 +47,7 @@
  *
  */
 void Server::handleCgiRead(int fd)
-{
-	std::cout << "[INFO] CGI READ called\n";
-    
+{ 
 	cgi *cgiClient = cgiReadMap[fd];
 	char buffer[4096];
 
@@ -136,7 +135,6 @@ void Server::handleCgiRead(int fd)
  */
 void Server::handleCgiWrite(int fd)
 {
-	std::cout << "[INFO] CGI WRITE called\n";
 	cgi *cgiClient = cgiWriteMap[fd];
 
 	if (cgiClient->writeBuffer.empty())
@@ -349,7 +347,6 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 
 	if (cgiClient.pid == -1)
 	{
-		std::cout << "[INFO] CGI Fork called\n";
 		if (pipe(cgiClient.writePipe) == -1 || pipe(cgiClient.readPipe) == -1)
 		{
 			close(cgiClient.writePipe[0]);
@@ -413,7 +410,6 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			//Init writing buffer to CGI
 			cgiClient.writeBuffer = cgiClient.body;
 
-            std::cout << "BODY SIZE = " << cgiClient.body.size() << std::endl;
 			if (cgiClient.body.empty())
 			{
 				//nothing to write so we close writing pipe to have EOF (GET)
