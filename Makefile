@@ -46,9 +46,9 @@ SRC 		= $(SRC_DIR)/main.cpp 								\
 			  $(SRC_DIR)/LocationConfig.cpp						\
 			  $(SRC_DIR)/Chunked.cpp							\
 			  $(SRC_DIR)/Multipart.cpp							\
-			  $(SRC_DIR)/RequestNew.cpp 						\
+			  $(SRC_DIR)/Request.cpp 						\
 			  $(SRC_DIR)/Cgi.cpp								\
-			  $(SRC_DIR)/newCgi.cpp								\
+			  $(SRC_DIR)/CgiLoop.cpp								\
 			  $(SRC_DIR)/Client.cpp
 
 OBJ_DIR 	= .objs

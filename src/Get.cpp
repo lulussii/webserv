@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/22 19:04:22 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 09:02:35 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,29 +89,38 @@ static int existAndType(responseT &response, serverT &serverConfig)
  */
 static void autoindex(responseT &response, serverT &serverConfig, request &request)
 {
-    if (response.location.autoindex == "on" && response.infos.repository == true)
+    
+    if (response.infos.repository == true)
     {
-        DIR *dir = opendir(response.path.c_str());
-        if (dir == NULL)
-            errorCode(response, serverConfig, 404);
-
-        struct dirent *repo;
-        response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
-        response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
-
-        while ((repo = readdir(dir)) != NULL)
+        if (response.location.autoindex == "off")
         {
-            std::string filename = repo->d_name;
-            if (filename != "." && filename != "..")
-                response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
+            errorCode(response, serverConfig, 403);
+            return;
         }
+        else if (response.location.autoindex == "on")
+        {
+            DIR *dir = opendir(response.path.c_str());
+            if (dir == NULL)
+                errorCode(response, serverConfig, 404);
 
-        response.body += "\r\n</ul></body></html>";
+            struct dirent *repo;
+            response.body = "<html><head><title>Index of " + request._url + "</title></head><body>\r\n";
+            response.body += "<h1>Index of " + request._url + "</h1><ul>\r\n";
 
-        response.contentLen = response.body.size();
-        response.contentType = "text/html";
-        response.code = 200; // maybe delete because init to 200
-        closedir(dir);
+            while ((repo = readdir(dir)) != NULL)
+            {
+                std::string filename = repo->d_name;
+                if (filename != "." && filename != "..")
+                    response.body += "<li><a href='" + filename + "'>" + filename + "</a></li>\r\n";
+            }
+
+            response.body += "\r\n</ul></body></html>";
+
+            response.contentLen = response.body.size();
+            response.contentType = "text/html";
+            response.code = 200;
+            closedir(dir);
+        }
     }
 }
 
@@ -302,7 +311,8 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
     if (accessRepo(response, serverConfig) != 0)
         return (0);
 
-    autoindex(response, serverConfig, request);
+    if (response.infos.error == false)
+        autoindex(response, serverConfig, request);
 
     if (response.infos.error == false && response.infos.repository == false)
         accessFile(response, serverConfig);
