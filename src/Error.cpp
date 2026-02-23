@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 14:47:21 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/16 10:25:02 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 11:47:14 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,5 +57,6 @@ void errorCode(responseT &response, serverT &serverConfig, int code)
     }
     
     response.body = "";
+    
     response.contentLen = 0;
 }

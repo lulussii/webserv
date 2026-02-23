@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/18 17:32:07 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 10:18:51 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void pathBuildDelete(responseT &response, request &request)
 {
     if (response.location.upload_dir != "")
         response.path = response.location.upload_dir + request._url;
-    std::cout << "response path" << response.path << std::endl;
 }
 
 /**

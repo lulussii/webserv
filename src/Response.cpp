@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/18 16:32:45 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 11:47:20 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

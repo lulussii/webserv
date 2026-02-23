@@ -160,14 +160,56 @@
         justify-content: center;
         gap: 10px;  
     }
+
     .center-post
     {
-        display: block;
+        display:grid;
         justify-content: center;
-        margin: 10px auto;
+        gap: 10px;  
     }
 
+    .buttonPost
+    {
+        text-shadow:
+            0 0 5px  rgba(34, 254, 0, 0.5),
+            0 0 10px  rgba(34, 254, 0, 0.5),
+            0 0 20px  rgba(34, 254, 0, 0.5),
+            0 0 40px  rgba(34, 254, 0, 0.5);
+        box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
+        background-color : #3e4048;
+        width: 1000px;
+        margin: 10px auto;
+        padding: 10px;
+        color: white;
+        text-decoration: none; 
+        border-radius: 8px;
+        text-align: center;
+    }
 
+      .center-delete
+    {
+        display:grid;
+        justify-content: center;
+        gap: 10px;  
+    }
+
+    .buttonDelete
+    {
+        text-shadow:
+            0 0 5px  rgba(254, 0, 0, 0.5),
+            0 0 10px  rgba(254, 0, 0, 0.5),
+            0 0 20px  rgba(254, 0, 0, 0.5),
+            0 0 40px  rgba(254, 0, 0, 0.5);
+        box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
+        background-color : #3e4048;
+        width: 1000px;
+        margin: 10px auto;
+        padding: 10px;
+        color: white;
+        text-decoration: none; 
+        border-radius: 8px;
+        text-align: center;
+    }
     </style>
 
     
@@ -202,15 +244,40 @@
 <div class="section">
     <p class="post">POST</p>
         <div class="center-post">
-            <a class="button"> Simple POST 1 : curl -v -X POST -d "Hello" http://localhost:8080/upload</a>
-            <a class="button"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42" http://localhost:8080/login</a>
-            <a class="button"> Error 413 : curl -v -X POST -d "$(head -c 200000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
-            <a class="button"> Error 400 : curl -v -X POST http://localhost:8080/upload</a>
+            <a class="buttonPost"> Simple POST 1 : curl -v -X POST -d "Hello" http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42" http://localhost:8080/login</a>
+            <br>
+            <a class="buttonPost"> Error 413 : curl -v -X POST -d "$(head -c 200000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Error 400 : curl -v -X POST http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Simple Multipart : echo "Hello World" > test.txt<br>curl -v -F "file=@test.txt" http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Complexe Multipart : echo "Hello World" > test.txt<br>echo "Test2" > file2.txt<br>curl -v -F "file1=@file1.txt" -F "file2=@file2.txt" http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Multipart Error 400 : curl -v -X POST -H "Content-Type: multipart/form-data" -d "randomdata" http://localhost:8080/upload</a>
+            <br>
+            <a class="buttonPost"> Chunked : curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'5\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
+            <br>
+            <a class="buttonPost"> Chunked Error 400 :  curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'ZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
+            <br>
         </div>
 </div>
 
 <div class="section"></div>
     <p class="delete">DELETE</p>
+     <div class="center-delete">
+            <a class="buttonDelete"> Simple DELETE : curl -v -X DELETE http://localhost:8080/uploads/file_to_delete.txt</a>
+            <br>
+            <a class="buttonDelete"> Error 404 : curl -v -X DELETE curl -v -X DELETE http://localhost:8080/uploads/nofile.txt</a>
+            <br>
+            <a class="buttonDelete"> Error 403 (chmod 000 uploads) :curl -v -X DELETE http://localhost:8080/uploads/</a>
+            <br>
+            <a class="buttonDelete"> Error 405 : curl -v -X DELETE http://localhost:8080/cgi/test.php
+</a>
+            <br>
+        </div>
 </div>
 
 
