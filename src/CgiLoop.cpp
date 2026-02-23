@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 09:47:46 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 12:35:28 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ void Server::handleCgiRead(int fd)
 
     if (result == cgiClient->pid || n == 0)
 	{
-		std::cout << "ICI";
 		close(fd);
 		removeFdFromPoll(fd);
 		cgiReadMap.erase(fd);

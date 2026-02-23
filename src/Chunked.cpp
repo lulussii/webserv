@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/21 15:01:32 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/16 14:14:43 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 12:13:26 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ bool isChunked(request &request)
 
     if (it != request.headers.end() && it->second == " chunked")
     {
-        std::cout << "[INFO] Is Chunked " << std::endl;
         return (true);
     }
     return (false);

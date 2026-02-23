@@ -248,19 +248,19 @@
             <br>
             <a class="buttonPost"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42" http://localhost:8080/login</a>
             <br>
-            <a class="buttonPost"> Error 413 : curl -v -X POST -d "$(head -c 200000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Error 413 : curl -v -X POST -d "$(head -c 20000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
             <br>
             <a class="buttonPost"> Error 400 : curl -v -X POST http://localhost:8080/upload</a>
             <br>
             <a class="buttonPost"> Simple Multipart : echo "Hello World" > test.txt<br>curl -v -F "file=@test.txt" http://localhost:8080/upload</a>
             <br>
-            <a class="buttonPost"> Complexe Multipart : echo "Hello World" > test.txt<br>echo "Test2" > file2.txt<br>curl -v -F "file1=@file1.txt" -F "file2=@file2.txt" http://localhost:8080/upload</a>
-            <br>
-            <a class="buttonPost"> Multipart Error 400 : curl -v -X POST -H "Content-Type: multipart/form-data" -d "randomdata" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Complexe Multipart : echo "Hello World" > file1.txt<br>echo "Test2" > file2.txt<br>curl -v -F "file1=@file1.txt" -F "file2=@file2.txt" http://localhost:8080/upload</a>
             <br>
             <a class="buttonPost"> Chunked : curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'5\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
             <br>
             <a class="buttonPost"> Chunked Error 400 :  curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'ZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
+            <br>
+            <a class="buttonPost"> Image : curl -v -X POST  -F "file=@html/image.png" http://localhost:8080/upload</a>
             <br>
         </div>
 </div>
@@ -268,11 +268,11 @@
 <div class="section"></div>
     <p class="delete">DELETE</p>
      <div class="center-delete">
-            <a class="buttonDelete"> Simple DELETE : curl -v -X DELETE http://localhost:8080/uploads/file_to_delete.txt</a>
+            <a class="buttonDelete"> Simple DELETE : curl -v -X DELETE http://localhost:8080/file_to_delete.txt</a>
             <br>
             <a class="buttonDelete"> Error 404 : curl -v -X DELETE curl -v -X DELETE http://localhost:8080/uploads/nofile.txt</a>
             <br>
-            <a class="buttonDelete"> Error 403 (chmod 000 uploads) :curl -v -X DELETE http://localhost:8080/uploads/</a>
+            <a class="buttonDelete"> Error 403 (chmod 000 file) : curl -v -X  curl -v -X DELETE http://localhost:8080/file_to_delete.txt</a>
             <br>
             <a class="buttonDelete"> Error 405 : curl -v -X DELETE http://localhost:8080/cgi/test.php
 </a>
@@ -284,11 +284,14 @@
 <div class="section">
     <p class="cgi">CGI</p>
     <div class="center-get">
-        <a class="button2" href="/cgi/test.php"> Classic CGI</a>
-        <a class="button2" href="/cgi/test.php?param1=value1&param2=value2"> CGI with query</a>
+            <a class="buttonDelete"> CGI : curl -v http://localhost:8080/cgi/test.php</a>
+            <br>
+            <a class="buttonDelete"> CGI with query : curl -v "http://localhost:8080/cgi/test.php?name=mlaussel&city=polis"
+</a>
+            <br>
 
     </div>
 </div>
 
 </body>
-</html>
+</html>o

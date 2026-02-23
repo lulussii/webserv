@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/22 19:14:29 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/23 12:13:22 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -283,7 +283,6 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
 
     if (isChunked(request) == true)
     {
-        std::cout << "[INFO] is Chunked" << std::endl;
         if (chunkedParsing(request, response) == 400)
         {
             errorCode(response, serverConfig, 400);

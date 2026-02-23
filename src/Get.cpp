@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 09:36:10 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 12:35:49 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,8 @@ static void pathBuild(responseT &response, serverT &serverConfig, request &reque
 {
     if (request._url == "/")
         response.path = serverConfig.root + response.location.index;
-    // response.path = serverConfig.root + "/";
     else
         response.path = serverConfig.root + request._url;
-    // ICI GERER LE CAS OU IL Y A UNE ROOT DANS UNE LOCATION
 }
 
 /**
