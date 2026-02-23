@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/23 08:52:22 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:30:01 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,17 +97,26 @@ void Server::_handleClientActivity(int i)
 	Client &client = _clients[fd];
 	int clientPort = client.getServerPort();
 	cgi &cgiClient = client.cgiClient;
+	serverT *confPtr = &_refinedConfigs[0];
 
-	ServerConfig &currentConfig = _configs[0]; // MUST CHANGE TO CHOOSE 8080 OR 8081???????
-
-	for (size_t j = 0; j < _configs.size(); j++)
+	bool	found = false;
+	for (size_t j = 0; j < _refinedConfigs.size(); j++)
 	{
-		if (_configs[j]._listen[0].port == clientPort)
+		for(size_t k = 0; (k < _refinedConfigs[j].listens.size()); k++)
 		{
-			currentConfig = _configs[j];
-			break;
+			if (_refinedConfigs[j].listens[k].port == clientPort)
+			{
+				confPtr = &_refinedConfigs[j];
+				found = true;
+				break;
+			}
 		}
+		if (found)
+			break;
 	}
+
+	serverT	&currentConfig = *confPtr;
+	currentConfig.listen = clientPort;
 
 	try
 	{
@@ -117,52 +126,49 @@ void Server::_handleClientActivity(int i)
 		// STEP 0 : INIT
 		initMain(request, response);
 
-		// STEP 1 : PARSING CONFIG
-		serverT mateConf = _convertConfig(currentConfig);
-
 		if (_fds[i].revents & POLLIN) // READ OK
 		{
-			// STEP 2 : RECUPERE REQUEST REQUEST
+			// STEP 1 : RECUPERE REQUEST REQUEST
 			if (!client.requestComplete && response.infos.error == false)
 				client.requestLine(request);
 
 
-			// STEP 3 : REQUEST PARSING (need it to know if CGI)
+			// STEP 2 : REQUEST PARSING (need it to know if CGI)
 			if (client.requestComplete && response.infos.error == false)
 			{
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
-				requestMainNew(request, mateConf, response);
+				requestMainNew(request, currentConfig, response);
 			}
 
-			// STEP 4 : CGI
-			if (client.requestComplete && isCgi(request, cgiClient, response, mateConf) == true && response.infos.error == false)
+			// STEP 3 : CGI
+			if (client.requestComplete && isCgi(request, cgiClient, response, currentConfig) == true && response.infos.error == false)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
 				if (request._method == "DELETE")
-					errorCode(response, mateConf, 405);
+					errorCode(response, currentConfig, 405);
 				int value = accessCgi(cgiClient);
 				if (value == 0 && response.infos.error == false) // check access cgi
 				{
 					if (cgiClient.pid == -1)
 					{
-						handleCgi(request, cgiClient, mateConf, response);
+						handleCgi(request, cgiClient, currentConfig, response);
 						forkCgi(cgiClient, client);
 					}
 				}
 				else
 				{
 					if (value == 404)
-						errorCode(response, mateConf, 404);
+						errorCode(response, currentConfig, 404);
 					if (value == 403)
-						errorCode(response, mateConf, 403);
+						errorCode(response, currentConfig, 403);
 				}
 			}
 
-			// STEP 5 : STATIC METHOD : GET POST DELETE
+			// STEP 4 : STATIC METHOD : GET POST DELETE
 			else if (cgiClient.isCgi == false && response.infos.error == false)
-				client.handleRead(mateConf, request, response);
+				client.handleRead(currentConfig, request, response);
 
-			// STEP 6 : build error response
+			// STEP 5 : build error response
 			if (response.infos.error == true)
 			{
 				responseMain(request, response);
