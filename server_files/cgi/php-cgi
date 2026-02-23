@@ -1,13 +1,4 @@
 #!/bin/sh
 
-echo "Status: 200 OK"
-echo "Content-Type: text/plain"
-echo "Test : Test"
-echo ""
-echo "Hello from fake php-cgi!"
-echo ""
-echo "REQUEST_METHOD=$REQUEST_METHOD"
-echo "SCRIPT_FILENAME=$SCRIPT_FILENAME"
-echo "QUERY_STRING=$QUERY_STRING"
-echo "CONTENT_LENGTH=$CONTENT_LENGTH"
-echo "CONTENT_TYPE=$CONTENT_TYPE"
+PHP_CGI="/usr/bin/php-cgi"
+"$PHP_CGI"
