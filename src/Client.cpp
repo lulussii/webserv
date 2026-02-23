@@ -6,13 +6,14 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/23 09:35:56 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:49:08 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include "Chunked.hpp"
 #include <sstream>
+#include <stdlib.h>
 
 Client::Client()
 	: fd(-1), serverPort(-1), lastTime(time(NULL)), contentLength(0),
@@ -121,7 +122,6 @@ void Client::processRequest(serverT &serverConfig, request &request, responseT &
     if (response.cgi == false || response.infos.error == true)
 		responseMain(request, response);
 
-	std::cout << "\n[RESPONSE]\n" << response.response << std::endl;
 	writeBuffer = response.response;
 	isReadyToWrite = true;
 

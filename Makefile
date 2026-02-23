@@ -5,7 +5,7 @@
 NAME 		= webserv
 
 CC 			= c++
-CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -std=c++11 -Iinclude -g -MMD -MP
+CFLAGS 		= -Wall -Wextra -Werror -std=c++98 -Iinclude -g -MMD -MP
 
 SRC_DIR 	= src
 HEADER_DIR 	= include

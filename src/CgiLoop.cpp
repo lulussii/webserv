@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 09:35:15 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/23 09:47:46 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,11 @@ void Server::checkCgiProcess()
 		pid_t result = waitpid(it->first, &status, WNOHANG);
 
 		if (result > 0)
-			it = cgiPidMap.erase(it);
+		{
+			std::map<pid_t, cgi *>::iterator tmp;
+			cgiPidMap.erase(tmp);
+			it = tmp;
+		}
 		else
 			++it;
 	}
