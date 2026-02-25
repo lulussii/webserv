@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:27:09 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/23 11:47:20 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 17:15:21 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,11 @@ void responseMain(request &request, responseT &response)
         response.response += " " + it->second;
     response.response += "\r\n";
 
+    if (response.code == 303)
+    {
+        response.response += "Location: " + request._url;
+        response.response += "\r\n";
+    }
     if (request._method == "DELETE" || response.code == 413)
         response.response += "Content-Length: 0";
     else

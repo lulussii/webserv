@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/23 16:49:53 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 16:43:06 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

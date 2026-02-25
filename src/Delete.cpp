@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Delete.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 11:55:23 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/23 16:50:24 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 17:18:34 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@
 
 /**
  * @brief `build the file path for DELETE method`
- * 
+ *
  * step 1 : Check if location.upload_dir is set
- * 
+ *
  * step 2 : Concatenate upload_dir with request URL to set response.path
  *
  */
@@ -32,7 +32,7 @@ void pathBuildDelete(responseT &response, request &request)
 
 /**
  * @brief `check file existence and permissions before deleting with unlink`
- * 
+ *
  * step 1 : Use stat() to check if the file exists
  *   - If not, call errorCode with 404
  *
@@ -79,7 +79,16 @@ void existFileDelete(responseT &response, serverT &serverConfig)
  */
 void deleteMain(request &request, responseT &response, serverT &serverConfig)
 {
-   
+    if (!response.location.returnPath.empty())
+    {
+        request._url = response.location.returnPath;
+        response.code = 303;
+        response.contentType = "text/html";
+        response.body = "<html><head><title>303 See Other</title></head><body>Redirecting to <a herf=\"" + response.location.returnPath + "\"></a>";
+        response.contentLen = response.body.size();
+        return;
+    }
+
     if (response.cgi == true)
     {
         errorCode(response, serverConfig, 405);

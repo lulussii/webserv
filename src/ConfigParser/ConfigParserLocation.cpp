@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParserLocation.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:23:21 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:55:36 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/25 17:15:45 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,8 @@ void ConfigParser::parseMethods(std::string &args, LocationConfig &loc)
 void ConfigParser::parseReturn(std::string &args, LocationConfig &loc)
 {
 	std::stringstream ss(args);
-	int code;
-	std::string url;
+	int code = 0;
+	std::string url = "";
 
 	if (!(ss >> code >> url))
 		_throwError("Syntax Error: Invalid return directive");

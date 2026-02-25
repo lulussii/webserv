@@ -1,316 +1,312 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <title>Webserv</title>
 
     <style>
+        body {
+            font-family: Verdana;
+            background-color: #000000;
+        }
 
-    
-    body
-    {
-        font-family : Verdana;
-        background-color: #000000;
-    }
+        h1 {
+            text-shadow:
+                0 0 5px rgba(255, 251, 0, 0.6),
+                0 0 10px rgba(255, 251, 0, 0.6),
+                0 0 20px rgba(255, 251, 0, 0.6),
+                0 0 40px rgba(255, 251, 0, 0.6);
+            font-family: Verdana;
+            text-align: center;
+            color: #FFFFFF;
+        }
 
-    h1
-    {
-        text-shadow:
-            0 0 5px rgba(255, 251, 0, 0.6),
-            0 0 10px rgba(255, 251, 0, 0.6),
-            0 0 20px rgba(255, 251, 0, 0.6),
-            0 0 40px rgba(255, 251, 0, 0.6);
-        font-family : Verdana;
-        text-align : center;
-        color : #FFFFFF;
-    }
+        .pseudo {
+            text-shadow:
+                0 0 5px rgba(255, 0, 255),
+                0 0 10px rgba(255, 0, 255),
+                0 0 20px rgba(255, 0, 255),
+                0 0 40px rgba(255, 0, 255);
+            font-family: Verdana;
+            text-align: center;
+            color: #ffffff;
+        }
 
-    .pseudo
-    {
-        text-shadow:
-            0 0 5px rgba(255, 0, 255),
-            0 0 10px rgba(255, 0, 255),
-            0 0 20px rgba(255, 0, 255),
-            0 0 40px rgba(255, 0, 255);
-        font-family : Verdana;
-        text-align : center;
-        color : #ffffff;
-    }
+        .get {
+            text-shadow:
+                0 0 5px rgba(6, 251, 255, 0.5),
+                0 0 10px rgba(6, 251, 255, 0.5),
+                0 0 20px rgba(6, 251, 255, 0.5),
+                0 0 40px rgba(6, 251, 255, 0.5);
+            box-shadow: 6px 6px 25px rgba(6, 251, 255, 0.5);
+            background-color: #232427;
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
 
-    .get
-    {
-        text-shadow:
-            0 0 5px  rgba(6, 251, 255, 0.5),
-            0 0 10px  rgba(6, 251, 255, 0.5),
-            0 0 20px  rgba(6, 251, 255, 0.5),
-            0 0 40px  rgba(6, 251, 255, 0.5);
-        box-shadow: 6px 6px 25px rgba(6, 251, 255, 0.5);
-        background-color : #232427;
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        text-align : center;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-    }
+        .button {
+            text-shadow:
+                0 0 5px rgba(90, 194, 194, 0.5),
+                0 0 10px rgba(90, 194, 194, 0.5),
+                0 0 20px rgba(90, 194, 194, 0.5),
+                0 0 40px rgba(90, 194, 194, 0.5);
+            box-shadow: 6px 6px 25px rgba(90, 194, 194, 0.5);
+            background-color: #1f2021;
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    .button
-    {
-        text-shadow:
-            0 0 5px  rgba(90, 194, 194, 0.5),
-            0 0 10px  rgba(90, 194, 194, 0.5),
-            0 0 20px  rgba(90, 194, 194, 0.5),
-            0 0 40px  rgba(90, 194, 194, 0.5);
-        box-shadow: 6px 6px 25px rgba(90, 194, 194, 0.5);
-        background-color : #1f2021;
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align: center;
-    }
+        .post {
+            text-shadow:
+                0 0 5px rgba(34, 254, 0, 0.5),
+                0 0 10px rgba(34, 254, 0, 0.5),
+                0 0 20px rgba(34, 254, 0, 0.5),
+                0 0 40px rgba(34, 254, 0, 0.5);
+            box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
+            background-color: #232427;
 
-    .post
-    {
-        text-shadow:
-            0 0 5px  rgba(34, 254, 0, 0.5),
-            0 0 10px  rgba(34, 254, 0, 0.5),
-            0 0 20px  rgba(34, 254, 0, 0.5),
-            0 0 40px  rgba(34, 254, 0, 0.5);
-        box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
-        background-color : #232427;
-        
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        text-align : center;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align : center;
-    }
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    .delete
-    {
-        text-shadow:
-            0 0 5px  rgba(254, 0, 0, 0.5),
-            0 0 10px  rgba(254, 0, 0, 0.5),
-            0 0 20px  rgba(254, 0, 0, 0.5),
-            0 0 40px  rgba(254, 0, 0, 0.5);
-        box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
-        background-color : #232427;
+        .delete {
+            text-shadow:
+                0 0 5px rgba(254, 0, 0, 0.5),
+                0 0 10px rgba(254, 0, 0, 0.5),
+                0 0 20px rgba(254, 0, 0, 0.5),
+                0 0 40px rgba(254, 0, 0, 0.5);
+            box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
+            background-color: #232427;
 
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        text-align : center;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align : center;
-    }
-    
-    .cgi
-    {
-        text-shadow:
-            0 0 5px  rgba(255, 110, 6, 0.834),
-            0 0 10px  rgba(255, 110, 6, 0.834),
-            0 0 20px  rgba(255, 110, 6, 0.834),
-            0 0 40px  rgba(255, 110, 6, 0.834);
-        box-shadow: 6px 6px 25px rgba(255, 110, 6, 0.834);
-        background-color : #232427;
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        text-align : center;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-    }
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    .button2
-    {
-        text-shadow:
-            0 0 5px  rgba(194, 154, 90, 0.5),
-            0 0 10px  rgba(194, 154, 90, 0.5),
-            0 0 20px  rgba(194, 154, 90, 0.5),
-            0 0 40px  rgba(194, 154, 90, 0.5);
-        box-shadow: 6px 6px 25px rgba(194, 154, 90, 0.5);
-        background-color : #1f2021;
-        width: 200px;
-        margin: 10px auto;
-        padding: 10px;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align: center;
-    }
+        .cgi {
+            text-shadow:
+                0 0 5px rgba(255, 110, 6, 0.834),
+                0 0 10px rgba(255, 110, 6, 0.834),
+                0 0 20px rgba(255, 110, 6, 0.834),
+                0 0 40px rgba(255, 110, 6, 0.834);
+            box-shadow: 6px 6px 25px rgba(255, 110, 6, 0.834);
+            background-color: #232427;
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
 
-    .section
-    {
-        margin: 60px 0;
-    }
+        .button2 {
+            text-shadow:
+                0 0 5px rgba(194, 154, 90, 0.5),
+                0 0 10px rgba(194, 154, 90, 0.5),
+                0 0 20px rgba(194, 154, 90, 0.5),
+                0 0 40px rgba(194, 154, 90, 0.5);
+            box-shadow: 6px 6px 25px rgba(194, 154, 90, 0.5);
+            background-color: #1f2021;
+            width: 200px;
+            margin: 10px auto;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    .center-get
-    {
-        display: flex;
-        justify-content: center;
-        gap: 10px;  
-    }
+        .section {
+            margin: 60px 0;
+        }
 
-    .center-post
-    {
-        display:grid;
-        justify-content: center;
-        gap: 10px;  
-    }
+        .center-get {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-    .buttonPost
-    {
-        text-shadow:
-            0 0 5px  rgba(34, 254, 0, 0.5),
-            0 0 10px  rgba(34, 254, 0, 0.5),
-            0 0 20px  rgba(34, 254, 0, 0.5),
-            0 0 40px  rgba(34, 254, 0, 0.5);
-        box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
-        background-color : #1f2021;
-        width: 1000px;
-        margin: 10px auto;
-        padding: 10px;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align: center;
-    }
+        .center-post {
+            display: grid;
+            justify-content: center;
+            gap: 10px;
+        }
 
-      .center-delete
-    {
-        display:grid;
-        justify-content: center;
-        gap: 10px;  
-    }
+        .buttonPost {
+            text-shadow:
+                0 0 5px rgba(34, 254, 0, 0.5),
+                0 0 10px rgba(34, 254, 0, 0.5),
+                0 0 20px rgba(34, 254, 0, 0.5),
+                0 0 40px rgba(34, 254, 0, 0.5);
+            box-shadow: 6px 6px 25px rgba(34, 254, 0, 0.5);
+            background-color: #1f2021;
+            width: 1000px;
+            margin: 10px auto;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
 
-    .buttonDelete
-    {
-        text-shadow:
-            0 0 5px  rgba(254, 0, 0, 0.5),
-            0 0 10px  rgba(254, 0, 0, 0.5),
-            0 0 20px  rgba(254, 0, 0, 0.5),
-            0 0 40px  rgba(254, 0, 0, 0.5);
-        box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
-        background-color : #1f2021;
-        width: 1000px;
-        margin: 10px auto;
-        padding: 10px;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align: center;
-    }
+        .center-delete {
+            display: grid;
+            justify-content: center;
+            gap: 10px;
+        }
 
-     .buttonCgi
-    {
-        text-shadow:
-            0 0 5px  rgba(255, 110, 6, 0.834),
-            0 0 10px  rgba(255, 110, 6, 0.834),
-            0 0 20px  rgba(255, 110, 6, 0.834),
-            0 0 40px  rgba(255, 110, 6, 0.834);
-        box-shadow: 6px 6px 25px rgba(255, 110, 6, 0.834);
-        background-color : #3e4048;
-        width: 1000px;
-        margin: 10px auto;
-        padding: 10px;
-        color: white;
-        text-decoration: none; 
-        border-radius: 8px;
-        text-align: center;
-    }
+        .buttonDelete {
+            text-shadow:
+                0 0 5px rgba(254, 0, 0, 0.5),
+                0 0 10px rgba(254, 0, 0, 0.5),
+                0 0 20px rgba(254, 0, 0, 0.5),
+                0 0 40px rgba(254, 0, 0, 0.5);
+            box-shadow: 6px 6px 25px rgba(254, 0, 0, 0.5);
+            background-color: #1f2021;
+            width: 1000px;
+            margin: 10px auto;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .buttonCgi {
+            text-shadow:
+                0 0 5px rgba(255, 110, 6, 0.834),
+                0 0 10px rgba(255, 110, 6, 0.834),
+                0 0 20px rgba(255, 110, 6, 0.834),
+                0 0 40px rgba(255, 110, 6, 0.834);
+            box-shadow: 6px 6px 25px rgba(255, 110, 6, 0.834);
+            background-color: #3e4048;
+            width: 1000px;
+            margin: 10px auto;
+            padding: 10px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+        }
     </style>
 
-    
+
 </head>
 
 <body>
 
-<h1>Welcome to our Webserv</h1>
+    <h1>Welcome to our Webserv</h1>
 
-<p class="pseudo">lserodon & mlaussel</p>
+    <p class="pseudo">lserodon & mlaussel</p>
 
-<div class="section">
-    <p class="get">GET</p>
-    <div class="center-get">
-        <a class="button" href="/html/index2.html"> Site 2</a>
-        <a class="button" href="/html/400.html"> Page Error 400</a>
-        <a class="button" href="/html/403.html"> Page Error 403</a>
-        <a class="button" href="/html/404.html"> Page Error 404</a>
-        <a class="button" href="/html/413.html"> Page Error 413</a>
-        <a class="button" href="/html/500.html"> Page Error 500</a>
-        <a class="button" href="/html/secret.html"> Secret</a>
-        <a class="button" href="/html/secret"> Secret Repo</a>
-        <a class="button" href="/html/"> Autoindex On</a>
-        <a class="button" href="/uploads/"> Autoindex Off</a>
-        <a class="button" href="/html/image.png"> Image</a>
-        <a class="button" href="/html/hello.html"> True Error 404</a>
-        <a class="button" href="/not"> True Error 405</a>
+    <div class="section">
+        <p class="get">GET</p>
+        <div class="center-get">
+            <a class="button" href="/html/index2.html"> Site 2</a>
+            <a class="button" href="/html/400.html"> Page Error 400</a>
+            <a class="button" href="/html/403.html"> Page Error 403</a>
+            <a class="button" href="/html/404.html"> Page Error 404</a>
+            <a class="button" href="/html/413.html"> Page Error 413</a>
+            <a class="button" href="/html/500.html"> Page Error 500</a>
+            <a class="button" href="/html/secret.html"> Secret</a>
+            <a class="button" href="/html/secret"> Secret Repo</a>
+            <a class="button" href="/html/"> Autoindex On</a>
+            <a class="button" href="/uploads/"> Autoindex Off</a>
+            <a class="button" href="/html/image.png"> Image</a>
+            <a class="button" href="/html/hello.html"> True Error 404</a>
+            <a class="button" href="/not"> True Error 405</a>
+            <a class="button" href="/oldpage"> Redirection</a>
+        </div>
     </div>
-</div>
 
 
-<div class="section">
-    <p class="post">POST</p>
+    <div class="section">
+        <p class="post">POST</p>
         <div class="center-post">
             <a class="buttonPost"> Simple POST 1 : curl -v -X POST -d "Hello" http://localhost:8080/upload</a>
             <br>
-            <a class="buttonPost"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42" http://localhost:8080/login</a>
+            <a class="buttonPost"> Simple POST 2 : curl -v -X POST -d "username=bob&password=42"
+                http://localhost:8080/login</a>
             <br>
-            <a class="buttonPost"> Error 413 : curl -v -X POST -d "$(head -c 20000 /dev/zero | tr '\0' 'A')" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Error 413 : curl -v -X POST -d "$(head -c 20000 /dev/zero | tr '\0' 'A')"
+                http://localhost:8080/upload</a>
             <br>
             <a class="buttonPost"> Error 400 : curl -v -X POST http://localhost:8080/upload</a>
             <br>
-            <a class="buttonPost"> Simple Multipart : echo "Hello World" > test.txt<br>curl -v -F "file=@test.txt" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Simple Multipart : echo "Hello World" > test.txt<br>curl -v -F "file=@test.txt"
+                http://localhost:8080/upload</a>
             <br>
-            <a class="buttonPost"> Complexe Multipart : echo "Hello World" > file1.txt<br>echo "Test2" > file2.txt<br>curl -v -F "file1=@file1.txt" -F "file2=@file2.txt" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Complexe Multipart : echo "Hello World" > file1.txt<br>echo "Test2" >
+                file2.txt<br>curl -v -F "file1=@file1.txt" -F "file2=@file2.txt" http://localhost:8080/upload</a>
             <br>
-            <a class="buttonPost"> Chunked : curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'5\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
+            <a class="buttonPost"> Chunked : curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked"
+                \--data-binary $'5\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
             <br>
-            <a class="buttonPost"> Chunked Error 400 :  curl -v http://localhost:8080/upload \-H "Transfer-Encoding: chunked" \--data-binary $'ZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
+            <a class="buttonPost"> Chunked Error 400 : curl -v http://localhost:8080/upload \-H "Transfer-Encoding:
+                chunked" \--data-binary $'ZZZ\r\nHello\r\n6\r\n World\r\n0\r\n\r\n'</a>
             <br>
-            <a class="buttonPost"> Image : curl -v -X POST -F "file=@server_files/html/image.png" http://localhost:8080/upload</a>
+            <a class="buttonPost"> Image : curl -v -X POST -F "file=@server_files/html/image.png"
+                http://localhost:8080/upload</a>
             <br>
         </div>
-</div>
+    </div>
 
-<div class="section"></div>
+    <div class="section"></div>
     <p class="delete">DELETE</p>
-     <div class="center-delete">
-            <a class="buttonDelete"> Simple DELETE : curl -v -X DELETE http://localhost:8080/file_to_delete.txt</a>
-            <br>
-            <a class="buttonDelete"> Error 404 : curl -v -X DELETE curl -v -X DELETE http://localhost:8080/uploads/nofile.txt</a>
-            <br>
-            <a class="buttonDelete"> Error 403 (chmod 000 file) : curl -v -X  curl -v -X DELETE http://localhost:8080/file_to_delete.txt</a>
-            <br>
-            <a class="buttonDelete"> Error 405 : curl -v -X DELETE http://localhost:8080/cgi/test.php
-</a>
-            <br>
-        </div>
-</div>
+    <div class="center-delete">
+        <a class="buttonDelete"> Simple DELETE : curl -v -X DELETE http://localhost:8080/file_to_delete.txt</a>
+        <br>
+        <a class="buttonDelete"> Error 404 : curl -v -X DELETE curl -v -X DELETE
+            http://localhost:8080/uploads/nofile.txt</a>
+        <br>
+        <a class="buttonDelete"> Error 403 (chmod 000 file) : curl -v -X curl -v -X DELETE
+            http://localhost:8080/file_to_delete.txt</a>
+        <br>
+        <a class="buttonDelete"> Error 405 : curl -v -X DELETE http://localhost:8080/cgi/test.php
+        </a>
+        <br>
+    </div>
+    </div>
 
 
-<div class="section">
-    <p class="cgi">CGI</p>
-    <div class="center-get">
+    <div class="section">
+        <p class="cgi">CGI</p>
+        <div class="center-get">
             <a class="buttonCgi"> CGI : curl -v http://localhost:8080/cgi/test.php</a>
             <br>
-            <a class="buttonCgi"> CGI with query : curl -v "http://localhost:8080/cgi/test.php?name=mlaussel&city=lyon"</a>
+            <a class="buttonCgi"> CGI with query : curl -v
+                "http://localhost:8080/cgi/test.php?name=mlaussel&city=lyon"</a>
             <br>
-            <a class="buttonCgi"> CGI POST : curl -v -X POST http://localhost:8080/cgi/test.php -d "name=John&age=30"</a>
+            <a class="buttonCgi"> CGI POST : curl -v -X POST http://localhost:8080/cgi/test.php -d
+                "name=John&age=30"</a>
             <br>
 
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>o

@@ -15,6 +15,8 @@ typedef struct locationsConfigS
     std::string upload_dir;
     std::string cgiExtension;
     std::string cgiBinary;
+    std::string returnPath;
+    int returnCode;
 } locationsT;
 
 typedef struct serverConfigS

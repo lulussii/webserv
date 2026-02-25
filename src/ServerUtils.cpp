@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/23 16:52:02 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 15:58:04 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ void Server::_handleClientActivity(int i)
 			if (client.requestComplete && response.infos.error == false)
 			{
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
-				requestMainNew(request, currentConfig, response);
+				requestMain(request, currentConfig, response);
 			}
 
 			// STEP 3 : CGI
@@ -235,6 +235,8 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
 		newLoc.autoindex = (curr._autoIndex == 1) ? "on" : "off";
 		newLoc.cgiBinary = curr._cgiBinary;
 		newLoc.cgiExtension = curr._cgiExtension;
+		newLoc.returnPath = curr._returnPath;
+		newLoc.returnCode = curr._returnCode;
 
 		if (curr._allowGet)
 			newLoc.methods.push_back("GET");

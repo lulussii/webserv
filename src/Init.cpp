@@ -6,7 +6,7 @@
 /*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/13 08:45:27 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/22 19:08:03 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/25 17:02:52 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void initResponse(responseT &response)
     response.errorTxt[200] = "OK";
     response.errorTxt[201] = "Created";
     response.errorTxt[204] = "No Content";
+    response.errorTxt[301] = "Moved Permanently";
+    response.errorTxt[303] = "See Other";
     response.errorTxt[400] = "Bad Request";
     response.errorTxt[403] = "Forbidden";
     response.errorTxt[404] = "Not Found";

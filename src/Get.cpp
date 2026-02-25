@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 16:51:16 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 17:16:17 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <unistd.h>   //read
 #include <dirent.h>
 #include <errno.h> //errno
+
+
 
 /**
  * @brief `Build the file path`
@@ -117,7 +119,6 @@ static void autoindex(responseT &response, serverT &serverConfig, request &reque
 
             response.contentLen = response.body.size();
             response.contentType = "text/html";
-            response.code = 200;
             closedir(dir);
         }
     }
@@ -282,6 +283,8 @@ void contentType(responseT &response, request &request)
 /**
  * @brief `GET method main`
  *
+ * step 0 : check if redirection with return
+ * 
  * step 1 : Build file path.
  *
  * step 2 : If CGI, do CGI part.
@@ -302,6 +305,17 @@ void contentType(responseT &response, request &request)
  */
 int getMain(request &request, responseT &response, serverT &serverConfig)
 {
+   
+    if (!response.location.returnPath.empty())
+    {
+        request._url = response.location.returnPath;
+        response.code = response.location.returnCode;
+        response.contentType = "text/html";
+        response.body = "<html><head><title>301 Moved Permanently</title></head><body>Redirecting to <a herf=\"" +  response.location.returnPath + "\"></a>";
+        response.contentLen = response.body.size();
+        return (0);
+    }
+    
     pathBuild(response, serverConfig, request);
 
     if (existAndType(response, serverConfig) != 0)

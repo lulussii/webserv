@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Post.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 13:27:18 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 12:13:22 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 17:16:34 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,6 +248,8 @@ void prepareResponse(responseT &response, request request)
 /**
  * @brief `POST method main`
  *
+ * step 0 : Check if redirection
+ * 
  * step 1 : Check client_max_body_size
  *
  * step 2 : Check if request body exists
@@ -269,6 +271,15 @@ void postMain(request &request, responseT &response, serverT &serverConfig)
 {
     Multipart m;
 
+     if (!response.location.returnPath.empty())
+    {
+        request._url = response.location.returnPath;
+        response.code = 303;
+        response.contentType = "text/html";
+        response.body = "<html><head><title>303 See Other</title></head><body>Redirecting to <a herf=\"" +  response.location.returnPath + "\"></a>";
+        response.contentLen = response.body.size();
+        return ;
+    }
     if (clientMaxBodySize(serverConfig, request, response) == false)
     {
         errorCode(response, serverConfig, 413);

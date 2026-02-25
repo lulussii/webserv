@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/16 13:24:02 by mlaussel          #+#    #+#             */
-/*   Updated: 2026/02/23 16:51:31 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/25 16:14:00 by mathildelau      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,7 @@ bool checkIs(request &request, responseT &response)
  * step 6 : Verify that the request method is allowed in this location. 
  *
  */
-void requestMainNew(request &request, serverT &serverConfig, responseT &response)
+void requestMain(request &request, serverT &serverConfig, responseT &response)
 {
     std::cout << "[REQUEST] :\n" << request.lineRequest << std::endl;
     
@@ -230,7 +230,6 @@ void requestMainNew(request &request, serverT &serverConfig, responseT &response
        return ;
     }
    
-
     // step 3 : if POST method, read body
     if (request._method == "POST")
         postBody(request);
