@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 10:01:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/25 16:43:06 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/26 15:46:20 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ void Client::reset()
 	this->res.contentLen = 0;
 	this->res.contentType = "text/html";
 	this->res.infos.error = false;
+	this->cgiClient.isCgi = false;
 }
 
 long Client::getContentLength(const std::string &buffer)

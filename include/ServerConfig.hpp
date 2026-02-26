@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 09:53:53 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:36:02 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/26 12:19:45 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class ServerConfig
 		std::vector<Listen>			_listen;
 		int							_autoIndex;
 		std::map<int, std::string>	_errorPages;
+		std::vector<std::string>	_serverNames;
 		size_t						_clientMaxBodySize;
 		bool						_clientMaxBodySizeDefined;
 		std::string					_root;

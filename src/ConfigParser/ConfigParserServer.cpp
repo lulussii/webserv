@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:27:26 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:36:26 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/26 16:47:00 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,37 @@ void ConfigParser::parseBodySize(std::string &args, ServerConfig &server)
 	server._clientMaxBodySize = _parseBytes(value);
 
 	server._clientMaxBodySizeDefined = true;
+}
+
+void ConfigParser::parseServerNames(std::string &args, ServerConfig &server)
+{
+	std::stringstream ss(args);
+	std::string value;
+	bool foundSemicolon = false;
+
+	while (ss >> value)
+	{
+		if (value[0] == '#')
+			break;
+
+		if (value[value.size() - 1] == ';')
+		{
+			value.erase(value.size() - 1);
+			if (!value.empty())
+				server._serverNames.push_back(value);
+			foundSemicolon = true;
+			break;
+		}
+		else
+			server._serverNames.push_back(value);
+	}
+	
+	if (foundSemicolon == false)
+		_throwError("Syntax Error: server_name value must end with ';'");
+
+	std::string extra;
+	if (ss >> extra && extra[0] != '#')
+		_throwError("Syntax Error: Too many arguments for server_names");
 }
 
 void ConfigParser::parseErrorPage(std::string &args, ServerConfig &server)

@@ -6,7 +6,7 @@
 /*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:32:08 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/22 09:15:56 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/02/26 12:35:55 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,19 +97,17 @@ void Server::setup()
 		throw std::runtime_error("Fatal: No ports available.");
 }
 
-// new
 void Server::addFdToPoll(int fd, short events)
 {
-	// check if already exist
     for (int i = 0; i < MAX_TOTAL_FDS; i++)
     {
         if (_fds[i].fd == fd)
         {
-            _fds[i].events |= events; // add without delete other
+            _fds[i].events |= events;
             return;
         }
     }
-	//add if not exist
+	
 	for (int i = _nbListeningSockets; i < MAX_TOTAL_FDS; i++)
 	{
 		if (_fds[i].fd == -1)

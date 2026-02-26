@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiLoop.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/23 13:13:17 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/02/26 15:37:05 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,8 +265,13 @@ void Server::checkCgiProcess()
  */
 static void buildEnv(cgi &cgiClient, std::vector<std::string> &env, std::vector<char *> &envp)
 {
+	std::string scriptName = cgiClient.scriptPath;
+	size_t	lastSlash = scriptName.find_last_of('/');
+	if (lastSlash != std::string::npos)
+		scriptName = scriptName.substr(lastSlash + 1);
+
     env.push_back("REQUEST_METHOD=" + cgiClient.method);
-    env.push_back("SCRIPT_FILENAME=" + cgiClient.scriptPath);
+    env.push_back("SCRIPT_FILENAME=" + scriptName);
     env.push_back("QUERY_STRING=" + cgiClient.queryString);
     env.push_back("CONTENT_TYPE=" + cgiClient.contentType);
     env.push_back("CONTENT_LENGTH=" + cgiClient.contentLenght);
@@ -382,16 +387,29 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			close(cgiClient.writePipe[0]);
 			close(cgiClient.writePipe[1]);
 
-			char *args[] = {const_cast<char *>(cgiClient.binaryPath.c_str()), const_cast<char *>(cgiClient.scriptPath.c_str()), NULL};
-            std::vector<std::string> env;
-            std::vector<char *> envp;
-            buildEnv(cgiClient, env, envp);
+			std::string fullPath = cgiClient.scriptPath;
+			std::string	dir = "./";
+			std::string	fileName = fullPath;
 
-			std::string dir = cgiClient.scriptPath; // go in repertory of script
-			size_t pos = dir.rfind("/");
-			dir = dir.substr(0, pos + 1);
+			size_t pos = fullPath.rfind("/");
+			if (pos != std::string::npos)
+			{
+				dir = fullPath.substr(0, pos + 1);
+				fileName = fullPath.substr(pos + 1);
+			}
 			if (chdir(dir.c_str()) == -1)
 				std::cerr << "Error: Directory Cgi failed." << std::endl;
+
+			std::vector<std::string> env;
+			std::vector<char *> envp;
+
+			buildEnv(cgiClient, env, envp);
+
+			char *args[] = {
+					const_cast<char *>(cgiClient.binaryPath.c_str()),
+					const_cast<char *>(fileName.c_str()),
+					NULL
+			};
 			
 			execve(cgiClient.binaryPath.c_str(), args, envp.data());
 			std::cerr << "Error: Execve failed." << std::endl;

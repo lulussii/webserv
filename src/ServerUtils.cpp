@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/25 15:58:04 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/02/26 16:44:26 by lserodon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,12 +98,12 @@ void Server::_handleClientActivity(int i)
 	Client &client = _clients[fd];
 	int clientPort = client.getServerPort();
 	cgi &cgiClient = client.cgiClient;
+	
 	serverT *confPtr = &_refinedConfigs[0];
-
-	bool	found = false;
+	bool found = false;
 	for (size_t j = 0; j < _refinedConfigs.size(); j++)
 	{
-		for(size_t k = 0; (k < _refinedConfigs[j].listens.size()); k++)
+		for(size_t k = 0; k < _refinedConfigs[j].listens.size(); k++)
 		{
 			if (_refinedConfigs[j].listens[k].port == clientPort)
 			{
@@ -116,75 +116,109 @@ void Server::_handleClientActivity(int i)
 			break;
 	}
 
-	serverT	&currentConfig = *confPtr;
-	currentConfig.listen = clientPort;
+	confPtr->listen = clientPort;
 	
 	try
 	{
 		request request;
 		response response;
 
-		// STEP 0 : INIT
 		initMain(request, response);
-
-		if (_fds[i].revents & POLLIN) // READ OK
+		if (_fds[i].revents & POLLIN) 
 		{
-			// STEP 1 : RECUPERE REQUEST REQUEST
 			if (!client.requestComplete && response.infos.error == false)
 				client.requestLine(request);
-
-
-			// STEP 2 : REQUEST PARSING (need it to know if CGI)
 			if (client.requestComplete && response.infos.error == false)
 			{
 				std::cout << "[INFO] Request complete. Processing..." << std::endl;
-				requestMain(request, currentConfig, response);
-			}
+				
+				std::string rawRequest = request.lineRequest; 
+				std::string hostName = "";
+				
+				size_t hostPos = rawRequest.find("Host: ");
+				if (hostPos == std::string::npos) hostPos = rawRequest.find("host: ");
+				
+				if (hostPos != std::string::npos) {
+					hostPos += 6;
+					size_t endPos = rawRequest.find_first_of("\r\n", hostPos);
+					std::string fullHost = rawRequest.substr(hostPos, endPos - hostPos);
 
-			// STEP 3 : CGI
-			if (client.requestComplete && isCgi(request, cgiClient, response, currentConfig) == true && response.infos.error == false)
+					fullHost.erase(0, fullHost.find_first_not_of(" \t"));
+					fullHost.erase(fullHost.find_last_not_of(" \t") + 1);
+
+					size_t colon = fullHost.find(':');
+					if (colon != std::string::npos)
+   						hostName = fullHost.substr(0, colon);
+					else
+ 						hostName = fullHost;
+				}
+				if (!hostName.empty()) {
+					for (size_t j = 0; j < _refinedConfigs.size(); j++) {
+						bool matchPort = false;
+						for (size_t k = 0; k < _refinedConfigs[j].listens.size(); k++) {
+							if (_refinedConfigs[j].listens[k].port == clientPort) {
+								matchPort = true;
+								break;
+							}
+						}
+
+						if (matchPort) {
+							bool nameFound = false;
+							for (size_t n = 0; n < _refinedConfigs[j].servernames.size(); n++) {
+								
+								if (_refinedConfigs[j].servernames[n] == hostName) {
+									nameFound = true;
+									break;
+								}
+							}
+							if (nameFound) {
+								confPtr = &_refinedConfigs[j];
+								break;  
+							} 
+						}
+					}
+				}
+				requestMain(request, *confPtr, response);
+			}
+			if (client.requestComplete && isCgi(request, cgiClient, response, *confPtr) == true && response.infos.error == false)
 			{
 				std::cout << "[INFO] Is CGI " << std::endl;
 				if (request._method == "DELETE")
-					errorCode(response, currentConfig, 405);
+					errorCode(response, *confPtr, 405);
 				int value = accessCgi(cgiClient);
-				if (value == 0 && response.infos.error == false) // check access cgi
+				if (value == 0 && response.infos.error == false) 
 				{
 					if (cgiClient.pid == -1)
 					{
-						handleCgi(request, cgiClient, currentConfig, response);
+						handleCgi(request, cgiClient, *confPtr, response);
 						forkCgi(cgiClient, client);
 					}
 				}
 				else
 				{
 					if (value == 404)
-						errorCode(response, currentConfig, 404);
+						errorCode(response, *confPtr, 404);
 					if (value == 403)
-						errorCode(response, currentConfig, 403);
+						errorCode(response, *confPtr, 403);
 				}
 			}
-
-			// STEP 4 : STATIC METHOD : GET POST DELETE
-			else if (cgiClient.isCgi == false && response.infos.error == false)
-				client.handleRead(currentConfig, request, response);
-
-			// STEP 5 : build error response
-			if (response.infos.error == true)
+			else if (client.requestComplete && cgiClient.isCgi == false && response.infos.error == false)
+				client.handleRead(*confPtr, request, response);
+			if (client.requestComplete && response.infos.error == true)
 			{
 				responseMain(request, response);
 				client.writeBuffer = response.response;
 				client.isReadyToWrite = true;
 			}
-		}
-
-		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) // WRITE OK
+		} 
+		if ((_fds[i].revents & POLLOUT) && client.isReadyToWrite) 
 			client.handleWrite();
+			
 		if (client.isReadyToWrite)
 			_fds[i].events = POLLIN | POLLOUT;
 		else
 			_fds[i].events = POLLIN;
-	}
+	}   
 	catch (std::exception &e)
 	{
 		std::cerr << "[INFO] Client error: " << e.what() << " (FD: " << fd << ")" << std::endl;
@@ -220,6 +254,7 @@ serverT Server::_convertConfig(const ServerConfig &myConfig)
 		newConfig.listen = 8080;
 	}
 
+	newConfig.servernames = myConfig._serverNames;
 	newConfig.root = myConfig._root;
 	newConfig.clientMaxBodySize = myConfig._clientMaxBodySize;
 	newConfig.errorPage = myConfig._errorPages;
