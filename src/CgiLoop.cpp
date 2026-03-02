@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/03/02 10:52:05 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/03/02 11:45:42 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -376,11 +376,10 @@ int Server::forkCgi(cgi &cgiClient, Client &client)
 
 		else if (cgiClient.pid == 0) // child
 		{
-			int test = -1;
 			if (dup2(cgiClient.writePipe[0], STDIN_FILENO) == -1)
-                std::cerr << "Error: dup2 failed." << std::endl;
-			if (dup2(test, STDOUT_FILENO) == -1)
-                std::cerr << "Error: dup2 failed." << std::endl;
+				std::cerr << "Error: dup2 failed." << std::endl;
+			if (dup2(cgiClient.readPipe[1], STDOUT_FILENO) == -1)
+				std::cerr << "Error: dup2 failed." << std::endl;
 			close(cgiClient.readPipe[0]);
 			close(cgiClient.readPipe[1]);
 			close(cgiClient.writePipe[0]);
@@ -409,11 +408,10 @@ int Server::forkCgi(cgi &cgiClient, Client &client)
 					const_cast<char *>(fileName.c_str()),
 					NULL
 			};
-			
 			execve(cgiClient.binaryPath.c_str(), args, envp.data());
-			std::cerr << "Error: Execve failed." << std::endl;
-			kill(getpid(), SIGTERM);
+			throw (-42);
 		}
+		
 		else // parent
 		{
 			cgiClient.clientFd = client.fd;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 09:47:55 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/22 09:42:36 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/03/02 11:43:53 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,15 @@ int main(int argc, char **argv)
 		Server 			webServ(configs);
 		webServ.setup();
 		webServ.run();
-	} catch (const std::exception &e) {
+	} 
+	catch (const std::exception &e)
+	{
 		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	catch (const int &e)
+	{
+		std::cerr <<"execve failed" << std::endl;
 		return 1;
 	}
 	return 0;
