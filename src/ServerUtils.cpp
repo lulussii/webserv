@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:54:01 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/26 16:44:26 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/03/02 10:34:35 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,11 +89,11 @@ void Server::_acceptNewConnection(int listeningIndex)
 	}
 }
 
-void Server::_handleClientActivity(int i)
+int Server::_handleClientActivity(int i)
 {
 	int fd = _fds[i].fd;
 	if (_clients.find(fd) == _clients.end())
-		return;
+		return (0);
 
 	Client &client = _clients[fd];
 	int clientPort = client.getServerPort();
@@ -191,7 +191,8 @@ void Server::_handleClientActivity(int i)
 					if (cgiClient.pid == -1)
 					{
 						handleCgi(request, cgiClient, *confPtr, response);
-						forkCgi(cgiClient, client);
+						if (forkCgi(cgiClient, client) == -1)
+							return (-1);
 					}
 				}
 				else
@@ -224,6 +225,7 @@ void Server::_handleClientActivity(int i)
 		std::cerr << "[INFO] Client error: " << e.what() << " (FD: " << fd << ")" << std::endl;
 		_closeConnection(i);
 	}
+	return (0);
 }
 
 void Server::_closeConnection(int index)

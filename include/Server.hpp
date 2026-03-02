@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:06:16 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 11:51:23 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/03/02 10:33:26 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ class Server
 
 		int		_createServerSocket(int port);
 		void	_acceptNewConnection(int serverFd);
-		void	_handleClientActivity(int i);
+		int	_handleClientActivity(int i);
 		void	_closeConnection(int i);
 		void	_checkTimeouts();
 		
@@ -78,7 +78,7 @@ class Server
 		void handleCgiWrite(int fd);
 		void checkCgiProcess();
 
-		void forkCgi(cgi &cgiClient, Client &client);
+		int forkCgi(cgi &cgiClient, Client &client);
 		/*END CGI PART*/
 
 		void addFdToPoll(int fd, short events);

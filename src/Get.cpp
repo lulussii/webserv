@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/06 15:38:59 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/03/02 09:44:56 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/03/02 10:17:38 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,9 +311,7 @@ int getMain(request &request, responseT &response, serverT &serverConfig)
         request._url = response.location.returnPath;
         response.code = response.location.returnCode;
         response.contentType = "text/html";
-        std::cout << "ICI : " << response.location.returnPath << std::endl;
         response.body = "<html><head><title>301 Moved Permanently</title></head><body><h1>301 Moved Permanently</h1>Redirecting to <a href=\"" +  response.location.returnPath + "\">" + response.location.returnPath + "</a></body></html>";
-        std::cout << response.body << std::endl;
         response.contentLen = response.body.size();
         return (0);
     }

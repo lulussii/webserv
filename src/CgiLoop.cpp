@@ -6,7 +6,7 @@
 /*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/03/02 09:07:24 by mlaussel         ###   ########.fr       */
+/*   Updated: 2026/03/02 10:52:05 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,7 +315,7 @@ static void buildEnv(cgi &cgiClient, std::vector<std::string> &env, std::vector<
  *        * Extract the directory path from the full script path.
  *        * If chdir fails, print an error message.
  *    - Execute the CGI binary with execve(), passing the binary path, arguments, and environment.
- *        * If execve fails, print an error message.
+ *        * If execve fails, print an error message + kill immediatly (SIGTERM) child
  *
  * 6. Parent process (pid > 0):
  *    - Associate the client file descriptor with the CGI process.
@@ -345,10 +345,10 @@ static void buildEnv(cgi &cgiClient, std::vector<std::string> &env, std::vector<
  * 10. Mark the client as not ready to write:
  *    - Set client.isReadyToWrite to false until the CGI response is ready.
  */
-void Server::forkCgi(cgi &cgiClient, Client &client)
+int Server::forkCgi(cgi &cgiClient, Client &client)
 {
 	if (cgiClient.pid != -1)
-		return;
+		return (0);
 
 	if (cgiClient.pid == -1)
 	{
@@ -358,7 +358,8 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			close(cgiClient.writePipe[1]);
 			close(cgiClient.readPipe[0]);
 			close(cgiClient.readPipe[1]);
-			throw std::runtime_error("Pipe error");
+			std::cerr << "Pipe error\n";
+			return (-1);
 		}
 
 		cgiClient.pid = fork();
@@ -369,14 +370,16 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			close(cgiClient.writePipe[1]);
 			close(cgiClient.readPipe[0]);
 			close(cgiClient.readPipe[1]);
-			throw std::runtime_error("Fork error");
+			std::cerr << "Fork error\n";
+			return (-1);
 		}
 
 		else if (cgiClient.pid == 0) // child
 		{
+			int test = -1;
 			if (dup2(cgiClient.writePipe[0], STDIN_FILENO) == -1)
                 std::cerr << "Error: dup2 failed." << std::endl;
-			if (dup2(cgiClient.readPipe[1], STDOUT_FILENO) == -1)
+			if (dup2(test, STDOUT_FILENO) == -1)
                 std::cerr << "Error: dup2 failed." << std::endl;
 			close(cgiClient.readPipe[0]);
 			close(cgiClient.readPipe[1]);
@@ -409,6 +412,7 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			
 			execve(cgiClient.binaryPath.c_str(), args, envp.data());
 			std::cerr << "Error: Execve failed." << std::endl;
+			kill(getpid(), SIGTERM);
 		}
 		else // parent
 		{
@@ -461,4 +465,5 @@ void Server::forkCgi(cgi &cgiClient, Client &client)
 			client.isReadyToWrite = false;
 		}
 	}
+	return (0);
 }

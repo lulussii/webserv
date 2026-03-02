@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Run.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mathildelaussel <mathildelaussel@studen    +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 14:53:40 by lserodon          #+#    #+#             */
-/*   Updated: 2026/02/21 14:57:09 by mathildelau      ###   ########.fr       */
+/*   Updated: 2026/03/02 10:37:27 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,13 @@ void Server::run()
 				handleCgiWrite(fd);
 				
 			if (_clients.count(fd))
-				_handleClientActivity(i);
+			{
+				if (_handleClientActivity(i) == -1)
+				{
+					removeFdFromPoll(fd);
+					close(fd);
+				}
+			}
 		}
 
 		checkCgiProcess();
