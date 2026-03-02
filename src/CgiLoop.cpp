@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiLoop.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lserodon <lserodon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mlaussel <mlaussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/21 11:08:12 by mathildelau       #+#    #+#             */
-/*   Updated: 2026/02/26 15:37:05 by lserodon         ###   ########.fr       */
+/*   Updated: 2026/03/02 09:07:24 by mlaussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,11 +55,7 @@ void Server::handleCgiRead(int fd)
 	if (n > 0)
 		cgiClient->response.append(buffer, n);
 
-    
-    int status;
-    pid_t result = waitpid(cgiClient->pid, &status, WNOHANG);
-
-    if (result == cgiClient->pid || n == 0)
+	if (n == 0)
 	{
 		close(fd);
 		removeFdFromPoll(fd);
